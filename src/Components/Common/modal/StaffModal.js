@@ -18,7 +18,7 @@ import ImgCrop from "antd-img-crop";
 import moment from "moment/moment";
 import { customToastMsg, handleError } from "../../../common/commonFunctions";
 // import * as staffService from "../../../service/staffService";
-// import * as roleAndPermssionService from "../../../service/roleAndPermissionService";
+import * as rolePermssionService from "../../../service/rolePermissionService";
 // import * as fileService from "../../../service/fileService";
 import { useDispatch } from "react-redux";
 // import { hideLoader, showLoader } from "../../../slices/loader/loader";
@@ -29,9 +29,6 @@ import { useDispatch } from "react-redux";
 const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [employeeNo, setEmployeeNo] = useState("");
-  const [position, setPosition] = useState("");
-  const [DOB, setDOB] = useState("");
   const [email, setEmail] = useState("");
   const [contactNo, setContactNo] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -47,7 +44,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // getAllRoles();
+    getAllRoles();
     // getAllCountries();
     console.log(updateValue, "---------------------");
     if (updateValue != undefined || updateValue != []) {
@@ -104,25 +101,28 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   };
 
   const getAllRoles = async () => {
-    // setRoleList([]);
+    setRoleList([]);
     // dispatch(showLoader(true));
-    // await roleAndPermssionService
-    //   .getAllRoles()
-    //   .then((res) => {
-    //     let temp = [];
-    //     res?.records.map((role, index) => {
-    //       if (role.status === 1 && ![4].includes(role.id)) {
-    //         temp.push({ value: role.id, label: role.name });
-    //       }
-    //     });
-    //     console.log(temp, "000000");
-    //     setRoleList(temp);
-    //     dispatch(hideLoader(false));
-    //   })
-    //   .catch((err) => {
-    //     handleError(err);
-    //     dispatch(hideLoader(false));
-    //   });
+    const withPermission = false;
+    await rolePermssionService
+      .getAllRoles(withPermission)
+      .then((res) => {
+        console.log(res, "roles");
+        let temp = [];
+        res?.data.map((role, index) => {
+          if (role.status === 1 && ![4].includes(role.id)) {
+            temp.push({ value: role.id, label: role.name });
+          }
+        });
+        //     console.log(temp, "000000");
+        setRoleList(temp);
+        //     dispatch(hideLoader(false));
+      })
+      .catch((err) => {
+        console.log(err);
+        handleError(err);
+        // dispatch(hideLoader(false));
+      });
   };
 
   const getAllCountries = async () => {
@@ -178,7 +178,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       : selectedRole === ""
       ? customToastMsg("Select role")
       : selectedCountry === ""
-      ? customToastMsg("Select date of birth")
+      ? customToastMsg("Country cannot be empty")
       : contactNo === ""
       ? customToastMsg("Contact number cannot be empty")
       : (isValidated = true);

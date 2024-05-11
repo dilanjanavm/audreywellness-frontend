@@ -21,8 +21,8 @@ import RegistrationTwo from "../pages/Authentication/RegistrationStep02";
 // import Products from "../pages/Pages/Products/Products";
 import ConfirmOtp from "../pages/Authentication/ConfirmOtp";
 // import UserManagement from "../pages/Pages/User Mangement/UserManagement";
-import StaffManagement from "../pages/User Mangement/StaffManagement";
-import CustomerManagement from "../pages/User Mangement/CustomerManagement";
+import StaffManagement from "../pages/UserMangement/StaffManagement";
+import CustomerManagement from "../pages/UserMangement/CustomerManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
