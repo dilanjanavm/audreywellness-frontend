@@ -59,14 +59,21 @@ export const StaffTableColumns = [
     title: "Name",
     dataIndex: "name",
     key: "name",
-    width: "15%",
+    width: "14%",
     ellipsis: true,
   },
   {
     title: "Email",
     dataIndex: "email",
     key: "email",
-    width: "25%",
+    width: "23%",
+    ellipsis: true,
+  },
+  {
+    title: "Role ",
+    dataIndex: "roleName",
+    key: "roleName",
+    width: "15%",
     ellipsis: true,
   },
   {

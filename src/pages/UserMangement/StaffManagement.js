@@ -44,8 +44,8 @@ const StaffManagement = () => {
         email: record.user.email,
         status: record.user.status,
         contactNo: record.user.staff?.contactNo ? "" : "empty",
-        // address: record.address,
         role: record.user?.role,
+        roleName: record.user.role.name,
         action: (
           <>
             <Button

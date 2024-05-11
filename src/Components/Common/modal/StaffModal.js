@@ -17,14 +17,14 @@ import { Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import moment from "moment/moment";
 import { customToastMsg, handleError } from "../../../common/commonFunctions";
-// import * as staffService from "../../../service/staffService";
+import * as staffService from "../../../service/staffService";
 import * as rolePermssionService from "../../../service/rolePermissionService";
-// import * as fileService from "../../../service/fileService";
+import * as fileService from "../../../service/fileService";
+import * as countryService from "../../../service/countryService";
 import { useDispatch } from "react-redux";
 // import { hideLoader, showLoader } from "../../../slices/loader/loader";
 // import { PhoneInput } from "react-international-phone";
 // import "react-international-phone/style.css";
-// import { countries } from "../../../common/countryList";
 
 const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const [firstName, setFirstName] = useState("");
@@ -45,7 +45,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
   useEffect(() => {
     getAllRoles();
-    // getAllCountries();
+    getAllCountries();
     console.log(updateValue, "---------------------");
     if (updateValue != undefined || updateValue != []) {
       // setDataToInputs();
@@ -107,7 +107,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     await rolePermssionService
       .getAllRoles(withPermission)
       .then((res) => {
-        console.log(res, "roles");
         let temp = [];
         res?.data.map((role, index) => {
           if (role.status === 1 && ![4].includes(role.id)) {
@@ -126,7 +125,19 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   };
 
   const getAllCountries = async () => {
-    // setCountryList([]);
+    console.log("triggerd");
+    setCountryList([]);
+    await countryService
+      .getAll((res) => {
+        console.log(res, "cccccccccccccccc");
+        res.data.map((country, index) => {
+          temp.push({ value: country.dial_code, label: country.country_name });
+        });
+        setCountryList(temp);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
     // dispatch(showLoader(true));
     // let temp = [];
     // countries.map((country, index) => {
@@ -177,46 +188,40 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       ? customToastMsg("Email cannot be empty")
       : selectedRole === ""
       ? customToastMsg("Select role")
-      : selectedCountry === ""
-      ? customToastMsg("Country cannot be empty")
-      : contactNo === ""
+      : // : selectedCountry === ""
+      // ? customToastMsg("Country cannot be empty")
+      contactNo === ""
       ? customToastMsg("Contact number cannot be empty")
       : (isValidated = true);
 
-      
     const data = {
       firstName: firstName,
       lastName: lastName,
-      user: {
-        email: email,
-        contactNo: contactNo,
-        country: selectedCountry,
-        role: {
-          id: `${selectedRole}`,
-        },
-
-        photo: userImage,
-      },
+      email: email,
+      contactNo: contactNo,
+      // country: selectedCountry,
+      roleId: `${selectedRole}`,
+      photo: userImage,
     };
     console.log(data, "create data staff");
 
     if (isValidated) {
-      // staffService
-      //   .create(data)
-      //   .then(async (res) => {
-      //     // clearInputs();
-      //     // await toggle();
-      //     // await customToastMsg("Staff create successfully", 1);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //     handleError(err);
-      //   });
+      staffService
+        .create(data)
+        .then(async (res) => {
+          console.log(res, "creatd response");
+          // clearInputs();
+          // await toggle();
+          // await customToastMsg("Staff create successfully", 1);
+        })
+        .catch((err) => {
+          console.log(err);
+          handleError(err);
+        });
     }
   };
   const handleUpdateNewUser = () => {
     let isValidated = false;
-    const formattedDOB = moment(DOB).format("YYYY-MM-DD HH:mm:ss.SSSSSS");
     userImage === ""
       ? customToastMsg("Upload user image first")
       : firstName === ""

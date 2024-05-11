@@ -182,7 +182,7 @@ const CustomerManagement = () => {
     <div className="page-content">
       <Container fluid>
         <div className="row mt-3">
-          <h4>Member Management</h4>
+          <h4>Customer Management</h4>
         </div>
         <Card>
           <Row className="mt-5 mx-2">
