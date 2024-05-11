@@ -183,6 +183,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       ? customToastMsg("Contact number cannot be empty")
       : (isValidated = true);
 
+      
     const data = {
       firstName: firstName,
       lastName: lastName,
