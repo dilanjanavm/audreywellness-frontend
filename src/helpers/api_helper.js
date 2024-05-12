@@ -4,7 +4,6 @@ import * as  constants from "../common/constants";
 
 export const getLoggedinUser = () => {
     const user = Cookies.get(constants.ACCESS_TOKEN);
-    console.log('getLoggedUser')
     if (!user) {
         return null;
     } else {

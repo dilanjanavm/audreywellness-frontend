@@ -29,7 +29,7 @@ export const loginUser = (user, history) => async (dispatch) => {
         Cookies.set(constant.Expire_time, res.expire_time);
         window.location.href = "/dashboard";
         console.log(res);
-        // sessionStorage.setItem("authUser", JSON.stringify(tempVariable));
+        sessionStorage.setItem("authUser", JSON.stringify(res.data));
         // dispatch(loginSuccess(tempVariable));
       })
       .catch((c) => {

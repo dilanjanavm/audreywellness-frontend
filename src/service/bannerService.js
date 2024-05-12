@@ -1,0 +1,21 @@
+import ApiService from "./apiService";
+
+export async function getAll() {
+  const apiObject = {};
+  apiObject.method = "GET";
+  apiObject.authentication = true;
+  apiObject.endpoint = "api/banner/find-all";
+  return await ApiService.callApi(apiObject);
+}
+
+
+export async function create(data) {
+  const apiObject = {};
+  apiObject.method = "POST";
+  apiObject.authentication = false;
+  apiObject.urlencoded = false;
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = "api/banner/create";
+  apiObject.body = data;
+  return await ApiService.callApi(apiObject);
+}

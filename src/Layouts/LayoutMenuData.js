@@ -270,6 +270,23 @@ const Navdata = () => {
         },
       ],
     },
+
+    //=============Banner Management=======================
+
+    {
+      id: "apps",
+      label: "Banners",
+      icon: <FeatherIcon icon="layout" className="icon-dual" />,
+      link: "/banner-management",
+      click: function (e) {
+        e.preventDefault();
+        setIsApps(!isApps);
+        setIscurrentState("Apps");
+        updateIconSidebar(e);
+      },
+      stateVariables: isApps,
+    },
+   
     // {
     // id: "authentication",
     // label: "Authentication",
