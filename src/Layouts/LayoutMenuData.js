@@ -232,7 +232,7 @@ const Navdata = () => {
     {
       id: "productManagement",
       label: "Product Management",
-      icon: <FeatherIcon icon="users" className="icon-dual" />,
+      icon: <FeatherIcon icon="grid" className="icon-dual" />,
       link: "/product-management",
       click: function (e) {
         e.preventDefault();
@@ -244,7 +244,7 @@ const Navdata = () => {
       subItems: [
         {
           id: "exampleManagement",
-          label: "Example Management",
+          label: "Add New Product",
           icon: <FeatherIcon icon="grid" className="icon-dual" />,
           link: "/example-management",
           click: function (e) {
