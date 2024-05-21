@@ -16,17 +16,24 @@ import { countDescription, handleError } from "../../common/commonFunctions";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Menu } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
+import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 
 const AddNewProduct = () => {
   const [productName, setProductName] = useState("");
-  const [selectedProductCategory, setSelectedProductCategory] = useState("");
-  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [selectedProductCategoryName, setSelectedProductCategoryName] =
+    useState("");
+  const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
   const [categoryList, setCategoryList] = useState([]);
   const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
 
+  const [attributesAndTagList, setAttributesAndTagList] = useState([]);
+
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
+    loadAllAttributesWithTags();
   }, []);
 
   const loadAllCategoriesWithSubCategories = () => {
@@ -53,14 +60,27 @@ const AddNewProduct = () => {
       });
   };
 
+  const loadAllAttributesWithTags = () => {
+    setAttributesAndTagList([]);
+    getAllAttributesWithTags()
+      .then((res) => {
+        setAttributesAndTagList(res.data);
+      })
+      .catch((err) => {
+        handleError(err);
+      });
+  };
+
   const handleMenuClick = ({ key, item }) => {
+    console.log(key, item);
+    setSelectedCategoryId(key);
     const parentLabel = item.props.parentLabel;
     if (parentLabel) {
-      setSelectedProductCategory(parentLabel);
-      setSelectedSubCategory(item.props.label); // Set the subcategory name
+      setSelectedProductCategoryName(parentLabel);
+      setSelectedSubCategoryName(item.props.label); // Set the subcategory name
     } else {
-      setSelectedProductCategory(item.props.label);
-      setSelectedSubCategory(""); // Clear the subcategory name
+      setSelectedProductCategoryName(item.props.label);
+      setSelectedSubCategoryName(""); // Clear the subcategory name
     }
   };
 
@@ -70,21 +90,57 @@ const AddNewProduct = () => {
         category.children ? (
           <Menu.SubMenu key={category.key} title={category.label}>
             {category.children.map((subCategory) => (
-              <Menu.Item key={subCategory.key} parentLabel={category.label} label={subCategory.label}>
+              <Menu.Item
+                key={subCategory.key}
+                parentLabel={category.label}
+                label={subCategory.label}
+              >
                 {subCategory.label}
               </Menu.Item>
             ))}
           </Menu.SubMenu>
         ) : (
-          <Menu.Item key={category.key} label={category.label}>{category.label}</Menu.Item>
+          <Menu.Item key={category.key} label={category.label}>
+            {category.label}
+          </Menu.Item>
         )
       )}
     </Menu>
   );
 
-  const displayCategory = selectedSubCategory
-    ? `${selectedProductCategory} > ${selectedSubCategory}`
-    : selectedProductCategory || "Select...";
+  const displayCategory = selectedSubCategoryName
+    ? `${selectedProductCategoryName} > ${selectedSubCategoryName}`
+    : selectedProductCategoryName || "Select...";
+
+  const renderAttributeDropdowns = () => {
+    return attributesAndTagList.map((attribute) => {
+      if (!attribute.isDefault) {
+        return (
+          <FormGroup className="col-3" key={attribute.id}>
+            <Label>{attribute.name}</Label>
+            <Dropdown
+              overlay={
+                <Menu>
+                  {attribute.tags.map((tag) => (
+                    <Menu.Item key={tag.id}>{tag.name}</Menu.Item>
+                  ))}
+                </Menu>
+              }
+            >
+              <Button
+                className="w-100 text-start"
+                style={{ color: "#878a99", height: 40 }}
+              >
+                <span style={{ width: "95%" }}>Select...</span>
+                <DownOutlined />
+              </Button>
+            </Dropdown>
+          </FormGroup>
+        );
+      }
+      return null;
+    });
+  };
 
   return (
     <div className="page-content">
@@ -258,6 +314,14 @@ const AddNewProduct = () => {
                 </div>
               </FormGroup>
             </Row>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <h6>Product Attributes</h6>
+          </CardHeader>
+          <CardBody>
+            <Row>{renderAttributeDropdowns()}</Row>
           </CardBody>
         </Card>
       </Container>
