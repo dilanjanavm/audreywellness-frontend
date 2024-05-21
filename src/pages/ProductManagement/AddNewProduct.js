@@ -30,11 +30,15 @@ const AddNewProduct = () => {
   const [manufactureDetails, setManufactureDetails] = useState("");
 
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
+  const [selectedTags, setSelectedTags] = useState({});
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
     loadAllAttributesWithTags();
   }, []);
+  useEffect(() => {
+    console.log(selectedTags, "selected tag list");
+  }, [selectedTags]);
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -112,6 +116,14 @@ const AddNewProduct = () => {
     ? `${selectedProductCategoryName} > ${selectedSubCategoryName}`
     : selectedProductCategoryName || "Select...";
 
+  const handleTagSelection = (attributeId, tagId) => {
+    console.log(attributeId, "attibute", tagId, "tag");
+    setSelectedTags((prevSelectedTags) => ({
+      ...prevSelectedTags,
+      [attributeId]: tagId,
+    }));
+  };
+
   const renderAttributeDropdowns = () => {
     return attributesAndTagList.map((attribute) => {
       if (!attribute.isDefault) {
@@ -120,7 +132,9 @@ const AddNewProduct = () => {
             <Label>{attribute.name}</Label>
             <Dropdown
               overlay={
-                <Menu>
+                <Menu
+                  onClick={({ key }) => handleTagSelection(attribute.id, key)}
+                >
                   {attribute.tags.map((tag) => (
                     <Menu.Item key={tag.id}>{tag.name}</Menu.Item>
                   ))}
@@ -131,7 +145,13 @@ const AddNewProduct = () => {
                 className="w-100 text-start"
                 style={{ color: "#878a99", height: 40 }}
               >
-                <span style={{ width: "95%" }}>Select...</span>
+                <span style={{ width: "95%" }}>
+                  {selectedTags[attribute.id]
+                    ? attribute.tags.find(
+                        (tag) => tag.id === selectedTags[attribute.id]
+                      )?.name || "Select..."
+                    : "Select..."}
+                </span>
                 <DownOutlined />
               </Button>
             </Dropdown>
