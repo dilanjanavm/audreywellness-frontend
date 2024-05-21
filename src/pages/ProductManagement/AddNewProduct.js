@@ -14,12 +14,13 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../common/util";
 import { countDescription, handleError } from "../../common/commonFunctions";
 import { DownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Space, Menu } from "antd";
+import { Button, Dropdown, Menu } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 
 const AddNewProduct = () => {
   const [productName, setProductName] = useState("");
-  const [selectedProductCategory, setSelectedProductCategory] = useState(null);
+  const [selectedProductCategory, setSelectedProductCategory] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
@@ -40,6 +41,7 @@ const AddNewProduct = () => {
               ? cat.children.map((subCat) => ({
                   key: subCat.id,
                   label: subCat.name,
+                  parentLabel: cat.name,
                 }))
               : null,
         }));
@@ -51,9 +53,15 @@ const AddNewProduct = () => {
       });
   };
 
-  const handleMenuClick = ({ key }) => {
-    console.log(key);
-    setSelectedProductCategory(key);
+  const handleMenuClick = ({ key, item }) => {
+    const parentLabel = item.props.parentLabel;
+    if (parentLabel) {
+      setSelectedProductCategory(parentLabel);
+      setSelectedSubCategory(item.props.label); // Set the subcategory name
+    } else {
+      setSelectedProductCategory(item.props.label);
+      setSelectedSubCategory(""); // Clear the subcategory name
+    }
   };
 
   const renderMenu = (categories) => (
@@ -62,15 +70,21 @@ const AddNewProduct = () => {
         category.children ? (
           <Menu.SubMenu key={category.key} title={category.label}>
             {category.children.map((subCategory) => (
-              <Menu.Item key={subCategory.key}>{subCategory.label}</Menu.Item>
+              <Menu.Item key={subCategory.key} parentLabel={category.label} label={subCategory.label}>
+                {subCategory.label}
+              </Menu.Item>
             ))}
           </Menu.SubMenu>
         ) : (
-          <Menu.Item key={category.key}>{category.label}</Menu.Item>
+          <Menu.Item key={category.key} label={category.label}>{category.label}</Menu.Item>
         )
       )}
     </Menu>
   );
+
+  const displayCategory = selectedSubCategory
+    ? `${selectedProductCategory} > ${selectedSubCategory}`
+    : selectedProductCategory || "Select...";
 
   return (
     <div className="page-content">
@@ -93,24 +107,14 @@ const AddNewProduct = () => {
                   onChange={(e) => setProductName(e.target.value)}
                 />
               </FormGroup>
-              <FormGroup className="col-4 d-flex flex-column">
+              <FormGroup className="col-3 d-flex flex-column">
                 <Label for="productCategory">Select Product Category</Label>
                 <Dropdown overlay={renderMenu(categoryList)}>
                   <Button
                     className="w-100 text-start"
                     style={{ color: "#878a99", height: 40 }}
                   >
-                    <span style={{ width: "95%" }}>
-                      {selectedProductCategory
-                        ? categoryList.find(
-                            (cat) =>
-                              cat.key === selectedProductCategory ||
-                              cat.children?.some(
-                                (sub) => sub.key === selectedProductCategory
-                              )
-                          )?.label || "Select..."
-                        : "Select..."}
-                    </span>
+                    <span style={{ width: "95%" }}>{displayCategory}</span>
                     <DownOutlined />
                   </Button>
                 </Dropdown>
