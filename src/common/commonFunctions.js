@@ -199,13 +199,18 @@ export const customSweetAlertResolve = (
 };
 
 export const handleError = (c) => {
-  try {
-    // console.log(c);
-    c?.response?.data?.message?.message
-      ? customToastMsg(c?.response?.data?.message?.message, 0)
-      : customToastMsg("Sorry! Try again later", 0);
-  } catch (error) {
-    alert("console eka balannaaaaaaaaaaaaaaaaaaaaa");
-    console.log(error);
-  }
+  c?.response?.data?.message?.message
+    ? customToastMsg(c?.response?.data?.message?.message, 0)
+    : customToastMsg("Sorry! Try again later", 0);
+};
+
+export const countDescription = (description) => {
+  if (description === "") return 0;
+  // Remove HTML tags using regular expression
+  var strippedString = description.replace(/(<([^>]+)>)/gi, "");
+
+  // Count actual characters
+  var characterCount = strippedString.length;
+
+  return characterCount;
 };

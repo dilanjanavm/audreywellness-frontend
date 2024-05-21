@@ -243,10 +243,10 @@ const Navdata = () => {
       stateVariables: isProduct,
       subItems: [
         {
-          id: "exampleManagement",
+          id: "addNewProduct",
           label: "Add New Product",
           icon: <FeatherIcon icon="grid" className="icon-dual" />,
-          link: "/example-management",
+          link: "/create-product",
           click: function (e) {
             e.preventDefault();
             setIsProduct(!isProduct);
@@ -286,7 +286,7 @@ const Navdata = () => {
       },
       stateVariables: isApps,
     },
-   
+
     // {
     // id: "authentication",
     // label: "Authentication",

@@ -23,6 +23,7 @@ import ConfirmOtp from "../pages/Authentication/ConfirmOtp";
 // import UserManagement from "../pages/Pages/User Mangement/UserManagement";
 import StaffManagement from "../pages/UserMangement/StaffManagement";
 import CustomerManagement from "../pages/UserMangement/CustomerManagement";
+import AddNewProduct from "../pages/ProductManagement/AddNewProduct";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -41,6 +42,8 @@ const authProtectedRoutes = [
     component: <Navigate to="/dashboard" />,
   },
   { path: "*", component: <Navigate to="/dashboard" /> },
+
+   { path: "/create-product", component: <AddNewProduct /> },
 
   // { path: "/user-management", component: <UserManagement /> },
 

@@ -1,14 +1,13 @@
-import React from 'react';
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 //import Scss
-import './assets/scss/themes.scss';
+import "./assets/scss/themes.scss";
 
 //imoprt Route
-import Route from './Routes';
+import Route from "./Routes";
 
-
-import 'react-toastify/dist/ReactToastify.css';
-
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
