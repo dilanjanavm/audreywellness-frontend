@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -9,55 +9,68 @@ import {
   Label,
   Row,
 } from "reactstrap";
-import Select from "react-select";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../common/util";
-import { countDescription } from "../../common/commonFunctions";
+import { countDescription, handleError } from "../../common/commonFunctions";
 import { DownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Space } from "antd";
+import { Button, Dropdown, Space, Menu } from "antd";
+import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 
 const AddNewProduct = () => {
   const [productName, setProductName] = useState("");
-  const [selectedProductCategory, setSelectedProductCategory] = useState("");
+  const [selectedProductCategory, setSelectedProductCategory] = useState(null);
   const [categoryList, setCategoryList] = useState([]);
   const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
 
-  const items = [
-    {
-      key: "2",
-      label: "sub menu 1",
-      children: [
-        {
-          key: "2-1",
-          label: "3rd menu item",
-        },
-        {
-          key: "2-2",
-          label: "4th menu item",
-        },
-      ],
-    },
-    {
-      key: "2",
-      label: "sub menu 2",
-    },
-    {
-      key: "2",
-      label: "sub menu 3",
-      children: [
-        {
-          key: "2-1",
-          label: "3rd menu item",
-        },
-        {
-          key: "2-2",
-          label: "4th menu item",
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    loadAllCategoriesWithSubCategories();
+  }, []);
+
+  const loadAllCategoriesWithSubCategories = () => {
+    setCategoryList([]);
+    getAllCategoriesWithSubCategories()
+      .then((res) => {
+        const formattedCategories = res.data.map((cat) => ({
+          key: cat.id,
+          label: cat.name,
+          children:
+            cat.children.length > 0
+              ? cat.children.map((subCat) => ({
+                  key: subCat.id,
+                  label: subCat.name,
+                }))
+              : null,
+        }));
+        setCategoryList(formattedCategories);
+      })
+      .catch((err) => {
+        console.log(err);
+        handleError(err);
+      });
+  };
+
+  const handleMenuClick = ({ key }) => {
+    console.log(key);
+    setSelectedProductCategory(key);
+  };
+
+  const renderMenu = (categories) => (
+    <Menu onClick={handleMenuClick}>
+      {categories.map((category) =>
+        category.children ? (
+          <Menu.SubMenu key={category.key} title={category.label}>
+            {category.children.map((subCategory) => (
+              <Menu.Item key={subCategory.key}>{subCategory.label}</Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        ) : (
+          <Menu.Item key={category.key}>{category.label}</Menu.Item>
+        )
+      )}
+    </Menu>
+  );
 
   return (
     <div className="page-content">
@@ -80,41 +93,26 @@ const AddNewProduct = () => {
                   onChange={(e) => setProductName(e.target.value)}
                 />
               </FormGroup>
-              <FormGroup className="col-3 d-flex flex-column">
-                <Label for="productCategory">Select Product Category </Label>
-                {/* <Select
-                  id="productCategory"
-                  className="basic-single"
-                  classNamePrefix="select"
-                  isSearchable={true}
-                  isClearable
-                  value={
-                    categoryList.find(
-                      (option) => option.value === selectedProductCategory
-                    ) || null
-                  }
-                  onChange={(e) => {
-                    setSelectedProductCategory(
-                      e?.value === undefined ? "" : e.value
-                    );
-                  }}
-                  options={categoryList}
-                /> */}
-
-                <Dropdown
-                  menu={{
-                    items,
-                  }}
-                >
-                  <a onClick={(e) => e.preventDefault()}>
-                    <Button
-                      className="w-100 text-start "
-                      style={{ color: "#878a99", height: 40 }}
-                    >
-                      <span style={{ width: "95%" }}>Select...</span>
-                      <DownOutlined />
-                    </Button>
-                  </a>
+              <FormGroup className="col-4 d-flex flex-column">
+                <Label for="productCategory">Select Product Category</Label>
+                <Dropdown overlay={renderMenu(categoryList)}>
+                  <Button
+                    className="w-100 text-start"
+                    style={{ color: "#878a99", height: 40 }}
+                  >
+                    <span style={{ width: "95%" }}>
+                      {selectedProductCategory
+                        ? categoryList.find(
+                            (cat) =>
+                              cat.key === selectedProductCategory ||
+                              cat.children?.some(
+                                (sub) => sub.key === selectedProductCategory
+                              )
+                          )?.label || "Select..."
+                        : "Select..."}
+                    </span>
+                    <DownOutlined />
+                  </Button>
                 </Dropdown>
               </FormGroup>
             </Row>
@@ -122,15 +120,14 @@ const AddNewProduct = () => {
               <FormGroup className="col-6">
                 <div>
                   <div className="d-flex justify-content-between">
-                    {" "}
                     <Label>Product Description</Label>
                     {countDescription(productDes) > desMaxLimit ? (
-                      <span class="text-count  text-danger">
+                      <span className="text-count text-danger">
                         {countDescription(productDes)} of {desMaxLimit}{" "}
                         Characters
                       </span>
                     ) : (
-                      <span class="text-count text-muted">
+                      <span className="text-count text-muted">
                         {countDescription(productDes)} of {desMaxLimit}{" "}
                         Characters
                       </span>
@@ -191,15 +188,14 @@ const AddNewProduct = () => {
               <FormGroup className="col-6">
                 <div>
                   <div className="d-flex justify-content-between">
-                    {" "}
                     <Label>Manufacture Details</Label>
                     {countDescription(manufactureDetails) > desMaxLimit ? (
-                      <span class="text-count  text-danger">
+                      <span className="text-count text-danger">
                         {countDescription(manufactureDetails)} of {desMaxLimit}{" "}
                         Characters
                       </span>
                     ) : (
-                      <span class="text-count text-muted">
+                      <span className="text-count text-muted">
                         {countDescription(manufactureDetails)} of {desMaxLimit}{" "}
                         Characters
                       </span>
