@@ -1,26 +1,38 @@
 .imageList {
     display: flex;
+    flex-wrap: wrap;
 
-    div {
-        border: 2px solid #ccc;
+    .imageContainer {
+        border: 2px solid #f7f7f7;
         border-radius: 8px;
-        margin: 2px;
-        transition: transform 0.3s;
+        transition: 100ms;
 
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
 
+        max-width: 100px;
+        min-height: 100px;
+
+        position: relative;
+
+        margin: 4px 4px 40px 4px;
+
         .imageItem {
-            max-width: 100px;
+            width: 100%;
             height: auto;
+
             border-radius: 8px;
 
             cursor: pointer;
+        }
 
-            .selected .imageItem {
-                border: 2px solid #ff0000;
-            }
+        .itemName {
+            font-size: 11px;
+
+            position: absolute;
+            bottom: -40px;
         }
     }
 }

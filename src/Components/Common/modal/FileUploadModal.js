@@ -4,7 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import styles from '../../../assets/scss/custom/FileUploadModal.module.scss';
 
 import { InboxOutlined } from '@ant-design/icons';
-import { message, Upload } from 'antd';
+import { message, Upload, Tooltip } from 'antd';
 const { Dragger } = Upload;
 const props = {
     name: 'file',
@@ -61,6 +61,17 @@ export default function FileUploadModal() {
         });
     };
 
+    const getBorderStyle = (imageId) => {
+        return selectedImage === imageId ? { border: '2px solid #29d4ff' } : { border: '2px solid #f7f7f7' };
+    };
+
+    const truncateName = (name, length) => {
+        if (name.length <= length) {
+            return name;
+        }
+        return name.substring(0, length) + '...';
+    };
+
     return (
         <div>
             <Button color="secondary" onClick={toggle}>
@@ -80,15 +91,19 @@ export default function FileUploadModal() {
                             <div>
                                 <ul className={styles.imageList}>
                                     {images.map((image) => (
-                                        <div key={image.id}
-                                            className={`${styles.imageItem} ${selectedImage === image.id ? 'selected' : ''}`}
+                                        <div className={styles.imageContainer} key={image.id}
+                                            style={{ ...getBorderStyle(image.id) }}
                                             onClick={() => handleImageClick(image)}>
 
-                                            <img
-                                                src={image.smallPath}
-                                                alt={image.originalName}
-                                                className={`${styles.imageItem}`}
-                                            />
+                                            <Tooltip title={image.originalName} placement="right">
+                                                <img
+                                                    src={image.smallPath}
+                                                    alt={image.originalName}
+                                                    className={`${styles.imageItem}`}
+                                                />
+                                            </Tooltip>
+
+                                            <p className={styles.itemName}>{truncateName(image.originalName, 10)}</p>
                                         </div>
                                     ))}
                                 </ul>
