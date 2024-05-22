@@ -1,4 +1,9 @@
 .imageList {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.imageList {
     display: flex;
     flex-wrap: wrap;
 
