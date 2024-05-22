@@ -1,0 +1,26 @@
+.imageList {
+    display: flex;
+
+    div {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        margin: 2px;
+        transition: transform 0.3s;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .imageItem {
+            max-width: 100px;
+            height: auto;
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            .selected .imageItem {
+                border: 2px solid #ff0000;
+            }
+        }
+    }
+}
