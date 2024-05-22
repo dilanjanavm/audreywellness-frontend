@@ -13,8 +13,8 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../common/util";
 import { countDescription, handleError } from "../../common/commonFunctions";
-import { DownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Menu } from "antd";
+import { DownOutlined, CloseOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Menu, Select } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 
@@ -30,11 +30,16 @@ const AddNewProduct = () => {
   const [manufactureDetails, setManufactureDetails] = useState("");
 
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
+  const [selectedTags, setSelectedTags] = useState({});
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
     loadAllAttributesWithTags();
   }, []);
+
+  useEffect(() => {
+    console.log(selectedTags, "selected tag list");
+  }, [selectedTags]);
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -112,35 +117,97 @@ const AddNewProduct = () => {
     ? `${selectedProductCategoryName} > ${selectedSubCategoryName}`
     : selectedProductCategoryName || "Select...";
 
+  const handleTagSelection = (attributeId, tagId) => {
+    setSelectedTags((prevSelectedTags) => ({
+      ...prevSelectedTags,
+      [attributeId]: tagId,
+    }));
+  };
+
+  const clearSelection = (attributeId) => {
+    setSelectedTags((prevSelectedTags) => {
+      const newSelectedTags = { ...prevSelectedTags };
+      delete newSelectedTags[attributeId];
+      return newSelectedTags;
+    });
+  };
+
   const renderAttributeDropdowns = () => {
     return attributesAndTagList.map((attribute) => {
       if (!attribute.isDefault) {
         return (
           <FormGroup className="col-3" key={attribute.id}>
             <Label>{attribute.name}</Label>
-            <Dropdown
-              overlay={
-                <Menu>
-                  {attribute.tags.map((tag) => (
-                    <Menu.Item key={tag.id}>{tag.name}</Menu.Item>
-                  ))}
-                </Menu>
+            <Select
+              allowClear
+              showSearch
+              placeholder="Select..."
+              style={{ width: "100%", height: 40 }}
+              value={selectedTags[attribute.id] || undefined}
+              onChange={(value) =>
+                value === undefined
+                  ? clearSelection(attribute.id)
+                  : handleTagSelection(attribute.id, value)
               }
             >
-              <Button
-                className="w-100 text-start"
-                style={{ color: "#878a99", height: 40 }}
-              >
-                <span style={{ width: "95%" }}>Select...</span>
-                <DownOutlined />
-              </Button>
-            </Dropdown>
+              {attribute.tags.map((tag) => (
+                <Option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </Option>
+              ))}
+            </Select>
           </FormGroup>
         );
       }
       return null;
     });
   };
+
+  // const renderAttributeDropdowns = () => {
+  //   return attributesAndTagList.map((attribute) => {
+  //     if (!attribute.isDefault) {
+  //       return (
+  //         <FormGroup className="col-3" key={attribute.id}>
+  //           <Label>{attribute.name}</Label>
+  //           <div className="d-flex">
+  //             <Dropdown
+  //               allowClear
+  //               overlay={
+  //                 <Menu
+  //                   onClick={({ key }) => handleTagSelection(attribute.id, key)}
+  //                 >
+  //                   {attribute.tags.map((tag) => (
+  //                     <Menu.Item key={tag.id}>{tag.name}</Menu.Item>
+  //                   ))}
+  //                 </Menu>
+  //               }
+  //             >
+  //               <Button
+  //                 className="w-100 text-start"
+  //                 style={{ color: "#878a99", height: 40 }}
+  //               >
+  //                 <span style={{ width: "90%" }}>
+  //                   {selectedTags[attribute.id]
+  //                     ? attribute.tags.find(
+  //                         (tag) => tag.id === selectedTags[attribute.id]
+  //                       )?.name || "Select..."
+  //                     : "Select..."}
+  //                 </span>
+  //                 <DownOutlined />
+  //               </Button>
+  //             </Dropdown>
+  //             {/* <Button
+  //               type="text"
+  //               icon={<CloseOutlined />}
+  //               onClick={() => clearSelection(attribute.id)}
+  //             /> */}
+  //           </div>
+  //         </FormGroup>
+  //       );
+  //     }
+  //     return null;
+  //   });
+  // };
 
   return (
     <div className="page-content">
