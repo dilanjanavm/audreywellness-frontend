@@ -3,6 +3,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Col,
   Container,
   FormGroup,
   Input,
@@ -14,9 +15,11 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../common/util";
 import { countDescription, handleError } from "../../common/commonFunctions";
 import { DownOutlined, CloseOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Menu, Select } from "antd";
+import { Button, Divider, Dropdown, Menu, Select, Table } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
+
+const { Option } = Select;
 
 const AddNewProduct = () => {
   const [productName, setProductName] = useState("");
@@ -32,14 +35,26 @@ const AddNewProduct = () => {
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
   const [selectedTags, setSelectedTags] = useState({});
 
+  const [productColorDetails, setProductColorDetails] = useState([
+    { attributeId: null, color: null, image: null, sizes: [] },
+  ]);
+  const [productSizeDetails, setProductSizeDetails] = useState([]); // State for product sizes
+  const [productVariants, setProductVariants] = useState([]);
+
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
     loadAllAttributesWithTags();
   }, []);
 
   useEffect(() => {
-    console.log(selectedTags, "selected tag list");
+    console.log(selectedTags, "selectedTags");
   }, [selectedTags]);
+  useEffect(() => {
+    console.log(productColorDetails, "color list");
+  }, [productColorDetails]);
+  useEffect(() => {
+    console.log(productSizeDetails, "productSizeDetails list");
+  }, [productSizeDetails]);
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -163,51 +178,140 @@ const AddNewProduct = () => {
     });
   };
 
-  // const renderAttributeDropdowns = () => {
-  //   return attributesAndTagList.map((attribute) => {
-  //     if (!attribute.isDefault) {
-  //       return (
-  //         <FormGroup className="col-3" key={attribute.id}>
-  //           <Label>{attribute.name}</Label>
-  //           <div className="d-flex">
-  //             <Dropdown
-  //               allowClear
-  //               overlay={
-  //                 <Menu
-  //                   onClick={({ key }) => handleTagSelection(attribute.id, key)}
-  //                 >
-  //                   {attribute.tags.map((tag) => (
-  //                     <Menu.Item key={tag.id}>{tag.name}</Menu.Item>
-  //                   ))}
-  //                 </Menu>
-  //               }
-  //             >
-  //               <Button
-  //                 className="w-100 text-start"
-  //                 style={{ color: "#878a99", height: 40 }}
-  //               >
-  //                 <span style={{ width: "90%" }}>
-  //                   {selectedTags[attribute.id]
-  //                     ? attribute.tags.find(
-  //                         (tag) => tag.id === selectedTags[attribute.id]
-  //                       )?.name || "Select..."
-  //                     : "Select..."}
-  //                 </span>
-  //                 <DownOutlined />
-  //               </Button>
-  //             </Dropdown>
-  //             {/* <Button
-  //               type="text"
-  //               icon={<CloseOutlined />}
-  //               onClick={() => clearSelection(attribute.id)}
-  //             /> */}
-  //           </div>
-  //         </FormGroup>
-  //       );
-  //     }
-  //     return null;
-  //   });
-  // };
+  const handleColorChange = (value, index) => {
+    const newColorDetails = [...productColorDetails];
+    newColorDetails[index].color = value;
+    setProductColorDetails(newColorDetails);
+
+    const colorAttribute = attributesAndTagList.find(
+      (attribute) => attribute.name === "Color"
+    );
+    if (colorAttribute) {
+      newColorDetails[index].attributeId = colorAttribute.id;
+    }
+
+    if (value && index === productColorDetails.length - 1) {
+      addColorForm();
+    }
+  };
+
+  const handleImageChange = (e, index) => {
+    const newColorDetails = [...productColorDetails];
+    newColorDetails[index].image = e.target.files[0];
+    setProductColorDetails(newColorDetails);
+  };
+
+  const addColorForm = () => {
+    let temp = { attributeId: null, color: null, image: null, sizes: [] };
+    setProductColorDetails([...productColorDetails, temp]);
+  };
+
+  const removeColorForm = (index) => {
+    const newColorDetails = [...productColorDetails];
+    newColorDetails.splice(index, 1);
+    setProductColorDetails(newColorDetails);
+  };
+
+  const handleSizeChange = (attributeId, value) => {
+    setProductSizeDetails((prevSizeDetails) => ({
+      ...prevSizeDetails,
+      [attributeId]: value,
+    }));
+  };
+
+  const handlePriceChange = (colorIndex, sizeIndex, price) => {
+    const updatedVariants = [...productVariants];
+    if (!updatedVariants[colorIndex]) {
+      updatedVariants[colorIndex] = {};
+    }
+    if (!updatedVariants[colorIndex][sizeIndex]) {
+      updatedVariants[colorIndex][sizeIndex] = {};
+    }
+    updatedVariants[colorIndex][sizeIndex].price = price;
+    setProductVariants(updatedVariants);
+  };
+
+  const handleQuantityChange = (colorIndex, sizeIndex, quantity) => {
+    const updatedVariants = [...productVariants];
+    if (!updatedVariants[colorIndex]) {
+      updatedVariants[colorIndex] = {};
+    }
+    if (!updatedVariants[colorIndex][sizeIndex]) {
+      updatedVariants[colorIndex][sizeIndex] = {};
+    }
+    updatedVariants[colorIndex][sizeIndex].quantity = quantity;
+    setProductVariants(updatedVariants);
+  };
+
+  const renderColorForms = () => {
+    return productColorDetails.map((detail, colorIndex) => (
+      <Row key={colorIndex} className="align-items-center">
+        <FormGroup className="col-3">
+          <Label>Color</Label>
+          <Select
+            allowClear
+            showSearch
+            placeholder="Select..."
+            style={{ width: "100%", height: 40 }}
+            value={detail.color || undefined}
+            onChange={(value) => handleColorChange(value, colorIndex)}
+          >
+            {attributesAndTagList
+              .find((attribute) => attribute.name === "Color")
+              ?.tags.map((tag) => (
+                <Select.Option
+                  key={tag.id}
+                  value={tag.id}
+                  disabled={productColorDetails
+                    .map((detail) => detail.color)
+                    .includes(tag.id)}
+                >
+                  {tag.name}
+                </Select.Option>
+              ))}
+          </Select>
+        </FormGroup>
+        <FormGroup className="col-3">
+          <Label>Image</Label>
+          <Input
+            type="file"
+            onChange={(e) => handleImageChange(e, colorIndex)}
+          />
+        </FormGroup>
+        {colorIndex < productColorDetails.length - 1 && (
+          <Button
+            className="col-1"
+            type="danger"
+            onClick={() => removeColorForm(colorIndex)}
+          >
+            Delete
+          </Button>
+        )}
+      </Row>
+    ));
+  };
+
+  const getColorTagNameById = (tagId) => {
+    const colorAttribute = attributesAndTagList.find(
+      (attribute) => attribute.name === "Color"
+    );
+    if (colorAttribute) {
+      const tag = colorAttribute.tags.find((tag) => tag.id === tagId);
+      return tag ? tag.name : "";
+    }
+    return "";
+  };
+
+  const getSizeTagNameById = (tagId) => {
+    const sizeAttribute = attributesAndTagList.find(
+      (attribute) => attribute.name === "Size"
+    );
+    if (sizeAttribute) {
+      const tag = sizeAttribute.tags.find((tag) => tag.id === tagId);
+      return tag ? tag.name : "";
+    }
+    return "";
+  };
 
   return (
     <div className="page-content">
@@ -389,6 +493,137 @@ const AddNewProduct = () => {
           </CardHeader>
           <CardBody>
             <Row>{renderAttributeDropdowns()}</Row>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <h6>Variants, Price, Stock</h6>
+          </CardHeader>
+          <CardBody>
+            <Row className="border rounded mx-1 my-1 pt-2">
+              {renderColorForms()}
+            </Row>
+            <Row className="border rounded mx-1 my-1 mt-3 pt-2">
+              {attributesAndTagList.map((attribute) => {
+                if (attribute?.isDefault && attribute?.name === "Size") {
+                  return (
+                    <FormGroup className="col-3" key={attribute?.id}>
+                      <Label>{attribute?.name}</Label>
+                      <Select
+                        mode="multiple"
+                        allowClear
+                        showSearch
+                        placeholder="Select..."
+                        style={{ width: "100%", height: 40 }}
+                        value={productSizeDetails[attribute?.id] || []}
+                        onChange={(value) =>
+                          handleSizeChange(attribute?.id, value)
+                        }
+                      >
+                        {attribute.tags.map((tag) => (
+                          <Option key={tag.id} value={tag.id}>
+                            {tag.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </FormGroup>
+                  );
+                }
+                return null;
+              })}
+            </Row>
+
+            <Row className="mx-1 my-2 border rounded py-3">
+              <Row className="pb-2">
+                <Col sm={3} md={3} lg={3} xl={3}>
+                  <h6>Color</h6>
+                </Col>
+                <Col sm={3} md={3} lg={3} xl={3}>
+                  <h6>Size</h6>
+                </Col>
+
+                <Col sm={3} md={3} lg={3} xl={3}>
+                  <h6>Price</h6>
+                </Col>
+
+                <Col sm={3} md={3} lg={3} xl={3}>
+                  <h6>Quantity</h6>
+                </Col>
+              </Row>
+              <Divider />
+              {productColorDetails.map((colorDetail, colorIndex) => {
+                if (colorDetail?.color != null) {
+                  const colorName = getColorTagNameById(colorDetail.color);
+                  return (
+                    <Row key={colorIndex}>
+                      <Col sm={3} md={3} lg={3} xl={3}>
+                        <p>{colorName}</p>
+                      </Col>
+                      <Col sm={3} md={3} lg={3} xl={3}>
+                        {productSizeDetails[
+                          attributesAndTagList.find(
+                            (attr) => attr.name === "Size"
+                          )?.id
+                        ]?.map((sizeId, sizeIndex) => {
+                          const sizeName = getSizeTagNameById(sizeId);
+                          return <p key={sizeIndex}>{sizeName}</p>;
+                        })}
+                      </Col>
+                      <Col sm={3} md={3} lg={3} xl={3}>
+                        {productSizeDetails[
+                          attributesAndTagList.find(
+                            (attr) => attr.name === "Size"
+                          )?.id
+                        ]?.map((sizeId, sizeIndex) => (
+                          <Input
+                            key={sizeIndex}
+                            type="number"
+                            placeholder="Price"
+                            className="my-2"
+                            value={
+                              productVariants[colorIndex]?.[sizeIndex]?.price ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handlePriceChange(
+                                colorIndex,
+                                sizeIndex,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ))}
+                      </Col>
+                      <Col sm={3} md={3} lg={3} xl={3}>
+                        {productSizeDetails[
+                          attributesAndTagList.find(
+                            (attr) => attr.name === "Size"
+                          )?.id
+                        ]?.map((sizeId, sizeIndex) => (
+                          <Input
+                            key={sizeIndex}
+                            type="number"
+                            placeholder="Quantity"
+                            className="my-2"
+                            value={
+                              productVariants[colorIndex]?.[sizeIndex]
+                                ?.quantity || ""
+                            }
+                            onChange={(e) =>
+                              handleQuantityChange(
+                                colorIndex,
+                                sizeIndex,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ))}
+                      </Col>
+                    </Row>
+                  );
+                }
+              })}
+            </Row>
           </CardBody>
         </Card>
       </Container>
