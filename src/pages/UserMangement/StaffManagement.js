@@ -121,6 +121,7 @@ const StaffManagement = () => {
     }
   };
 
+  
   // useEffect(() => {
   //   const filteredStaff = staffTableList.filter((staff) =>
   //     staff.email.toLowerCase().includes(searchEmail.toLowerCase())
