@@ -1,0 +1,140 @@
+.user-select-none {
+  user-select: none;
+}
+
+.menu-view-btn:hover {
+  background-color: #e3ffdc !important;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+}
+
+.review-star {
+  color: #fdcc0d;
+  font-size: 13px;
+}
+
+.incomplete-batch {
+  background-color: red;
+  height: fit-content;
+  width: fit-content;
+  padding: 5px 10px;
+  color: white;
+  position: absolute;
+  z-index: 2;
+  border-radius: 6px;
+}
+
+.menu-div {
+  background-color: #ffffff;
+  color: #000;
+  border-radius: 50%;
+  border: none;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+/* ===========
+Product Single Card - Start
+============= */
+.product-single-card {
+  border: 1px solid #cccccc40;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  transition: 0.5s ease-in;
+  /* background-color: red; */
+}
+
+.product-single-card:hover {
+  -webkit-box-shadow: 1px 1px 28.5px -7px #d6d6d6;
+  -moz-box-shadow: 1px 1px 28.5px -7px #d6d6d6;
+  box-shadow: 1px 1px 28.5px -7px #d6d6d6;
+}
+
+.product-single-card .product-info {
+  padding: 15px 0 0 0;
+
+  .ant-switch.ant-switch-checked {
+    background: #60b24c !important;
+  }
+
+  .color-style {
+    border: 3px solid #e0e0e0;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    position: absolute;
+    right: 1.5rem;
+    bottom: 6rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+}
+
+.product-single-card .product-top-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.product-single-card .product-top-area .product-discount {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: white;
+  border-radius: 3px;
+  padding: 5px 10px;
+  box-shadow: 1px 1px 28.5px -7px #dddddd;
+  user-select: none;
+  z-index: 0;
+}
+
+.product-single-card .product-top-area .product-img {
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  width: 100%;
+}
+
+.product-single-card .product-top-area .product-img .first-view {
+  img {
+    transition: 0.5s ease-in-out;
+    scale: 1;
+  }
+}
+
+.product-single-card .product-top-area .product-img .first-view :hover {
+  transition: 0.5s ease-in-out;
+  scale: 1.2;
+}
+
+.product-single-card .product-top-area .sideicons {
+  position: absolute;
+  right: 15px;
+  display: grid;
+  gap: 10px;
+  height: 90%;
+}
+
+.product-single-card .product-info .product-category {
+  font-weight: 600;
+  opacity: 60%;
+}
+
+.product-single-card .product-info .product-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 1152px) {
+}

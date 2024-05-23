@@ -26,6 +26,9 @@ import CustomerManagement from "../pages/UserMangement/CustomerManagement";
 import AddNewProduct from "../pages/ProductManagement/AddNewProduct";
 import RoleManagement from "../pages/RoleAndPermission/RoleManagement";
 import RoleAndPermission from "../pages/RoleAndPermission/RoleAndPermission";
+import ProductManagement from "../pages/ProductManagement/ProductManagement";
+import UpdateProduct from "../pages/ProductManagement/UpdateProduct";
+import ViewProductDetails from "../pages/ProductManagement/ViewProductDetails";
 import BannerManagement from "../pages/BannerManagement/BannerManagement";
 
 const authProtectedRoutes = [
@@ -47,6 +50,9 @@ const authProtectedRoutes = [
   { path: "*", component: <Navigate to="/dashboard" /> },
 
   { path: "/create-product", component: <AddNewProduct /> },
+  { path: "/update-product", component: <UpdateProduct /> },
+  { path: "/product-view", component: <ViewProductDetails /> },
+  { path: "/product-management", component: <ProductManagement /> },
 
   // { path: "/user-management", component: <UserManagement /> },
 
