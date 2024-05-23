@@ -94,28 +94,26 @@ const RoleManagement = () => {
             isDefault: role?.isDefault,
             action: (
               <>
-                {!role?.isDefault && (
-                  <>
-                    <Button
-                      color="warning"
-                      className="mx-2"
-                      onClick={(e) => {
-                        openUpdateRoleModal(role);
-                      }}
-                    >
-                      <span>Update</span>
-                    </Button>
-                    <Button
-                      color="danger"
-                      className=""
-                      onClick={(e) => {
-                        handleDeleteRole(role?.id);
-                      }}
-                    >
-                      <span>Remove</span>
-                    </Button>
-                  </>
-                )}
+                <>
+                  <Button
+                    color="warning"
+                    className="mx-2"
+                    onClick={(e) => {
+                      openUpdateRoleModal(role);
+                    }}
+                  >
+                    <span>Update</span>
+                  </Button>
+                  <Button
+                    color="danger"
+                    className=""
+                    onClick={(e) => {
+                      handleDeleteRole(role?.id);
+                    }}
+                  >
+                    <span>Remove</span>
+                  </Button>
+                </>
               </>
             ),
           });
