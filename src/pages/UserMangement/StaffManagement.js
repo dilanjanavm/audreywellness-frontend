@@ -43,7 +43,9 @@ const StaffManagement = () => {
         name: record.user.firstName + " " + record.user.lastName,
         email: record.user.email,
         status: record.user.status,
-        contactNo: record.user.staff?.contactNo ? "" : "empty",
+        contactNo: record.user.staff?.contactNo
+          ? record.user.staff?.contactNo
+          : "empty",
         role: record.user?.role,
         roleName: record.user.role.name,
         action: (
@@ -121,7 +123,6 @@ const StaffManagement = () => {
     }
   };
 
-  
   // useEffect(() => {
   //   const filteredStaff = staffTableList.filter((staff) =>
   //     staff.email.toLowerCase().includes(searchEmail.toLowerCase())

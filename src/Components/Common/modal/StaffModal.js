@@ -11,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "reactstrap";
-import { DatePicker, Space } from "antd";
 import Select from "react-select";
 import { Upload } from "antd";
 import ImgCrop from "antd-img-crop";
@@ -48,16 +47,16 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     getAllCountries();
     console.log(updateValue, "---------------------");
     if (updateValue != undefined || updateValue != []) {
-      // setDataToInputs();
+      setDataToInputs();
     }
   }, [isOpen]);
 
   const setDataToInputs = () => {
     setFirstName(updateValue?.user?.firstName);
-    setLastName(updateValue?.user.lastName);
-    setEmail(updateValue?.user.email);
+    setLastName(updateValue?.user?.lastName);
+    setEmail(updateValue?.user?.email);
     setContactNo(updateValue?.user?.contactNo);
-    // setSelectedRole(updateValue?.user?.role?.id);
+    setSelectedRole(updateValue?.user?.role?.id);
     setSelectedCountry(updateValue?.user?.country?.dialCode);
     if (updateValue?.user?.photo) {
       setFileList([
@@ -125,19 +124,17 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   };
 
   const getAllCountries = async () => {
-    console.log("triggerd");
     setCountryList([]);
+    console.log("triggerd");
+
     await countryService
-      .getAll((res) => {
-        console.log(res, "cccccccccccccccc");
-        res.data.map((country, index) => {
-          temp.push({ value: country.dial_code, label: country.country_name });
-        });
-        setCountryList(temp);
+      .getAll((response) => {
+        console.log(response.data, "countrrrr");
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log(err, "errr in countruy funtion");
       });
+
     // dispatch(showLoader(true));
     // let temp = [];
     // countries.map((country, index) => {
@@ -176,7 +173,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     }
   };
 
-  const handleAddNewUser = () => {
+  const createNewStaff = () => {
     let isValidated = false;
     userImage === ""
       ? customToastMsg("Upload user image first")
@@ -336,7 +333,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
             </FormGroup>
           </Row>
           <Row>
-            <FormGroup className="col-12 col-lg-12">
+            <FormGroup className="col-12 col-lg-6">
               <Label for="email">Email</Label>
               <Input
                 type="text"
@@ -346,8 +343,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </FormGroup>
-          </Row>
-          <Row>
+
             <FormGroup className="col-12 col-lg-6">
               <Label for="role">Select Role</Label>
               <Select
@@ -368,6 +364,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
               />
             </FormGroup>
           </Row>
+          <Row></Row>
 
           <Row>
             <FormGroup className="col-12 col-lg-6">
@@ -394,8 +391,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
                 options={countryList}
               />
             </FormGroup>
-          </Row>
-          <Row>
+
             <FormGroup className="col-12 col-lg-6">
               <Label for="contactNo">Contact No</Label>
               <Input
@@ -433,7 +429,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
             // disabled={!isUploading}
             color="primary"
             onClick={() => {
-              handleAddNewUser();
+              createNewStaff();
             }}
           >
             Add New User

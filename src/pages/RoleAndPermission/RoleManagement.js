@@ -1,0 +1,230 @@
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Label,
+  FormGroup,
+  Input,
+} from "reactstrap";
+import { Plus } from "react-feather";
+import AddRoleModal from "../../Components/Common/modal/AddRoleModel";
+import UpdateRoleModal from "../../Components/Common/modal/UpdateRoleModel";
+import { handleError, customToastMsg } from "../../common/commonFunctions";
+import { Table } from "antd";
+import { RoleTableColumns } from "../../common/tableColumns";
+import debounce from "lodash/debounce";
+import Select from "react-select";
+import { useDispatch } from "react-redux";
+import * as roleAndPermssionService from "../../service/rolePermissionService";
+// import { hideLoader, showLoader } from "../../slices/loader/loader";
+
+const RoleManagement = () => {
+  document.title = "Role | Address Shop";
+
+  const [isAddRoleModal, setIsAddRoleModal] = useState(false);
+  const [isUpdateRoleModal, setIsUpdateRoleModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
+  const [roleId, setRoleId] = useState("");
+  const [roleName, setRoleName] = useState("");
+  const [roleList, setRoleList] = useState([]);
+  //   const [selectedStatus, setSelectedStatus] = useState([]);
+  //   const [statusList, setStatusList] = useState([]);
+
+  let dispatch = useDispatch();
+
+  useEffect(() => {
+    loadAllRoles();
+    // setStatusList([
+    //   { value: 1, label: "Active" },
+    //   { value: 2, label: "Inactive" },
+    // ]);
+  }, []);
+
+  const toggleAddRoleModal = () => {
+    setIsAddRoleModal(!isAddRoleModal);
+    loadAllRoles();
+  };
+
+  //   const openUpdateRoleModal = (selectCategory) => {
+  //     setSelectedRole(selectCategory);
+  //     setIsUpdateRoleModal(true);
+  //   };
+
+  const closeUpdateModal = () => {
+    setIsUpdateRoleModal(false);
+    loadAllRoles();
+  };
+
+  const loadAllRoles = async () => {
+    // dispatch(showLoader(true));
+    const withPermission = false;
+    roleAndPermssionService
+      .getAllRoles(withPermission)
+      .then((res) => {
+        console.log(res);
+        let temp = [];
+        res?.data.map((role, index) => {
+          temp.push({
+            id: role?.id,
+            name: role?.name,
+            role_status: role?.status,
+            action: (
+              <>
+                <Button
+                  color="warning"
+                  className="mx-2"
+                  outline
+                  onClick={(e) => {
+                    // openUpdateRoleModal(role);
+                  }}
+                >
+                  <span>Update</span>
+                </Button>
+                <Button
+                  color="danger"
+                  className=""
+                  outline
+                  onClick={(e) => {
+                    handleDeleteRole(role?.id);
+                  }}
+                >
+                  <span>Remove</span>
+                </Button>
+              </>
+            ),
+          });
+        });
+        setRoleList(temp);
+        // dispatch(hideLoader(false));
+      })
+      .catch((c) => {
+        //   handleError(c);
+        // dispatch(hideLoader(false));
+      })
+      .finally();
+  };
+
+  const handleSearchRoleName = (e) => {
+    const value = e.target.value;
+    setRoleName(value); // Update the state with the input value
+    if (value === "") {
+      loadAllRoles(); // Load all roles if the search input is empty
+    } else {
+      // Filter the role list based on the input value
+      const filteredRoles = roleList.filter((role) =>
+        role.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setRoleList(filteredRoles); // Update the role list state with filtered roles
+    }
+  };
+
+  // const debounceSearchRoleFiltration = React.useCallback(
+  //   // debounce(searchRoleFiltration, 400),
+  //   []
+  // );
+
+  const handleDeleteRole = (roleId) => {
+    // customToastMsg("Are you sure to delete this role ?", 0, () => {
+    //   dispatch(showLoader(true));
+    //   roleAndPermssionService
+    //     .deleteRole(roleId)
+    //     .then(async (res) => {
+    //       await loadAllRoles();
+    //       dispatch(hideLoader(false));
+    //       customToastMsg("Role deleted successfully", 1);
+    //     })
+    //     .catch(async (err) => {
+    //       await loadAllRoles();
+    //       handleError(err);
+    //       console.log(err);
+    //       dispatch(hideLoader(false));
+    //     })
+    //     .finally();
+    // });
+  };
+
+  return (
+    <>
+      <AddRoleModal isOpen={isAddRoleModal} toggle={toggleAddRoleModal} />
+
+      <UpdateRoleModal
+        isOpen={isUpdateRoleModal}
+        onClose={closeUpdateModal}
+        currentData={selectedRole}
+      />
+
+      <div className="row mt-3 mx-2">
+        <h4>Role Management</h4>
+      </div>
+
+      <Row className="d-flex mt-4 mb-2 mx-1 justify-content-end">
+        <Col
+          sm={12}
+          md={3}
+          lg={3}
+          xl={3}
+          className="d-flex justify-content-end"
+        >
+          <Button
+            color="primary"
+            className="w-80"
+            onClick={toggleAddRoleModal}
+            style={{ color: "black" }}
+          >
+            <Plus size={19} /> Add New
+          </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col sm={12} md={4} lg={3} xl={3}>
+          <FormGroup className="ms-3">
+            <Label for="exampleEmail">Search by Role Name</Label>
+            <Input
+              id="exampleEmail"
+              name="email"
+              value={roleName}
+              placeholder="Search by role name"
+              type="text"
+              onChange={handleSearchRoleName}
+            />
+          </FormGroup>
+        </Col>
+        {/* <Col sm={12} md={4} lg={3} xl={3}>
+          <FormGroup className="ms-3">
+            <Label for="exampleEmail">Search by status</Label>
+            <Select
+              className="basic-single"
+              classNamePrefix="select"
+              isSearchable={true}
+              isClearable
+              onChange={(e) => {
+                setSelectedStatus(
+                  e?.value === undefined ? "" : e === null ? "" : e.value
+                );
+                debounceSearchRoleFiltration(
+                  roleName,
+                  e?.value === undefined ? "" : e === null ? "" : e.value
+                );
+              }}
+              options={statusList}
+            />
+          </FormGroup>
+        </Col> */}
+      </Row>
+      <Row>
+        <Col sm={12} md={12} lg={12} xl={12}>
+          <Table
+            className="mx-3 my-4"
+            pagination={true}
+            columns={RoleTableColumns}
+            dataSource={roleList}
+          />
+        </Col>
+      </Row>
+    </>
+  );
+};
+
+export default RoleManagement;
