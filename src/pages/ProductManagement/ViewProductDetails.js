@@ -167,7 +167,7 @@ const ViewProductDetails = () => {
                 type="button"
                 onClick={() =>
                   history("/update-product", {
-                    state: { productDetails: productDetails.id },
+                    state: { productId: productDetails.id },
                   })
                 }
                 className="btn btn-primary w-sm me-4"
