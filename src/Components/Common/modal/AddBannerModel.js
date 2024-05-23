@@ -55,6 +55,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
         toggle();
       }}
     >
+        
       <ModalHeader
         toggle={() => {
           toggle();
