@@ -10,11 +10,20 @@ export async function createRole(data) {
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }
-export async function getAllRoles(withPermission) {
+export async function getAllRoles(status) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
-  apiObject.endpoint = `api/role/find-all?withPermission=${withPermission}`;
+  apiObject.endpoint = `api/role/find-all?status=${status}`;
+  const result = await ApiService.callApi(apiObject);
+  return result;
+}
+
+export async function getRoleById(id, withPermissions) {
+  const apiObject = {};
+  apiObject.method = "GET";
+  apiObject.authentication = true;
+  apiObject.endpoint = `api/role/find-by-id/${id}?withPermissoin=${withPermissions}`;
   const result = await ApiService.callApi(apiObject);
   return result;
 }

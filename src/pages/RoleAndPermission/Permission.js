@@ -61,21 +61,24 @@ const Permission = () => {
 
   const loadAllRoles = async () => {
     // dispatch(showLoader(true));
-    // await roleAndPermssionService
-    //   .getAllRoles()
-    //   .then((res) => {
-    //     let temp = [];
-    //     res?.records.map((role, index) => {
-    //       temp.push({ value: role?.id, label: role?.name });
-    //     });
-    //     setRoleList(temp);
-    //     // dispatch(hideLoader(false));
-    //   })
-    //   .catch((c) => {
-    //     // dispatch(hideLoader(false));
-    //     handleError(c);
-    //   })
-    //   .finally();
+    const status = 1;
+    await roleAndPermssionService
+      .getAllRoles(status)
+      .then((res) => {
+        console.log(res, "allllll");
+        let temp = [];
+        res?.data.map((role, index) => {
+          temp.push({ value: role?.id, label: role?.name });
+        });
+        setRoleList(temp);
+        // dispatch(hideLoader(false));
+      })
+      .catch((c) => {
+        console.log(c);
+        // dispatch(hideLoader(false));
+        handleError(c);
+      })
+      .finally();
   };
 
   const loadAllPermissions = async () => {

@@ -58,7 +58,7 @@ const RoleManagement = () => {
 
   const loadAllRoles = async () => {
     // dispatch(showLoader(true));
-    const withPermission = false;
+    const withPermission = "";
     roleAndPermssionService
       .getAllRoles(withPermission)
       .then((res) => {
