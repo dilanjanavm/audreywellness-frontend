@@ -29,6 +29,7 @@ import RoleAndPermission from "../pages/RoleAndPermission/RoleAndPermission";
 import ProductManagement from "../pages/ProductManagement/ProductManagement";
 import UpdateProduct from "../pages/ProductManagement/UpdateProduct";
 import ViewProductDetails from "../pages/ProductManagement/ViewProductDetails";
+import BannerManagement from "../pages/BannerManagement/BannerManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -66,6 +67,11 @@ const authProtectedRoutes = [
     path: "/role-permission-management",
     exact: true,
     component: <RoleAndPermission />,
+  },
+  {
+    path: "/banner-management",
+    exact: true,
+    component: <BannerManagement />,
   },
 ];
 
