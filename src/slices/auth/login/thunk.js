@@ -33,8 +33,8 @@ export const loginUser = (user, history) => async (dispatch) => {
         // dispatch(loginSuccess(tempVariable));
       })
       .catch((c) => {
-        console.log(c.response.data.message);
-        customToastMsg(c.response.data.message, 0);
+        console.log(c.response.data.message[0]);
+        customToastMsg(c.response.data.message[0], 0);
       });
   } catch (error) {
     console.log(error);

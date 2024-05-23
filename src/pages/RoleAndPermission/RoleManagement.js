@@ -15,7 +15,6 @@ import { handleError, customToastMsg } from "../../common/commonFunctions";
 import { Table } from "antd";
 import { RoleTableColumns } from "../../common/tableColumns";
 import debounce from "lodash/debounce";
-import Select from "react-select";
 import { useDispatch } from "react-redux";
 import * as roleAndPermssionService from "../../service/rolePermissionService";
 // import { hideLoader, showLoader } from "../../slices/loader/loader";
@@ -47,10 +46,10 @@ const RoleManagement = () => {
     loadAllRoles();
   };
 
-  //   const openUpdateRoleModal = (selectCategory) => {
-  //     setSelectedRole(selectCategory);
-  //     setIsUpdateRoleModal(true);
-  //   };
+  const openUpdateRoleModal = (selectRole) => {
+    setSelectedRole(selectRole);
+    setIsUpdateRoleModal(true);
+  };
 
   const closeUpdateModal = () => {
     setIsUpdateRoleModal(false);
@@ -65,33 +64,58 @@ const RoleManagement = () => {
       .then((res) => {
         console.log(res);
         let temp = [];
-        res?.data.map((role, index) => {
+        const formatRoleName = (roleName) => {
+          return roleName
+            .split("_")
+            .map(
+              (word) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
+            .join(" ");
+        };
+        const sortedRoles = res?.data.sort((a, b) => {
+          // Prioritize isDefault: true roles at the top
+          if (a.isDefault && !b.isDefault) return -1;
+          if (!a.isDefault && b.isDefault) return 1;
+
+          // Move status: 2 roles to the bottom
+          if (a.status === 2 && b.status !== 2) return 1;
+          if (a.status !== 2 && b.status === 2) return -1;
+
+          return 0; // If none of the above, maintain original order
+        });
+
+        sortedRoles.map((role, index) => {
           temp.push({
             id: role?.id,
+            // name: formatRoleName(role?.name),
             name: role?.name,
             role_status: role?.status,
+            isDefault: role?.isDefault,
             action: (
               <>
-                <Button
-                  color="warning"
-                  className="mx-2"
-                  outline
-                  onClick={(e) => {
-                    // openUpdateRoleModal(role);
-                  }}
-                >
-                  <span>Update</span>
-                </Button>
-                <Button
-                  color="danger"
-                  className=""
-                  outline
-                  onClick={(e) => {
-                    handleDeleteRole(role?.id);
-                  }}
-                >
-                  <span>Remove</span>
-                </Button>
+                {!role?.isDefault && (
+                  <>
+                    <Button
+                      color="warning"
+                      className="mx-2"
+                      onClick={(e) => {
+                        openUpdateRoleModal(role);
+                      }}
+                    >
+                      <span>Update</span>
+                    </Button>
+                    <Button
+                      color="danger"
+                      className=""
+                      onClick={(e) => {
+                        handleDeleteRole(role?.id);
+                      }}
+                    >
+                      <span>Remove</span>
+                    </Button>
+                  </>
+                )}
               </>
             ),
           });
@@ -159,7 +183,7 @@ const RoleManagement = () => {
         <h4>Role Management</h4>
       </div>
 
-      <Row className="d-flex mt-4 mb-2 mx-1 justify-content-end">
+      <Row className="d-flex mt-2 mb-2 mx-1 justify-content-end">
         <Col
           sm={12}
           md={3}

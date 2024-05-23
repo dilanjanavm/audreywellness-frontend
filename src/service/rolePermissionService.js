@@ -1,16 +1,15 @@
 import ApiService from "./apiService";
 
-export async function create(data) {
+export async function createRole(data) {
   const apiObject = {};
   apiObject.method = "POST";
-  apiObject.authentication = true;
+  apiObject.authentication = false;
+  apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = "api/files/upload";
-  apiObject.multipart = true;
+  apiObject.endpoint = "api/role/create";
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }
-
 export async function getAllRoles(withPermission) {
   const apiObject = {};
   apiObject.method = "GET";
@@ -37,3 +36,5 @@ export async function update(roleId, data) {
   const result = await ApiService.callApi(apiObject);
   return result;
 }
+
+export async function getAllPermissions() {}

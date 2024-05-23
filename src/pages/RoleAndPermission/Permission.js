@@ -2,18 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Row, Col, Button, Label, FormGroup } from "reactstrap";
 import Select from "react-select";
 import { Check } from "react-feather";
-import * as roleAndPermssionService from "../../service/roleAndPermissionService";
-import {
-  sweetAlertConformation,
-  customToastMsg,
-  handleError,
-} from "../../common/commonFunctions";
+import * as roleAndPermssionService from "../../service/rolePermissionService";
+import { customToastMsg, handleError } from "../../common/commonFunctions";
 import { Checkbox } from "antd";
 import { useDispatch } from "react-redux";
-import { hideLoader, showLoader } from "../../slices/loader/loader";
+// import { hideLoader, showLoader } from "../../slices/loader/loader";
 
 const Permission = () => {
-  document.title = "Permission | Talk To Leader";
+  document.title = "Permission | Address Shop";
 
   const [selectedRole, setSelectedRole] = useState("");
   const [roleList, setRoleList] = useState([]);
@@ -64,103 +60,103 @@ const Permission = () => {
   };
 
   const loadAllRoles = async () => {
-    dispatch(showLoader(true));
-    await roleAndPermssionService
-      .getAllRoles()
-      .then((res) => {
-        let temp = [];
-        res?.records.map((role, index) => {
-          temp.push({ value: role?.id, label: role?.name });
-        });
-        setRoleList(temp);
-        dispatch(hideLoader(false));
-      })
-      .catch((c) => {
-        dispatch(hideLoader(false));
-        handleError(c);
-      })
-      .finally();
+    // dispatch(showLoader(true));
+    // await roleAndPermssionService
+    //   .getAllRoles()
+    //   .then((res) => {
+    //     let temp = [];
+    //     res?.records.map((role, index) => {
+    //       temp.push({ value: role?.id, label: role?.name });
+    //     });
+    //     setRoleList(temp);
+    //     // dispatch(hideLoader(false));
+    //   })
+    //   .catch((c) => {
+    //     // dispatch(hideLoader(false));
+    //     handleError(c);
+    //   })
+    //   .finally();
   };
 
   const loadAllPermissions = async () => {
-    dispatch(showLoader(true));
-    await roleAndPermssionService
-      .getAllPermissions()
-      .then((res) => {
-        let temp = [];
-        res?.records.map((per, index) => {
-          temp.push({ value: per?.id, label: per?.name });
-        });
-        setPermissionList(temp);
-        dispatch(hideLoader(false));
-      })
-      .catch((c) => {
-        dispatch(hideLoader(false));
-        handleError(c);
-      })
-      .finally();
+    // dispatch(showLoader(true));
+    // await roleAndPermssionService
+    //   .getAllPermissions()
+    //   .then((res) => {
+    //     let temp = [];
+    //     res?.records.map((per, index) => {
+    //       temp.push({ value: per?.id, label: per?.name });
+    //     });
+    //     setPermissionList(temp);
+    //     // dispatch(hideLoader(false));
+    //   })
+    //   .catch((c) => {
+    //     // dispatch(hideLoader(false));
+    //     handleError(c);
+    //   })
+    //   .finally();
   };
 
   const handleSavePermissionChangers = async () => {
-    selectedRole === "" || selectedRole.id === "" || selectedRole === null
-      ? customToastMsg("Please select a role", 2)
-      : sweetAlertConformation(
-          "Are you sure to save changers ?",
-          2,
-          async () => {
-            const selectedPermissions = permissionList
-              .filter((permission) => checkedList.includes(permission.value))
-              .map(({ value, label }) => ({
-                id: value,
-                name: label,
-              }));
-            const data = {
-              role: selectedRole,
-              permission: selectedPermissions,
-            };
-            console.log(data, "data");
-            dispatch(showLoader(true));
-            await roleAndPermssionService
-              .assignPermissionsToRole(data)
-              .then((resp) => {
-                customToastMsg("Permission assiggned successful", 1);
-                setCheckedList([]);
-                setSelectedRole({
-                  id: "",
-                  name: "",
-                });
-                dispatch(hideLoader(false));
-              })
-              .catch((err) => {
-                dispatch(hideLoader(false));
-                handleError(err);
-              })
-              .finally();
-          }
-        );
+    // selectedRole === "" || selectedRole.id === "" || selectedRole === null
+    //   ? customToastMsg("Please select a role", 2)
+    //   : sweetAlertConformation(
+    //       "Are you sure to save changers ?",
+    //       2,
+    //       async () => {
+    //         const selectedPermissions = permissionList
+    //           .filter((permission) => checkedList.includes(permission.value))
+    //           .map(({ value, label }) => ({
+    //             id: value,
+    //             name: label,
+    //           }));
+    //         const data = {
+    //           role: selectedRole,
+    //           permission: selectedPermissions,
+    //         };
+    //         console.log(data, "data");
+    //         // dispatch(showLoader(true));
+    //         await roleAndPermssionService
+    //           .assignPermissionsToRole(data)
+    //           .then((resp) => {
+    //             customToastMsg("Permission assiggned successful", 1);
+    //             setCheckedList([]);
+    //             setSelectedRole({
+    //               id: "",
+    //               name: "",
+    //             });
+    //             // dispatch(hideLoader(false));
+    //           })
+    //           .catch((err) => {
+    //             // dispatch(hideLoader(false));
+    //             handleError(err);
+    //           })
+    //           .finally();
+    //       }
+    //     );
   };
 
   const searchPermissionsByRole = async (roleId) => {
-    dispatch(showLoader(true));
-    roleId === undefined
-      ? loadAllPermissions()
-      : await roleAndPermssionService
-          .getAllPermissionsByRoleId(roleId)
-          .then((res) => {
-            console.log(res, "resoibse for roke");
-            let temp = [];
-            res?.permission.map((perm, index) => {
-              temp.push(perm.id);
-            });
-            console.log(temp, "+++++++++++++++++++++");
-            setSearchCheckdPermissionList(temp);
-            dispatch(hideLoader(false));
-          })
-          .catch((err) => {
-            dispatch(hideLoader(false));
-            handleError(err);
-          })
-          .finally();
+    // // dispatch(showLoader(true));
+    // roleId === undefined
+    //   ? loadAllPermissions()
+    //   : await roleAndPermssionService
+    //       .getAllPermissionsByRoleId(roleId)
+    //       .then((res) => {
+    //         console.log(res, "resoibse for roke");
+    //         let temp = [];
+    //         res?.permission.map((perm, index) => {
+    //           temp.push(perm.id);
+    //         });
+    //         console.log(temp, "+++++++++++++++++++++");
+    //         setSearchCheckdPermissionList(temp);
+    //         // dispatch(hideLoader(false));
+    //       })
+    //       .catch((err) => {
+    //         // dispatch(hideLoader(false));
+    //         handleError(err);
+    //       })
+    //       .finally();
   };
 
   const renderCheckboxGroups = () => {

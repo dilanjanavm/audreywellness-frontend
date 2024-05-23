@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import {
   customToastMsg,
-  //   handleError,
+  handleError,
   //   popUploader,
 } from "../../../common/commonFunctions";
 import * as roleService from "../../../service/rolePermissionService";
@@ -29,14 +29,13 @@ const AddRoleModal = ({ isOpen, toggle }) => {
     const data = {
       name: roleName,
     };
-
     if (isValidated) {
       roleService
-        .create(data)
+        .createRole(data)
         .then((response) => {
           toggle();
           setRoleName("");
-          customToastMsg("Role added successfully", 1);
+          customToastMsg("Role successfully created ", 1);
         })
         .catch((error) => {
           console.log(error);
