@@ -20,11 +20,12 @@ import { getAllCategoriesWithSubCategories } from "../../service/categoryService
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft } from "react-feather";
 import { useNavigate } from "react-router-dom";
+import { getProductDetailsById } from "../../service/productService";
 
 const { Option } = Select;
 
-const AddNewProduct = () => {
-  document.title = "Add Product | Address Shop";
+const UpdateProduct = () => {
+  document.title = "Update Product | Address Shop";
 
   const history = useNavigate();
 
@@ -46,10 +47,12 @@ const AddNewProduct = () => {
   ]);
   const [productSizeDetails, setProductSizeDetails] = useState([]); // State for product sizes
   const [productVariants, setProductVariants] = useState([]);
+  const [productDetails, setProductDetails] = useState(false);
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
     loadAllAttributesWithTags();
+    loadProductDetailsById();
   }, []);
 
   useEffect(() => {
@@ -91,6 +94,17 @@ const AddNewProduct = () => {
     getAllAttributesWithTags()
       .then((res) => {
         setAttributesAndTagList(res.data);
+      })
+      .catch((err) => {
+        handleError(err);
+      });
+  };
+
+  const loadProductDetailsById = () => {
+    setProductDetails([]);
+    getProductDetailsById()
+      .then((res) => {
+        console.log(res);
       })
       .catch((err) => {
         handleError(err);
@@ -331,7 +345,7 @@ const AddNewProduct = () => {
               history("/product-management");
             }}
           />{" "}
-          <h4>Add New Product</h4>
+          <h4>Update Product</h4>
         </div>
 
         <Card>
@@ -648,4 +662,4 @@ const AddNewProduct = () => {
   );
 };
 
-export default AddNewProduct;
+export default UpdateProduct;

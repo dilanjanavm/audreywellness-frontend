@@ -243,6 +243,19 @@ const Navdata = () => {
       stateVariables: isProduct,
       subItems: [
         {
+          id: "product",
+          label: "Products",
+          icon: <FeatherIcon icon="grid" className="icon-dual" />,
+          link: "/product-management",
+          click: function (e) {
+            e.preventDefault();
+            setIsProduct(!isProduct);
+            setIscurrentState("Products");
+            updateIconSidebar(e);
+          },
+          stateVariables: isProduct,
+        },
+        {
           id: "addNewProduct",
           label: "Add New Product",
           icon: <FeatherIcon icon="grid" className="icon-dual" />,
@@ -255,6 +268,20 @@ const Navdata = () => {
           },
           stateVariables: isProduct,
         },
+        {
+          id: "updateProduct",
+          label: "Update Product",
+          icon: <FeatherIcon icon="grid" className="icon-dual" />,
+          link: "/update-product",
+          click: function (e) {
+            e.preventDefault();
+            setIsProduct(!isProduct);
+            setIscurrentState("Products");
+            updateIconSidebar(e);
+          },
+          stateVariables: isProduct,
+        },
+
         {
           id: "exampleManagement",
           label: "Example Management",

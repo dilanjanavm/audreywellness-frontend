@@ -130,7 +130,7 @@ export const customSweetAlert = (
     showCancelButton: true,
     confirmButtonText: "Yes",
     customClass: {
-      confirmButton: "btn btn-primary mr-2",
+      confirmButton: "btn btn-primary mx-3",
       cancelButton: "btn btn-outline-danger",
       content: "pt-1 pb-1",
       input: "mb-1 form-control alert-input-label",
