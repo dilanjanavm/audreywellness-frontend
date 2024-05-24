@@ -5,7 +5,7 @@ import { AlertTriangle, Check, X } from "react-feather";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import "../assets/scss/components/customeToastify.scss";
-
+import { Upload, message, Card as AntCard } from "antd";
 export const MySwal = withReactContent(Swal);
 
 import Cookies from "js-cookie";
@@ -199,10 +199,10 @@ export const customSweetAlertResolve = (
 };
 
 export const handleError = (c) => {
-  // console.log(c?.response?.data?.message);
-  c?.response?.data?.message
-    ? customToastMsg(c?.response?.data?.message[0], 0)
-    : customToastMsg("Sorry! Try again later", 0);
+  // c?.response?.data?.message
+  //   ? customToastMsg(c?.response?.data?.message[0], 0)
+  //   : customToastMsg("Sorry! Try again later", 0);
+  message.error(c?.response?.data?.message[0]);
 };
 
 export const countDescription = (description) => {

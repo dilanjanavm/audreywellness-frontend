@@ -1,0 +1,18 @@
+// Permission.scss
+
+.custom-tree .ant-tree-treenode {
+  transition: all 0.3s ease;
+}
+
+.custom-tree .ant-tree-checkbox {
+  transition: all 0.3s ease;
+}
+
+.custom-tree .ant-tree-checkbox-inner {
+  border-radius: 4px;
+}
+
+.custom-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}

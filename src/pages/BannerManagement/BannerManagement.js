@@ -5,6 +5,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Plus } from "react-feather";
 import * as bannerService from "../../service/bannerService";
 import BannerModel from "../../Components/Common/modal/AddBannerModel";
+import { customSweetAlert } from "../../common/commonFunctions";
 
 const BannerManagement = () => {
   document.title = "Banners | Address Shop";
@@ -37,8 +38,29 @@ const BannerManagement = () => {
     getAllBanners();
   };
 
-  const handleDeleteBanner = (id) => {
-    setBanners(banners.filter((banner) => banner.id !== id));
+  const handleDeleteBanner = async (id) => {
+    customSweetAlert("Are you sure to delete this  banner?", 0, async () => {
+      await bannerService
+        .deleteBanner(id)
+        .then((res) => {
+          console.log(res);
+          setBanners(banners.filter((banner) => banner.id !== id));
+        })
+        .catch((err) => {
+          handleError(err);
+        });
+    });
+  };
+
+  const deleteBanner = async (bannerId) => {
+    await bannerService
+      .deleteBanner(bannerId)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const renderBannersByPosition = (position) => {
@@ -76,31 +98,32 @@ const BannerManagement = () => {
           <h4>Banner Management</h4>
         </div>
         <Card>
-          <Row className="mt-5 mx-2">
-            <Col
+          <Row className="mt-3 mx-2">
+            {/* <Col
               sm={12}
               md={6}
               lg={3}
               xl={3}
               className="d-flex align-items-end"
-            >
+            > */}
+            <Col className="d-flex  justify-content-end">
               <Button color="primary" onClick={toggleModal}>
                 <Plus size={16} className="mr-1" /> Create Banner
               </Button>
             </Col>
           </Row>
+
+          {positions.map((position) => (
+            <Card key={position} className="mt-4">
+              <h5 className="mx-3 my-3">{position}</h5>
+              <Row className="mx-2">
+                <Col>{renderBannersByPosition(position)}</Col>
+              </Row>
+            </Card>
+          ))}
+
+          <BannerModel isOpen={isAddBannerModalOpen} toggle={closeModal} />
         </Card>
-
-        {positions.map((position) => (
-          <Card key={position} className="mt-4">
-            <h5 className="mx-3 my-3">{position}</h5>
-            <Row className="mx-2">
-              <Col>{renderBannersByPosition(position)}</Col>
-            </Row>
-          </Card>
-        ))}
-
-        <BannerModel isOpen={isAddBannerModalOpen} toggle={closeModal} />
       </Container>
     </div>
   );
