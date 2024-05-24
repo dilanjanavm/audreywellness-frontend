@@ -28,10 +28,11 @@ const AddBannerModal = ({ isOpen, toggle }) => {
       : (isValidated = true);
 
     const data = {
-      name: position,
-      fileId: "",
-      categoryId: "",
+      position: position,
+      fileId: "4bc81b6d-eb20-45f0-b711-660a6dedbf5d",
+      categoryId: "8da4f190-4b0d-41c8-bce1-3d606cf09ea2",
     };
+    console.log(data, "banner create data");
     if (isValidated) {
       bannerService
         .create(data)
@@ -55,7 +56,6 @@ const AddBannerModal = ({ isOpen, toggle }) => {
         toggle();
       }}
     >
-        
       <ModalHeader
         toggle={() => {
           toggle();

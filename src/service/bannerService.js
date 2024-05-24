@@ -8,7 +8,6 @@ export async function getAll() {
   return await ApiService.callApi(apiObject);
 }
 
-
 export async function create(data) {
   const apiObject = {};
   apiObject.method = "POST";
@@ -17,5 +16,15 @@ export async function create(data) {
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = "api/banner/create";
   apiObject.body = data;
+  return await ApiService.callApi(apiObject);
+}
+
+export async function deleteBanner(bannerId) {
+  const apiObject = {};
+  apiObject.method = "DELETE";
+  apiObject.authentication = false;
+  apiObject.urlencoded = false;
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/banner/delete/${bannerId}`;
   return await ApiService.callApi(apiObject);
 }
