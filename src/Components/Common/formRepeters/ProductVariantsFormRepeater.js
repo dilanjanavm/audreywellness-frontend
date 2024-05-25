@@ -130,15 +130,6 @@ const ProductVariantsFormRepeater = ({
         variant.sizes.every((size) => size.size && size.qty && size.price)
     );
 
-    // const variants = filteredList.map((variant) => ({
-    //   color: variant.color,
-    //   sizes: variant.sizes.map((size) => ({
-    //     size: size.size,
-    //     qty: size.qty,
-    //     price: size.price,
-    //   })),
-    // }));
-
     const variants = filteredList
       .map((variant) =>
         variant.sizes.map((size) => ({
@@ -171,7 +162,11 @@ const ProductVariantsFormRepeater = ({
                 }
               >
                 {colorTagList.map((tag) => (
-                  <Option key={tag.id} value={tag.id}>
+                  <Option
+                    key={tag.id}
+                    value={tag.id}
+                    disabled={inputList.some((input) => input.color === tag.id)}
+                  >
                     {tag.name}
                   </Option>
                 ))}
