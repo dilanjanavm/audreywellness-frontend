@@ -24,12 +24,13 @@ import ConfirmOtp from "../pages/Authentication/ConfirmOtp";
 import StaffManagement from "../pages/UserMangement/StaffManagement";
 import CustomerManagement from "../pages/UserMangement/CustomerManagement";
 import AddNewProduct from "../pages/ProductManagement/AddNewProduct";
-import RoleManagement from "../pages/RoleAndPermission/RoleManagement";
 import RoleAndPermission from "../pages/RoleAndPermission/RoleAndPermission";
 import ProductManagement from "../pages/ProductManagement/ProductManagement";
 import UpdateProduct from "../pages/ProductManagement/UpdateProduct";
 import ViewProductDetails from "../pages/ProductManagement/ViewProductDetails";
 import BannerManagement from "../pages/BannerManagement/BannerManagement";
+import FeatureManagement from "../pages/FeatureManagement/FeatureManagement";
+import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -72,6 +73,16 @@ const authProtectedRoutes = [
     path: "/banner-management",
     exact: true,
     component: <BannerManagement />,
+  },
+  {
+    path: "/feature-management",
+    exact: true,
+    component: <FeatureManagement />,
+  },
+  {
+    path: "/category-management",
+    exact: true,
+    component: <CategoryManagement />,
   },
 ];
 
