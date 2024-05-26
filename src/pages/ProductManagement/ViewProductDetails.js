@@ -27,24 +27,29 @@ const ViewProductDetails = () => {
 
   const loadProductDetailsById = () => {
     setProductDetails([]);
-    getProductDetailsById()
+    let temp = [];
+    getProductDetailsById(productId)
       .then((res) => {
         console.log(res);
+        res?.data.map((product, index) => {
+          temp.push({
+            id: product?.id,
+            name: product?.name,
+            description: product?.description,
+            manufactureDetails: product?.manufactureDetails,
+            category: product?.category,
+            file: product?.file,
+            status: product?.status,
+            productVariants: product?.productVariants,
+          });
+        });
+        console.log(temp);
+        setProductDetails(temp);
       })
       .catch((err) => {
         handleError(err);
       });
   };
-
-  useEffect(() => {
-    productDetails?.files && productDetails.files.length > 0
-      ? productDetails.files.map((img, index) => {
-          if (img?.isDefault) {
-            setProductImg(img.path);
-          }
-        })
-      : "";
-  }, []);
 
   return (
     <div className="page-content">
@@ -63,25 +68,20 @@ const ViewProductDetails = () => {
           <Row className="my-4 mx-2">
             <Col sm={12} md={6} lg={6} xl={3}>
               <div className="object-fit-cover d-flex justify-content-center justify-content-xl-start justify-content-lg-start justify-content-md-start">
-                {productDetails?.files && productDetails.files.length > 0 ? (
-                  productDetails.files.map((img, index) => {
-                    if (img?.isDefault) {
-                      return (
-                        <img
-                          key={index} // Remember to add a unique key for each list item
-                          src={img?.path}
-                          alt={img?.altTag}
-                          className="object-fit-cover"
-                          width="80%"
-                          height="auto"
-                          onError={(e) =>
-                            (e.target.src =
-                              "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                          }
-                        />
-                      );
+                {productDetails?.file ? (
+                  <img
+                    // key={index}
+                    src={productDetails?.file?.originalPath}
+                    alt="productIamge"
+                    // alt={img?.altTag}
+                    className="object-fit-cover"
+                    width="80%"
+                    height="auto"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
                     }
-                  })
+                  />
                 ) : (
                   <img
                     src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
@@ -91,6 +91,29 @@ const ViewProductDetails = () => {
                     height="auto"
                   />
                 )}
+                {/* {productDetails?.file ? (
+                  <img
+                    // key={index} // Remember to add a unique key for each list item
+                    src={productDetails?.file?.originalPath}
+                    alt="product image"
+                    // alt={img?.altTag}
+                    className="object-fit-cover"
+                    width="80%"
+                    height="auto"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                    }
+                  />
+                ) : (
+                  <img
+                    src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
+                    alt="placeholder"
+                    className="object-fit-cover"
+                    width="80%"
+                    height="auto"
+                  />
+                )} */}
               </div>
             </Col>
             <Col

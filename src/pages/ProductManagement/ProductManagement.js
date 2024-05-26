@@ -32,10 +32,21 @@ const ProductManagement = () => {
   }, [isRefresh]);
 
   const loadAllProducts = () => {
-    setProductList([{ name: "Adidas T-shirt", category: "t-shirt" }]);
+    setProductList([]);
+    let temp = [];
     getAllProducts()
       .then((res) => {
         console.log(res);
+        res?.data.map((product, index) => {
+          temp.push({
+            id: product?.id,
+            name: product?.name,
+            category: product?.category,
+            productImage: product?.file,
+            status: product?.status,
+          });
+        });
+        setProductList(temp);
       })
       .catch((err) => {
         handleError(err);
