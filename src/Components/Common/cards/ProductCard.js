@@ -139,23 +139,17 @@ const ProductCard = ({ productData, reload }) => {
             // style={{ height: 140, width: "auto" }}
           >
             <div className="first-view w-100 h-100 object-fit-cover">
-              {productData?.files && productData.files.length > 0 ? (
-                productData.files.map((img, index) => {
-                  if (img?.isDefault) {
-                    return (
-                      <img
-                        className="w-100 h-100 object-fit-cover"
-                        key={index} // Remember to add a unique key for each list item
-                        src={img?.imageSizes?.original}
-                        alt={img?.altTag}
-                        onError={(e) =>
-                          (e.target.src =
-                            "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                        }
-                      />
-                    );
+              {productData?.productImage ? (
+                <img
+                  className="w-100 h-100 object-fit-cover"
+                  // key={index}
+                  src={productData?.productImage?.originalPath}
+                  alt="productIamge"
+                  // alt={img?.altTag}
+                  onError={(e) =>
+                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
                   }
-                })
+                />
               ) : (
                 <img
                   src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
@@ -176,8 +170,8 @@ const ProductCard = ({ productData, reload }) => {
         </div>
         <div className="product-info">
           <h6 className="product-category text-truncate d-flex">
-            <Tooltip title={productData?.category?.name}>
-              {productData?.category?.name}
+            <Tooltip title={productData?.category?.categoryHierarchy}>
+              {productData?.category?.categoryHierarchy}
             </Tooltip>
           </h6>
           <h6
