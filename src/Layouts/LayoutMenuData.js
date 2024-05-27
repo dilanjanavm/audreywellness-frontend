@@ -283,10 +283,24 @@ const Navdata = () => {
         },
 
         {
-          id: "exampleManagement",
-          label: "Example Management",
+          id: "featureManagement",
+          label: "Feature Management",
           icon: <FeatherIcon icon="users" className="icon-dual" />,
-          link: "/example-management",
+          link: "/feature-management",
+          click: function (e) {
+            e.preventDefault();
+            setIsProduct(!isProduct);
+            setIscurrentState("Products");
+            updateIconSidebar(e);
+          },
+          stateVariables: isProduct,
+        },
+        
+        {
+          id: "categoryManagement",
+          label: "Category Management",
+          icon: <FeatherIcon icon="users" className="icon-dual" />,
+          link: "/category-management",
           click: function (e) {
             e.preventDefault();
             setIsProduct(!isProduct);

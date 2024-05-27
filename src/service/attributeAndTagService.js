@@ -1,6 +1,6 @@
 import ApiService from "./apiService";
 
-export async function getAllAttributesWithTags() {
+export async function getAllAttributesWithTags(withTag) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;

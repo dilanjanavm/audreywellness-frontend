@@ -49,7 +49,7 @@ const Permission = () => {
       setRoleList(temp);
 
       // Find the SUPER_ADMIN role
-      const superAdminRole = res.data.find((role) => role.name === "SUPER_ADMIN");
+      const superAdminRole = res.data.find((role) => role.name === "ADMIN");
       if (superAdminRole) {
         setSelectedRole({ id: superAdminRole.id, name: superAdminRole.name });
         searchPermissionsByRole(superAdminRole.id);
