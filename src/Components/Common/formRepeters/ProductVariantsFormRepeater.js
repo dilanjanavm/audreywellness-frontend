@@ -161,6 +161,7 @@ const ProductVariantsFormRepeater = ({
                   handleSelectChange(selectedOption, i, "color")
                 }
               >
+                
                 {colorTagList.map((tag) => (
                   <Option
                     key={tag.id}
