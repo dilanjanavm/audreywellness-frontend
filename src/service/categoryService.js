@@ -4,7 +4,7 @@ export async function getAllCategoriesWithSubCategories() {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
-  apiObject.endpoint = "api/category/find-all?withSubCategories=true";
+  apiObject.endpoint = "api/category/find-all-parent-categories?withSubCategories=true";
   return await ApiService.callApi(apiObject);
 }
 
@@ -14,7 +14,15 @@ export async function getAllCategoriesWithOrWithoutSubCategories(
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
-  apiObject.endpoint = "api/category/find-all?withSubCategories=false";
+  apiObject.endpoint = "api/category/find-all-parent-categories?withSubCategories=false";
+  return await ApiService.callApi(apiObject);
+}
+
+export async function getAllCategories() {
+  const apiObject = {};
+  apiObject.method = "GET";
+  apiObject.authentication = true;
+  apiObject.endpoint = "api/category/find-all";
   return await ApiService.callApi(apiObject);
 }
 

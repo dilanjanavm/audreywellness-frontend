@@ -11,11 +11,11 @@ import {
 } from "reactstrap";
 import { Table, Tag } from "antd";
 import { Plus } from "react-feather";
-import { StaffTableColumns } from "../../common/tableColumns";
+import { CategoryTableColumns } from "../../common/tableColumns";
 // import StaffModel from "../../Components/Common/modal/StaffModal";
 import AddCategoryModel from "../../Components/Common/modal/AddCategoriesModal";
 
-import * as staffService from "../../service/staffService";
+import * as categoryService from "../../service/categoryService";
 // import { hideLoader, showLoader } from "../../../slices/loader/loader";
 import { useDispatch } from "react-redux";
 import {
@@ -26,30 +26,44 @@ import {
 const CategoryManagement = () => {
   document.title = "Staff Management| Address Shop";
 
-  const [staffTableList, setStaffTableList] = useState([]);
+  const [categoryTableList, setCategoryTableList] = useState([]);
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
   const [isUpdateStaffModalOpen, setIsUpdateStaffModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState([]);
   const [searchEmail, setSearchEmail] = useState("");
   let dispatch = useDispatch();
   useEffect(() => {
-    loadAllStaffs();
+    loadAllCategories();
   }, []);
 
-  const loadAllStaffs = () => {
+  const loadAllCategories = () => {
     // dispatch(showLoader(true));
-    staffService.getAll().then((res) => {
+    categoryService.getAllCategories().then((res) => {
       //     dispatch(hideLoader(true));
-      console.log(res, ":::::");
       const formattedData = res.data.map((record) => ({
-        name: record.user.firstName + " " + record.user.lastName,
-        email: record.user.email,
-        status: record.user.status,
-        contactNo: record.user.staff?.contactNo
-          ? record.user.staff?.contactNo
-          : "empty",
-        role: record.user?.role,
-        roleName: record.user.role.name,
+        name: record.name,
+        hierarchy: record.hierarchy,
+        status: record.status,
+        file: (
+          <div>
+            {record?.file ? (
+              <img
+                className="w-100 h-100 object-fit-cover"
+                src={record?.file?.originalPath}
+                alt="categoryImg"
+                onError={(e) =>
+                  (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                }
+              />
+            ) : (
+              <img
+                src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
+                alt="placeholder"
+                className="w-100 h-100 object-fit-cover"
+              />
+            )}
+          </div>
+        ),
         action: (
           <>
             <Button
@@ -74,7 +88,7 @@ const CategoryManagement = () => {
         ),
       }));
       console.log(formattedData, "formated data");
-      setStaffTableList(formattedData);
+      setCategoryTableList(formattedData);
     });
     //   .catch((err) => {
     //     console.log(err);
@@ -90,12 +104,12 @@ const CategoryManagement = () => {
     //         .deleteStaff(staffId)
     //         .then(async (res) => {
     //           console.log(res);
-    //           await loadAllStaffs();
+    //           await loadAllCategories();
     //           dispatch(hideLoader(false));
     //           customToastMsg("Staff has been  deleted", 1);
     //         })
     //         .catch(async (err) => {
-    //           await loadAllStaffs();
+    //           await loadAllCategories();
     //           handleError(err);
     //           console.log(err);
     //           dispatch(hideLoader(false));
@@ -108,7 +122,7 @@ const CategoryManagement = () => {
     //     setSearchEmail(value);
     //     if (value === "") {
     //       // If search input is empty, load all staff records
-    //       loadAllStaffs();
+    //       loadAllCategories();
     //     }
   };
 
@@ -118,25 +132,25 @@ const CategoryManagement = () => {
       setIsAddStaffModalOpen(true);
       setIsUpdateStaffModalOpen(true);
       setSelectedStaff(val);
-      loadAllStaffs();
+      loadAllCategories();
     } else {
       setIsAddStaffModalOpen(true);
-      loadAllStaffs();
+      loadAllCategories();
     }
   };
 
   // useEffect(() => {
-  //   const filteredStaff = staffTableList.filter((staff) =>
+  //   const filteredStaff = categoryTableList.filter((staff) =>
   //     staff.email.toLowerCase().includes(searchEmail.toLowerCase())
   //   );
-  //   setStaffTableList(filteredStaff);
+  //   setCategoryTableList(filteredStaff);
   // }, [searchEmail]);
 
   const closeStaffModal = () => {
     setIsAddStaffModalOpen(false);
     setIsUpdateStaffModalOpen(false);
     setSelectedStaff([]);
-    loadAllStaffs();
+    loadAllCategories();
   };
 
   return (
@@ -146,7 +160,7 @@ const CategoryManagement = () => {
         updateValue={selectedStaff}
         isOpen={isAddStaffModalOpen}
         toggle={(e) => {
-          loadAllStaffs();
+          loadAllCategories();
           closeStaffModal();
         }}
       />
@@ -205,8 +219,8 @@ const CategoryManagement = () => {
               <Table
                 className="mx-3 my-4"
                 pagination={true}
-                columns={StaffTableColumns}
-                dataSource={staffTableList}
+                columns={CategoryTableColumns}
+                dataSource={categoryTableList}
               />
             </Col>
           </Row>

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import TagsInput from "react-tagsinput";
-// import FeatureValue from "../../../Components/FeatureValues/FeatureValues";
+import FeatureValue from "../../Components/FeatureValues/FeatureValues";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
 import { Plus } from "react-feather";
 import AddFeatureModel from "../../Components/Common/modal/AddFeatureModel";
-// import FeatureUpdate from "../../../Components/Common/modal/FeatureUpdateModal";
+import UpdateFeatureModel from "../../Components/Common/modal/UpadateFeatureModel";
 import { useDispatch } from "react-redux";
-// import { popUploader } from "../../../common/commonFunctions";
 import { Table } from "antd";
 
 const FeatureManagement = () => {
@@ -22,10 +21,12 @@ const FeatureManagement = () => {
 
   const getAllAttributes = async () => {
     // popUploader(dispatch, true);
+    const withTags = true;
     await setCurrentFeatureValues([]);
     attributeAndTagService
-      .getAllAttributesWithTags()
+      .getAllAttributesWithTags(withTags)
       .then(async (res) => {
+        console.log(res, "reeeeeeeeeeeeeeeeeeS");
         let featureData = [];
         await setCurrentFeatureValues([]);
         res?.data.map(async (feature, index) => {
@@ -36,7 +37,7 @@ const FeatureManagement = () => {
       })
       .catch((c) => {
         console.log(c);
-        popUploader(dispatch, false);
+        // popUploader(dispatch, false);
       });
   };
 
@@ -87,19 +88,17 @@ const FeatureManagement = () => {
               {/* if data exists */}
               {currentFeatureValues.length > 0 && (
                 <CardBody>
-                  {/* {currentFeatureValues?.map((currentFeatureValue, index) => (
+                  {currentFeatureValues?.map((currentFeatureValue, index) => (
                     <FeatureValue
                       reload={() => {
-                        popUploader(dispatch, true);
+                        // popUploader(dispatch, true);
                         getAllAttributes();
                       }}
                       currentData={currentFeatureValue}
                       removeDetails={(e) => {}}
                       indexOfComponent={featureValues.length}
                     />
-                  )
-                  
-                  )} */}
+                  ))}
                 </CardBody>
               )}
             </Card>

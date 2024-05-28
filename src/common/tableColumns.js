@@ -154,7 +154,6 @@ export const CustomerTableColumns = [
   },
 ];
 
-
 export const RoleTableColumns = [
   {
     title: "Index",
@@ -193,6 +192,59 @@ export const RoleTableColumns = [
   {
     title: "Action",
     key: "action",
+    render: (text, record) => <div>{record.action}</div>,
+  },
+];
+
+export const CategoryTableColumns = [
+  {
+    title: "Image",
+    dataIndex: "file",
+    key: "file",
+
+    render: (text, record) => (
+      <div
+        style={{
+          maxWidth: 120,
+          minWidth: 80,
+        }}
+      >
+        {record.file}
+      </div>
+    ),
+  },
+
+  {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+  },
+
+  {
+    title: "Hierarchy",
+    dataIndex: "hierarchy",
+    key: "hierarchy",
+  },
+
+  {
+    title: "Categories Status",
+    key: "status",
+    width: "10%",
+    dataIndex: "status",
+    render: (status) => (
+      <Tag
+        color={status === 1 ? "success" : status === 2 ? "error" : "default"}
+        key={status}
+      >
+        {status === 1 ? "ACTIVE" : status === 2 ? "INACTIVE" : "none"}
+      </Tag>
+    ),
+  },
+
+  {
+    title: "Action",
+    key: "action",
+
     render: (text, record) => <div>{record.action}</div>,
   },
 ];
