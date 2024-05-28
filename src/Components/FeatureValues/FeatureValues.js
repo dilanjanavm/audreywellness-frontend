@@ -65,16 +65,20 @@ const FeatureValue = ({
     };
   };
   const removeValueFromAttribute = (term) => {
-    // customSweetAlert('Are you sure to delete this feature?', 0, () => {
-    //     popUploader(dispatch, true)
-    //     attributeService.deleteFeature(currentData.id).then(res => {
-    //         reload();
-    //         popUploader(dispatch, false)
-    //     }).catch(c => {
-    //         popUploader(dispatch, false)
-    //         handleChange(c)
-    //     })
-    // })
+    customSweetAlert("Are you sure to delete this feature?", 0, () => {
+      // popUploader(dispatch, true)
+      console.log(term);
+      // attributeService
+      //   .deleteFeature(currentData.id)
+      //   .then((res) => {
+      //     reload();
+      //     // popUploader(dispatch, false)
+      //   })
+      //   .catch((c) => {
+      //     // popUploader(dispatch, false)
+      //     handleChange(c);
+      //   });
+    });
   };
 
   const toggleModal = () => {
@@ -140,7 +144,7 @@ const FeatureValue = ({
                 color="danger"
                 className="w-100 justify-content-center d-flex align-items-center"
               >
-                <Trash2 size={16} /> <span>Remove</span>
+                <Trash2 size={16} /> <span>Delete</span>
               </Button>
             </Col>
             {currentData && (

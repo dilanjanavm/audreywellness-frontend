@@ -14,7 +14,8 @@ import {
 import ReactEditList, * as REL from "react-edit-list";
 // import { preventDefault } from "@fullcalendar/core/internal";
 import { customToastMsg, popUploader } from "../../../common/commonFunctions";
-// import * as attributeService from "../../../service/attributeService";
+import * as attributeAndTagService from "../../../service/attributeAndTagService";
+
 import { useDispatch } from "react-redux";
 
 const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
@@ -24,18 +25,18 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
 
   const dispatch = useDispatch();
   const handleSubmit = () => {
-    let tempTerms = [];
+    let tempTags = [];
     terms.map((term, index) => {
-      tempTerms.push({
-        id: null,
+      tempTags.push({
+        // id: null,
         name: term.Values,
       });
     });
 
     let data = {
-      id: null,
-      name: featureName,
-      terms: tempTerms,
+      // id: null,
+      attributeName: featureName,
+      tags: tempTags,
     };
     let isValid = false;
     featureName.trim() === ""
@@ -47,20 +48,21 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
     if (isValid) {
       console.log(data, "created data");
       //   popUploader(dispatch, true);
-      //   attributeService
-      //     .addAndUpdateAttributes(data)
-      //     .then((res) => {
-      //       toggle();
-      //       popUploader(dispatch, false);
-      //       customToastMsg("New feature added successfully !", 1);
-      //     })
-      //     .catch((c) => {
-      //       console.log(c);
-      //       popUploader(dispatch, false);
-      //       c.response.data.message
-      //         ? customToastMsg(c.response.data.message, 0)
-      //         : customToastMsg("Sorry! Try again later", 0);
-      //     });
+      attributeAndTagService
+        .create(data)
+        .then((res) => {
+          console.log(res, "created response");
+          toggle();
+          // popUploader(dispatch, false);
+          customToastMsg("New feature added successfully !", 1);
+        })
+        .catch((c) => {
+          console.log(c);
+          // popUploader(dispatch, false);
+          c.response.data.message
+            ? customToastMsg(c.response.data.message[0], 0)
+            : customToastMsg("Sorry! Try again later", 0);
+        });
     }
     //toggle();
   };
@@ -104,7 +106,7 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
               type="text"
               name="featureName"
               id="featureName"
-              placeholder="Eg: Fragrance"
+              placeholder="Eg: Size"
               value={featureName}
               onChange={(e) => setFeatureName(e.target.value)}
               onKeyPress={handleKeyPress}
