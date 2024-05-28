@@ -74,7 +74,7 @@ $yellow: #ffbc0a;
 $green: #00bd9d;
 $teal: #02a8b5;
 $cyan: #25a0e2;
-$customGreen: #efb921;
+$customYellow: #efb921;
 
 // scss-docs-end color-variables
 
@@ -326,7 +326,7 @@ $cyans: (
 // fusv-enable
 
 // scss-docs-start theme-color-variables
-$primary: $customGreen;
+$primary: $customYellow;
 $secondary: $gray-600;
 $success: $green;
 $info: $blue;
