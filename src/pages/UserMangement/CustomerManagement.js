@@ -30,10 +30,10 @@ const CustomerManagement = () => {
   let dispatch = useDispatch();
 
   useEffect(() => {
-    getAll();
+    loadAllCustomers();
   }, []);
 
-  const getAll = () => {
+  const loadAllCustomers = () => {
     // dispatch(showLoader(true));
     customerService
       .getAll()
@@ -148,7 +148,8 @@ const CustomerManagement = () => {
     setSearchContactNo(e.target.value);
     // If search input is empty, load all members
     if (e.target.value === "") {
-      loadAllMembers();
+       loadAllCustomers();
+      
     } else {
       // Otherwise, filter members based on the search input
       const filteredMembers = memberTableList.filter((member) =>
@@ -160,7 +161,7 @@ const CustomerManagement = () => {
   const handleSearchName = (e) => {
     setSearchName(e.target.value);
     if (e.target.value === "") {
-      loadAllMembers();
+      loadAllCustomers();
     } else {
       const filteredMembers = memberTableList.filter((member) =>
         member.name.toLowerCase().includes(e.target.value.toLowerCase())
@@ -172,9 +173,9 @@ const CustomerManagement = () => {
   const toggleModal = (val) => {
     if (val !== undefined) {
       setSelectedUser(val);
-      loadAllMembers();
+      // loadAllMembers();
     } else {
-      loadAllMembers();
+      // loadAllMembers();
     }
   };
 

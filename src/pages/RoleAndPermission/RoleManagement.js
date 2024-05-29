@@ -182,7 +182,7 @@ const RoleManagement = () => {
             color="primary"
             className="w-80"
             onClick={toggleAddRoleModal}
-            style={{ color: "black" }}
+            
           >
             <Plus size={19} /> Add New
           </Button>

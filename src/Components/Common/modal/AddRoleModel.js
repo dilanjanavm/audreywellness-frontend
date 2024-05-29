@@ -86,7 +86,7 @@ const AddRoleModal = ({ isOpen, toggle }) => {
         <Button
           color="primary"
           onClick={handleAddRole}
-          style={{ color: "black" }}
+         
         >
           Add Role
         </Button>

@@ -11,7 +11,7 @@ import {
     Row,
 } from "reactstrap";
 import {Link} from "react-router-dom";
-import logoLight from "../../assets/images/logo/logo-png.png";
+import logoLight from "../../assets/images/logo/addressLogo02.png";
 
 import OtpInput from 'react-otp-input';
 import {useFormik} from "formik";
