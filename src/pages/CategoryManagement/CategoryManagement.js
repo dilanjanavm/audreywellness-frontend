@@ -23,13 +23,15 @@ import {
   customToastMsg,
   handleError,
 } from "../../common/commonFunctions";
+import UpdateCategory from "../../Components/Common/modal/UpdateCategoryModal";
 const CategoryManagement = () => {
   document.title = "Staff Management| Address Shop";
 
   const [categoryTableList, setCategoryTableList] = useState([]);
-  const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
-  const [isUpdateStaffModalOpen, setIsUpdateStaffModalOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState([]);
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [isUpdateCategoryModalOpen, setIsUpdateCategoryModalOpen] =
+    useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
   let dispatch = useDispatch();
   useEffect(() => {
@@ -71,7 +73,7 @@ const CategoryManagement = () => {
               className="mx-2"
               outline
               onClick={(e) => {
-                toggleModal(record);
+                toggleUpdateCategoryModal(record);
               }}
             >
               <span>Update</span>
@@ -126,17 +128,13 @@ const CategoryManagement = () => {
     //     }
   };
 
-  const toggleModal = (val) => {
-    console.log(val, "00000000000");
-    if (val !== undefined) {
-      setIsAddStaffModalOpen(true);
-      setIsUpdateStaffModalOpen(true);
-      setSelectedStaff(val);
-      loadAllCategories();
-    } else {
-      setIsAddStaffModalOpen(true);
-      loadAllCategories();
-    }
+  const toggleAddCategoryModal = () => {
+    setIsAddCategoryModalOpen(!isAddCategoryModalOpen);
+  };
+
+  const toggleUpdateCategoryModal = (category) => {
+    setIsUpdateCategoryModalOpen(true);
+    setSelectedCategory(category);
   };
 
   // useEffect(() => {
@@ -147,21 +145,25 @@ const CategoryManagement = () => {
   // }, [searchEmail]);
 
   const closeStaffModal = () => {
-    setIsAddStaffModalOpen(false);
-    setIsUpdateStaffModalOpen(false);
-    setSelectedStaff([]);
-    loadAllCategories();
+    setIsUpdateCategoryModalOpen(false);
+    setSelectedCategory("");
   };
 
   return (
     <div className="page-content">
       <AddCategoryModel
-        isUpdate={isUpdateStaffModalOpen}
-        updateValue={selectedStaff}
-        isOpen={isAddStaffModalOpen}
+        isOpen={isAddCategoryModalOpen}
         toggle={(e) => {
+          toggleAddCategoryModal();
           loadAllCategories();
+        }}
+      />
+      <UpdateCategory
+        currentData={selectedCategory}
+        isOpen={isUpdateCategoryModalOpen}
+        toggle={(e) => {
           closeStaffModal();
+          loadAllCategories();
         }}
       />
       <Container fluid>
@@ -180,7 +182,7 @@ const CategoryManagement = () => {
               <Button
                 color="primary"
                 onClick={() => {
-                  toggleModal();
+                  toggleAddCategoryModal();
                 }}
               >
                 <Plus size={24} /> Add New

@@ -47,6 +47,9 @@ const AddNewProduct = () => {
     useState("");
   const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
+  const [productColorDetails, setProductColorDetails] = useState([
+    { attributeId: null, color: null, image: null, sizes: [] },
+  ]);
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
@@ -175,8 +178,126 @@ const AddNewProduct = () => {
     });
   };
 
+  const renderColorForms = () => {
+    return productColorDetails.map((detail, colorIndex) => (
+      <Row key={colorIndex} className="align-items-center">
+        <FormGroup className="col-3">
+          <Label>Color</Label>
+          <Select
+            allowClear
+            showSearch
+            placeholder="Select..."
+            style={{ width: "100%", height: 40 }}
+            value={detail.color?.id || undefined}
+            onChange={(value) => handleColorChange(value, colorIndex)}
+          >
+            {attributesAndTagList
+              .find((attribute) => attribute.name === "Color")
+              ?.tags.map((tag) => (
+                <Select.Option
+                  key={tag.id}
+                  value={tag.id}
+                  disabled={productColorDetails
+                    .map((detail) => detail.color?.id)
+                    .includes(tag.id)}
+                >
+                  {tag.name}
+                </Select.Option>
+              ))}
+          </Select>
+        </FormGroup>
+        <FormGroup className="col-3">
+          <Label>Image</Label>
+          <Input
+            type="file"
+            onChange={(e) => handleImageChange(e, colorIndex)}
+          />
+        </FormGroup>
+        {colorIndex < productColorDetails.length - 1 && (
+          <Button
+            className="col-1"
+            type="danger"
+            onClick={() => removeColorForm(colorIndex)}
+          >
+            Delete
+          </Button>
+        )}
+      </Row>
+    ));
+  };
+
+  useEffect(() => {
+    console.log(productColorDetails, "colors");
+  }, [productColorDetails]);
+
+  const handleColorChange = (value, index) => {
+    const newColorDetails = [...productColorDetails];
+    const colorAttribute = attributesAndTagList.find(
+      (attribute) => attribute.name === "Color"
+    );
+
+    if (colorAttribute) {
+      const selectedColorTag = colorAttribute.tags.find(
+        (tag) => tag.id === value
+      );
+      newColorDetails[index].attributeId = colorAttribute.id;
+
+      if (selectedColorTag) {
+        newColorDetails[index].color = {
+          id: value,
+          name: selectedColorTag.name,
+        };
+      }
+    }
+
+    setProductColorDetails(newColorDetails);
+
+    if (value && index === productColorDetails.length - 1) {
+      addColorForm();
+    }
+  };
+
+  const handleImageChange = (e, index) => {
+    const newColorDetails = [...productColorDetails];
+    newColorDetails[index].image = e.target.files[0];
+    setProductColorDetails(newColorDetails);
+  };
+
+  const addColorForm = () => {
+    let temp = { attributeId: null, color: null, image: null, sizes: [] };
+    setProductColorDetails([...productColorDetails, temp]);
+  };
+
+  const removeColorForm = (index) => {
+    const newColorDetails = [...productColorDetails];
+    newColorDetails.splice(index, 1);
+    setProductColorDetails(newColorDetails);
+  };
+
   const handleCreateProduct = () => {
     let validation = false;
+
+    // Validate product variant details
+    const isVariantValid = (variant) => {
+      return (
+        variant.color &&
+        variant.name &&
+        variant.sizes.every((size) => size.size && size.qty && size.price)
+      );
+    };
+
+    const hasInvalidValues = (obj) => {
+      for (let key in obj) {
+        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const filteredList = productVariantDetails.filter(isVariantValid);
+
+    const invalidVariant = productVariantDetails.find(hasInvalidValues);
 
     productName.trim() === ""
       ? customToastMsg("Product name cannot be empty", 2)
@@ -194,6 +315,11 @@ const AddNewProduct = () => {
       ? customToastMsg("Select product attributes", 2)
       : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
+      : invalidVariant
+      ? customToastMsg(
+          "Product variant details cannot have undefined, null or empty values",
+          2
+        )
       : (validation = true);
 
     if (validation) {
@@ -409,12 +535,16 @@ const AddNewProduct = () => {
             <h6>Variants, Price, Stock</h6>
           </CardHeader>
           <CardBody>
+            <Row className="border rounded mx-1 my-1 pt-2">
+              {renderColorForms()}
+            </Row>
             <ProductVariantsFormRepeater
               getProductVariantData={(data) => {
                 console.log(data, "in main class");
                 setProductVariantDetails([]);
                 setProductVariantDetails(data);
               }}
+              variantTypes={productColorDetails}
             />
           </CardBody>
         </Card>

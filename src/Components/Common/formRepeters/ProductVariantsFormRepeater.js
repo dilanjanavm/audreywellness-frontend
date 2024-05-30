@@ -14,7 +14,7 @@ const ProductVariantsFormRepeater = ({
   const [inputList, setInputList] = useState([
     {
       color: "",
-      file: {},
+      name: "",
       sizes: [],
     },
   ]);
@@ -27,15 +27,23 @@ const ProductVariantsFormRepeater = ({
   }, []);
 
   useEffect(() => {
+    console.log(variantTypes, "color details");
     if (variantTypes && variantTypes.length > 0) {
-      const formattedItems = variantTypes.map((variant) => ({
-        color: variant?.color,
-        sizes: variant?.sizes.map((size) => ({
-          size: size.size,
-          qty: size.qty,
-          price: size.price,
-        })),
-      }));
+      let formattedItems = [];
+
+      variantTypes.map((variant) => {
+        if (variant?.attributeId != null && variant?.color != null) {
+          formattedItems.push({
+            color: variant?.color,
+            name: variant?.name,
+            sizes: variant?.sizes.map((size) => ({
+              size: size.size,
+              qty: size.qty,
+              price: size.price,
+            })),
+          });
+        }
+      });
 
       setInputList(formattedItems);
     }
@@ -66,34 +74,29 @@ const ProductVariantsFormRepeater = ({
   const handleInputChange = (e, index, sizeIndex) => {
     const { name, value } = e.target;
     const list = [...inputList];
-    list[index].sizes[sizeIndex][name] = value;
+    name === "name"
+      ? (list[index][name] = value)
+      : (list[index].sizes[sizeIndex][name] = value);
     setInputList(list);
   };
 
   const handleSelectChange = (selectedOption, index, type) => {
     const list = [...inputList];
-    if (type === "color") {
-      list[index][type] = selectedOption;
-    } else if (type === "size") {
+    if (type === "size") {
       const sizes = selectedOption.map((size) => ({
         size,
         qty: "",
         price: "",
       }));
       list[index].sizes = sizes;
-    }
-    setInputList(list);
-  };
 
-  const handleRemove = (index) => {
-    setInputList((currentList) => currentList.filter((_, i) => i !== index));
+      setInputList(list);
+    }
   };
 
   const handleAddClick = () => {
     const isEmptyColor = inputList.some((input) => !input.color);
-    const hasEmptyImage = inputList.some(
-      (input) => !Object.keys(input.file).length
-    );
+
     const isEmptySize = inputList.some((input) =>
       input.sizes.some((size) => !size.size)
     );
@@ -104,7 +107,7 @@ const ProductVariantsFormRepeater = ({
       input.sizes.some((size) => !size.qty || size.qty < 0)
     );
 
-    if (isEmptyColor && hasEmptyImage && isEmptySize && isEmptyQuantity) {
+    if (isEmptyColor && isEmptySize && isEmptyQuantity) {
       customToastMsg("Select variant details");
     } else if (isEmptyColor) customToastMsg("Select variant color");
     else if (isEmptySize) customToastMsg("Select variant size");
@@ -115,7 +118,7 @@ const ProductVariantsFormRepeater = ({
         ...inputList,
         {
           color: "",
-          file: {},
+          nameL: "",
           sizes: [],
         },
       ]);
@@ -124,19 +127,14 @@ const ProductVariantsFormRepeater = ({
 
   const getVariantTypes = () => {
     console.log(inputList);
-    const filteredList = inputList.filter(
-      (variant) =>
-        variant.color &&
-        variant.sizes.every((size) => size.size && size.qty && size.price)
-    );
 
-    const variants = filteredList
+    const variants = inputList
       .map((variant) =>
         variant.sizes.map((size) => ({
           sellingPrice: size.price,
           availableQty: size.qty,
-          fileId: "eb780d00-5988-4ff3-8289-a892c8381b3a", // replace this with actual file ID if available
-          variantTagIds: [variant.color, size.size.id],
+          name: variant?.name,
+          variantTagIds: [variant.color?.id, size.size.id],
         }))
       )
       .flat();
@@ -148,34 +146,21 @@ const ProductVariantsFormRepeater = ({
     <div className="row">
       {inputList.map((variant, i) => (
         <div className="d-flex my-3" key={i}>
-          <div className="row" style={{ width: "80%" }}>
-            <div className="form-group col-md-2 col-lg-2">
+          <div className="row w-100">
+            <div className="form-group col-md-2 col-lg-1">
               <label className="form-label">Color</label>
-              <Select
-                allowClear
-                showSearch
-                placeholder="Select..."
-                style={{ width: "100%", height: 40 }}
-                value={variant.color}
-                onChange={(selectedOption) =>
-                  handleSelectChange(selectedOption, i, "color")
-                }
-              >
-                
-                {colorTagList.map((tag) => (
-                  <Option
-                    key={tag.id}
-                    value={tag.id}
-                    disabled={inputList.some((input) => input.color === tag.id)}
-                  >
-                    {tag.name}
-                  </Option>
-                ))}
-              </Select>
+              <h6 className="fw-normal">{variant?.color?.name}</h6>
             </div>
-            <div className="form-group col-md-2 col-lg-2">
-              <label className="form-label">Image</label>
-              {/* Image input logic goes here */}
+            <div className="form-group col-md-2 col-lg-3">
+              <label className="form-label">Name</label>
+              <Input
+                type="text"
+                name="name"
+                className="form-control"
+                placeholder="Enter name"
+                value={variant.name != undefined ? variant.name : ""}
+                onChange={(e) => handleInputChange(e, i, name)}
+              />
             </div>
             <div className="form-group col-md-3 col-lg-3">
               <label className="form-label">Size</label>
@@ -243,33 +228,6 @@ const ProductVariantsFormRepeater = ({
                 </Row>
               ))}
             </div>
-          </div>
-          <div className="d-flex mx-2" style={{ width: "fit-content" }}>
-            {inputList.length !== 1 && (
-              <div
-                className="mt-4 p-0 pt-1 me-4"
-                style={{ width: "fit-content" }}
-              >
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleRemove(i)}
-                >
-                  <Minus size={18} /> Remove
-                </button>
-              </div>
-            )}
-            {inputList.length - 1 === i && (
-              <div className="mt-4 p-0 pt-1" style={{ width: "fit-content" }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleAddClick}
-                >
-                  <Plus size={18} /> New
-                </button>
-              </div>
-            )}
           </div>
         </div>
       ))}
