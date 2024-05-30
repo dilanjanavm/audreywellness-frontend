@@ -17,7 +17,7 @@ import {userForgetPassword} from "../../slices/thunks";
 
 // import images
 // import profile from "../../assets/images/bg.png";
-import logoLight from "../../assets/images/logo/logo-png.png";
+import logoLight from "../../assets/images/logo/addressLogo02.png";
 import ParticlesAuth from "../AuthenticationInner/ParticlesAuth";
 import {createSelector} from "reselect";
 import {customToastMsg, toastTemp} from "../../common/commonFunctions";

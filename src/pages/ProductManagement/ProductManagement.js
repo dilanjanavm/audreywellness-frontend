@@ -70,7 +70,7 @@ const ProductManagement = () => {
             >
               <Button
                 color="primary"
-                style={{ color: "black" }}
+               
                 onClick={() => {
                   history("/create-product");
                 }}

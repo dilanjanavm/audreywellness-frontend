@@ -179,7 +179,6 @@ const CategoryManagement = () => {
             >
               <Button
                 color="primary"
-                style={{ color: "black" }}
                 onClick={() => {
                   toggleModal();
                 }}

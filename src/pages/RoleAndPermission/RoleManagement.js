@@ -64,56 +64,45 @@ const RoleManagement = () => {
       .then((res) => {
         console.log(res);
         let temp = [];
-        const formatRoleName = (roleName) => {
-          return roleName
-            .split("_")
-            .map(
-              (word) =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            )
-            .join(" ");
-        };
         const sortedRoles = res?.data.sort((a, b) => {
-          // Prioritize isDefault: true roles at the top
           if (a.isDefault && !b.isDefault) return -1;
           if (!a.isDefault && b.isDefault) return 1;
-
-          // Move status: 2 roles to the bottom
           if (a.status === 2 && b.status !== 2) return 1;
           if (a.status !== 2 && b.status === 2) return -1;
-
-          return 0; // If none of the above, maintain original order
+          return 0;
         });
 
         sortedRoles.map((role, index) => {
           temp.push({
             id: role?.id,
-            // name: formatRoleName(role?.name),
             name: role?.name,
             role_status: role?.status,
             isDefault: role?.isDefault,
             action: (
               <>
-                <>
-                  <Button
-                    color="warning"
-                    className="mx-2"
-                    onClick={(e) => {
-                      openUpdateRoleModal(role);
-                    }}
-                  >
-                    <span>Update</span>
-                  </Button>
-                  <Button
-                    color="danger"
-                    className=""
-                    onClick={(e) => {
-                      handleDeleteRole(role?.id);
-                    }}
-                  >
-                    <span>Remove</span>
-                  </Button>
-                </>
+                <Button
+                  color="warning"
+                  className="mx-2"
+                  onClick={(e) => openUpdateRoleModal(role)}
+                  disabled={role?.isDefault}
+                  style={{
+                    opacity: role?.isDefault ? 0.5 : 1,
+                    cursor: role?.isDefault ? "not-allowed" : "pointer",
+                  }}
+                >
+                  <span>Update</span>
+                </Button>
+                <Button
+                  color="danger"
+                  onClick={(e) => handleDeleteRole(role?.id)}
+                  disabled={role?.isDefault}
+                  style={{
+                    opacity: role?.isDefault ? 0.5 : 1,
+                    cursor: role?.isDefault ? "not-allowed" : "pointer",
+                  }}
+                >
+                  <span>Delete</span>
+                </Button>
               </>
             ),
           });
@@ -193,7 +182,7 @@ const RoleManagement = () => {
             color="primary"
             className="w-80"
             onClick={toggleAddRoleModal}
-            style={{ color: "black" }}
+            
           >
             <Plus size={19} /> Add New
           </Button>

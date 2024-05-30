@@ -23,8 +23,7 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
   useEffect(() => {
     setFeatureName(currentData.name);
     let data = [];
-
-    currentData?.terms?.map((val, index) => {
+    currentData?.tags?.map((val, index) => {
       data.push({ id: val.id, Values: val.name });
     });
     setCurrentTerms(data);

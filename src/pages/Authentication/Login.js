@@ -27,7 +27,7 @@ import { useFormik } from "formik";
 // actions
 import { loginUser, socialLogin, resetLoginFlag } from "../../slices/thunks";
 
-// import ttlLogo from "../../assets/images/logo/ttl_logo-png.png";
+ import addresssLogo from "../../assets/images/logo/addressLogo01.png";
 import { createSelector } from "reselect";
 //import images
 
@@ -81,17 +81,17 @@ const Login = (props) => {
   return (
     <React.Fragment className=" bg-login-view ">
       <ParticlesAuth>
-        <div className="auth-page-content pt-4">
-          <Container className="pt-5">
+        <div className="auth-page-content d-flex align-items-center">
+          <Container className="">
             <Row>
               <Col lg={12}>
                 <div className="text-center mt-sm-3 mb-3 text-white-50 ">
                   <div>
                     <Link to="/" className="d-inline-block auth-logo">
-                      {/* <img src={ttlLogo} alt="" height="100" /> */}
+                      <img src={addresssLogo} alt="" height="100" />
                     </Link>
                   </div>
-                  <p className="mt-3 text-primary fs-15 fw-medium">
+                  <p className="mt-3 text-primary fs-15 fw-medium text-white">
                     Address Shop  Admin Panel
                   </p>
                 </div>
@@ -100,7 +100,7 @@ const Login = (props) => {
 
             <Row className="justify-content-center">
               <Col md={8} lg={6} xl={5}>
-                <Card className="mt-4 card-shadow">
+                <Card className="mt-1 card-shadow">
                   <CardBody className="p-4">
                     <div className="text-center mt-1">
                       <h2 className="text-primary">Welcome !</h2>
