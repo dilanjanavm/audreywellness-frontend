@@ -29,7 +29,7 @@ import * as categoryService from "../../../service/categoryService";
 import classnames from "classnames";
 import { useDispatch } from "react-redux";
 
-const AddCategoryModel = ({ isOpen, toggle, currentData }) => {
+const AddCategoryModel = ({ isOpen, toggle }) => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [selectedParent, setSelectedParent] = useState("");
@@ -198,14 +198,14 @@ const AddCategoryModel = ({ isOpen, toggle, currentData }) => {
                         />
                       </Col> */}
 
-                      <Col sm={12} md={4} lg={6} className="px-4 ">
+                      {/* <Col sm={12} md={4} lg={6} className="px-4 ">
                         <div
                           className="w-100 h-25 rounded-2"
                           style={{ background: color, height: "20px" }}
                         >
                           {" "}
                         </div>
-                      </Col>
+                      </Col> */}
                     </Row>
                   </FormGroup>
 
@@ -272,14 +272,14 @@ const AddCategoryModel = ({ isOpen, toggle, currentData }) => {
                         />
                       </Col> */}
 
-                      <Col sm={12} md={4} lg={6} className="px-4 ">
+                      {/* <Col sm={12} md={4} lg={6} className="px-4 ">
                         <div
                           className="w-100 h-25 rounded-2"
                           style={{ background: color, height: "20px" }}
                         >
                           {" "}
                         </div>
-                      </Col>
+                      </Col> */}
                     </Row>
                   </FormGroup>
                   <div className="d-flex justify-content-end">
