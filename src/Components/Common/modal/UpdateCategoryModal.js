@@ -70,6 +70,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
     let data = {
       name: categoryName,
       parent_id: selectedParent,
+      fileId: null,
     };
     customSweetAlert("Are you sure to update this?", 2, () => {
       categoryName.trim() === ""
@@ -101,7 +102,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
               <Row>
                 <Col sm="12">
                   <Form className="mt-2">
-                    {currentData?.parentId != null ? (
+                    {/* {currentData?.parentId != null ? (
                       <FormGroup>
                         <Label for="categoryName">
                           Update main category name{" "}
@@ -123,16 +124,16 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
                       </FormGroup>
                     ) : (
                       ""
-                    )}
+                    )} */}
 
                     <FormGroup>
                       {currentData?.parentId != null ? (
                         <Label for="categoryName">
-                          Update sub category Name
+                          Update sub category name
                         </Label>
                       ) : (
                         <Label for="categoryName">
-                          Update main category Name
+                          Update main category name
                         </Label>
                       )}
 
