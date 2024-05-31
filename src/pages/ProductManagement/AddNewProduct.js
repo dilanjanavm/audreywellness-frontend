@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardBody,
@@ -20,7 +20,7 @@ import {
   handleError,
 } from "../../common/commonFunctions";
 import { DownOutlined, CloseOutlined } from "@ant-design/icons";
-import { Button, Divider, Dropdown, Menu, Select, Table } from "antd";
+import { Button, Divider, Dropdown, Menu, Select, Checkbox } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft } from "react-feather";
@@ -51,6 +51,11 @@ const AddNewProduct = () => {
     { attributeId: null, color: null, image: null, sizes: [] },
   ]);
 
+  const [selectCheckBox, setSelectColorCheckBox] = useState(true);
+  const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(true);
+
+  const [removeColor, setRemoveColor] = useState({});
+
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
     loadAllAttributesWithTags();
@@ -59,6 +64,14 @@ const AddNewProduct = () => {
   useEffect(() => {
     console.log(selectedTags, "selectedTags");
   }, [selectedTags]);
+
+  useEffect(() => {
+    if (!selectCheckBox) {
+      setProductColorDetails([
+        { attributeId: null, color: null, image: null, sizes: [] },
+      ]);
+    }
+  }, [selectCheckBox]);
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -179,33 +192,36 @@ const AddNewProduct = () => {
   };
 
   const renderColorForms = () => {
+    if (!selectCheckBox) return null;
     return productColorDetails.map((detail, colorIndex) => (
       <Row key={colorIndex} className="align-items-center">
-        <FormGroup className="col-3">
-          <Label>Color</Label>
-          <Select
-            allowClear
-            showSearch
-            placeholder="Select..."
-            style={{ width: "100%", height: 40 }}
-            value={detail.color?.id || undefined}
-            onChange={(value) => handleColorChange(value, colorIndex)}
-          >
-            {attributesAndTagList
-              .find((attribute) => attribute.name === "Color")
-              ?.tags.map((tag) => (
-                <Select.Option
-                  key={tag.id}
-                  value={tag.id}
-                  disabled={productColorDetails
-                    .map((detail) => detail.color?.id)
-                    .includes(tag.id)}
-                >
-                  {tag.name}
-                </Select.Option>
-              ))}
-          </Select>
-        </FormGroup>
+        {
+          <FormGroup className="col-3">
+            <Label>Color</Label>
+            <Select
+              allowClear
+              showSearch
+              placeholder="Select..."
+              style={{ width: "100%", height: 40 }}
+              value={detail.color?.id || undefined}
+              onChange={(value) => handleColorChange(value, colorIndex)}
+            >
+              {attributesAndTagList
+                .find((attribute) => attribute.name === "Color")
+                ?.tags.map((tag) => (
+                  <Select.Option
+                    key={tag.id}
+                    value={tag.id}
+                    disabled={productColorDetails
+                      .map((detail) => detail.color?.id)
+                      .includes(tag.id)}
+                  >
+                    {tag.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </FormGroup>
+        }
         <FormGroup className="col-3">
           <Label>Image</Label>
           <Input
@@ -268,10 +284,18 @@ const AddNewProduct = () => {
     setProductColorDetails([...productColorDetails, temp]);
   };
 
+  // const removeColorForm = (index) => {
+  //   const newColorDetails = [...productColorDetails];
+  //   newColorDetails.splice(index, 1);
+  //   setProductColorDetails(newColorDetails);
+  // };
+
   const removeColorForm = (index) => {
     const newColorDetails = [...productColorDetails];
-    newColorDetails.splice(index, 1);
+    const removedColor = newColorDetails.splice(index, 1)[0]; // Get the removed color object
     setProductColorDetails(newColorDetails);
+    console.log(removedColor);
+    setRemoveColor(removedColor?.color);
   };
 
   const handleCreateProduct = () => {
@@ -349,7 +373,7 @@ const AddNewProduct = () => {
               history("/product-management");
             }}
           />{" "}
-          <h4>Add New Product</h4>
+          <h4>Add New Product Two</h4>
         </div>
 
         <Card>
@@ -534,17 +558,43 @@ const AddNewProduct = () => {
           <CardHeader>
             <h6>Variants, Price, Stock</h6>
           </CardHeader>
+          <Row>
+            <Col lg={6} md={6} sm={6} className="mt-2 ">
+              <Checkbox
+                className="mx-4"
+                defaultChecked={selectCheckBox}
+                onChange={(e) => {
+                  setSelectColorCheckBox(e.target.checked);
+                }}
+              >
+                Color
+              </Checkbox>
+            </Col>
+            <Col lg={6} md={6} sm={6} className="mt-2">
+              <Checkbox
+                defaultChecked={selectSizeCheckBox}
+                onChange={(e) => {
+                  setSelectSizeCheckBox(e.target.checked);
+                }}
+              >
+                Size
+              </Checkbox>
+            </Col>
+          </Row>
           <CardBody>
             <Row className="border rounded mx-1 my-1 pt-2">
               {renderColorForms()}
             </Row>
+
             <ProductVariantsFormRepeater
+              removeColor={removeColor}
               getProductVariantData={(data) => {
                 console.log(data, "in main class");
                 setProductVariantDetails([]);
                 setProductVariantDetails(data);
               }}
               variantTypes={productColorDetails}
+              selectSize={selectSizeCheckBox}
             />
           </CardBody>
         </Card>
