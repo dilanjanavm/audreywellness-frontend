@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "react-feather";
-import { Button, FormFeedback, Input, Row } from "reactstrap";
+import { Button, Card, FormFeedback, Input, Row } from "reactstrap";
 import { customToastMsg } from "../../../common/commonFunctions";
 import { getAllAttributesWithTags } from "../../../service/attributeAndTagService";
 import { Select } from "antd";
@@ -8,8 +8,10 @@ import { Select } from "antd";
 const { Option } = Select;
 
 const ProductVariantsFormRepeater = ({
+  removeColor,
   getProductVariantData,
   variantTypes,
+  selectSize,
 }) => {
   const [inputList, setInputList] = useState([
     {
@@ -27,27 +29,71 @@ const ProductVariantsFormRepeater = ({
   }, []);
 
   useEffect(() => {
+    console.log(removeColor, "remove color");
+    console.log(selectSize, "select size");
     console.log(variantTypes, "color details");
     if (variantTypes && variantTypes.length > 0) {
       let formattedItems = [];
-
+      let shouldClear = false;
       variantTypes.map((variant) => {
-        if (variant?.attributeId != null && variant?.color != null) {
-          formattedItems.push({
-            color: variant?.color,
-            name: variant?.name,
-            sizes: variant?.sizes.map((size) => ({
-              size: size.size,
-              qty: size.qty,
-              price: size.price,
-            })),
-          });
+        if (variant?.attributeId != null) {
+          shouldClear = true;
+
+          if (selectSize) {
+            console.log("attribute null neme , size true");
+            formattedItems.push({
+              color: variant?.color,
+              name: variant?.name,
+              sizes: variant?.sizes.map((size) => ({
+                size: size.size,
+                qty: size.qty,
+                price: size.price,
+              })),
+            });
+          } else {
+            console.log("attribute null neme , size false");
+            formattedItems.push({
+              color: variant?.color,
+              name: variant?.name,
+              sizes: [
+                {
+                  size: "",
+                  qty: "",
+                  price: "",
+                },
+              ],
+            });
+          }
+        } else {
+          console.log("attribute null , size true");
+          if (selectSize) {
+            formattedItems.push({
+              color: "",
+              name: "",
+              sizes: [],
+            });
+          } else {
+            console.log("attribute null neme , size false");
+            formattedItems.push({
+              color: "",
+              name: "",
+              sizes: [{ size: "", qty: "", price: "" }],
+            });
+          }
         }
       });
 
+      if (shouldClear) {
+        formattedItems = formattedItems.filter((item) => item.color !== "");
+      }
+
       setInputList(formattedItems);
     }
-  }, [variantTypes]);
+  }, [variantTypes, selectSize]);
+
+  useEffect(() => {
+    console.log(inputList, "input list");
+  }, [inputList]);
 
   useEffect(() => {
     getVariantTypes();
@@ -92,6 +138,10 @@ const ProductVariantsFormRepeater = ({
 
       setInputList(list);
     }
+  };
+
+  const handleRemove = (index) => {
+    setInputList((currentList) => currentList.filter((_, i) => i !== index));
   };
 
   const handleAddClick = () => {
@@ -143,14 +193,20 @@ const ProductVariantsFormRepeater = ({
   };
 
   return (
-    <div className="row">
+    <div className="row w-100">
       {inputList.map((variant, i) => (
-        <div className="d-flex my-3" key={i}>
+        <Card className="d-flex my-3 mx-3 p-3" key={i}>
           <div className="row w-100">
-            <div className="form-group col-md-2 col-lg-1">
-              <label className="form-label">Color</label>
-              <h6 className="fw-normal">{variant?.color?.name}</h6>
-            </div>
+            {variantTypes &&
+            variantTypes.length === 1 &&
+            variant?.color === "" ? (
+              ""
+            ) : (
+              <div className="form-group col-md-2 col-lg-1">
+                <label className="form-label">Color</label>
+                <h6 className="fw-normal">{variant?.color?.name}</h6>
+              </div>
+            )}
             <div className="form-group col-md-2 col-lg-3">
               <label className="form-label">Name</label>
               <Input
@@ -162,74 +218,135 @@ const ProductVariantsFormRepeater = ({
                 onChange={(e) => handleInputChange(e, i, name)}
               />
             </div>
-            <div className="form-group col-md-3 col-lg-3">
-              <label className="form-label">Size</label>
-              <Select
-                mode="multiple"
-                allowClear
-                showSearch
-                placeholder="Select..."
-                style={{ width: "100%", height: 40 }}
-                value={variant.sizes.map((s) => s.size.id)}
-                onChange={(selectedOption) =>
-                  handleSelectChange(
-                    sizeTagList.filter((tag) =>
-                      selectedOption.includes(tag.id)
-                    ),
-                    i,
-                    "size"
-                  )
-                }
-              >
-                {sizeTagList.map((tag) => (
-                  <Option key={tag.id} value={tag.id}>
-                    {tag.name}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-            <div className="form-group col-md-5 col-lg-5">
-              {variant.sizes.map((size, sizeIndex) => (
-                <Row key={sizeIndex}>
-                  <div className="form-group col-md-6 col-lg-6">
-                    <label className="form-label">
+
+            {variantTypes &&
+            variantTypes.length === 1 &&
+            variant?.color === "" &&
+            !selectSize ? (
+              ""
+            ) : variantTypes && variantTypes.length > 0 && selectSize ? (
+              <div className="form-group col-md-3 col-lg-3">
+                <label className="form-label">Size</label>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showSearch
+                  placeholder="Select..."
+                  style={{ width: "100%", height: 40 }}
+                  value={variant.sizes.map((s) => s.size.id)}
+                  onChange={(selectedOption) =>
+                    handleSelectChange(
+                      sizeTagList.filter((tag) =>
+                        selectedOption.includes(tag.id)
+                      ),
+                      i,
+                      "size"
+                    )
+                  }
+                >
+                  {sizeTagList.map((tag) => (
+                    <Option key={tag.id} value={tag.id}>
+                      {tag.name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            ) : (
+              ""
+            )}
+
+            {selectSize ? (
+              <div className="form-group col-md-12 col-lg-12 ">
+                {variant.sizes.map((size, sizeIndex) => (
+                  <Row
+                    key={sizeIndex}
+                    className="d-flex justify-content-end my-3"
+                  >
+                    <div className="form-group col-md-1 col-lg-1 d-flex align-items-center">
+                      {/* <label className="form-label">Size</label> */}
+                      <h6 className="fw-normal">{size.size.name}</h6>
+                    </div>
+                    <div className="form-group col-md-4 col-lg-4">
+                      {/* <label className="form-label">
                       Quantity of {size.size.name}
-                    </label>
-                    <Input
-                      type="text"
-                      name="qty"
-                      className="form-control"
-                      placeholder="Enter quantity"
-                      value={size.qty}
-                      onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                      invalid={size.qty < 0}
-                    />
-                    {size.qty < 0 && (
-                      <FormFeedback>Invalid Quantity</FormFeedback>
-                    )}
-                  </div>
-                  <div className="form-group col-md-6 col-lg-6">
-                    <label className="form-label">
+                    </label> */}
+                      <Input
+                        type="text"
+                        name="qty"
+                        className="form-control"
+                        placeholder="Enter quantity"
+                        value={size.qty}
+                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                        invalid={size.qty < 0}
+                      />
+                      {size.qty < 0 && (
+                        <FormFeedback>Invalid Quantity</FormFeedback>
+                      )}
+                    </div>
+                    <div className="form-group col-md-4 col-lg-4">
+                      {/* <label className="form-label">
                       Price of {size.size.name}
-                    </label>
-                    <Input
-                      type="number"
-                      name="price"
-                      className="form-control"
-                      placeholder="Enter price"
-                      value={size.price}
-                      onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                      invalid={size.price < 0}
-                    />
-                    {size.price < 0 && (
-                      <FormFeedback>Invalid Price</FormFeedback>
-                    )}
-                  </div>
-                </Row>
-              ))}
-            </div>
+                    </label> */}
+                      <Input
+                        type="number"
+                        name="price"
+                        className="form-control"
+                        placeholder="Enter price"
+                        value={size.price}
+                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                        invalid={size.price < 0}
+                      />
+                      {size.price < 0 && (
+                        <FormFeedback>Invalid Price</FormFeedback>
+                      )}
+                    </div>
+                  </Row>
+                ))}
+              </div>
+            ) : (
+              <div className="form-group col-md-6 col-lg-6 ">
+                {variant.sizes.map((size, sizeIndex) => (
+                  <Row key={sizeIndex}>
+                    <div className="form-group col-md-6 col-lg-6">
+                      <label className="form-label">
+                        Quantity of {size.size.name}
+                      </label>
+                      <Input
+                        type="text"
+                        name="qty"
+                        className="form-control"
+                        placeholder="Enter quantity"
+                        value={size.qty}
+                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                        invalid={size.qty < 0}
+                      />
+                      {size.qty < 0 && (
+                        <FormFeedback>Invalid Quantity</FormFeedback>
+                      )}
+                    </div>
+                    <div className="form-group col-md-6 col-lg-6">
+                      <label className="form-label">
+                        Price of {size.size.name}
+                      </label>
+                      <Input
+                        type="number"
+                        name="price"
+                        className="form-control"
+                        placeholder="Enter price"
+                        value={size.price}
+                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                        invalid={size.price < 0}
+                      />
+                      {size.price < 0 && (
+                        <FormFeedback>Invalid Price</FormFeedback>
+                      )}
+                    </div>
+                  </Row>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );
