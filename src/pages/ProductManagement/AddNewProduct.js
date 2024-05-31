@@ -192,7 +192,6 @@ const AddNewProduct = () => {
   };
 
   const renderColorForms = () => {
-    if (!selectCheckBox) return null;
     return productColorDetails.map((detail, colorIndex) => (
       <Row key={colorIndex} className="align-items-center">
         {
@@ -583,9 +582,18 @@ const AddNewProduct = () => {
           </Row>
           <CardBody>
             <Row className="border rounded mx-1 my-1 pt-2">
-              {renderColorForms()}
+              {selectCheckBox ? (
+                renderColorForms()
+              ) : (
+                <FormGroup className="col-3">
+                  <Label>Image</Label>
+                  <Input
+                    type="file"
+                    onChange={(e) => handleImageChange(e, colorIndex)}
+                  />
+                </FormGroup>
+              )}
             </Row>
-
             <ProductVariantsFormRepeater
               removeColor={removeColor}
               getProductVariantData={(data) => {
