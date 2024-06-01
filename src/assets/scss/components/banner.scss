@@ -1,0 +1,26 @@
+.clickToUploadButton{
+    width: 142px;
+    border-radius: 9px;
+    height: 40px;
+    background: white;
+    border: 0.6px solid #131313;
+    color: #131313;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+.upload_icon{
+    position: relative;
+    right: 7px;
+    bottom: 2px;
+    font-weight: 400;
+    margin-left: 4px;
+}
+.clickToUploadButton:hover{
+    background-color: #131313;
+    color: white;
+    font-weight: 450;
+}
+.upload_icon:hover{
+    color: white !important;
+    font-weight: 450;
+}

@@ -199,10 +199,10 @@ export const customSweetAlertResolve = (
 };
 
 export const handleError = (c) => {
-  // c?.response?.data?.message
-  //   ? customToastMsg(c?.response?.data?.message[0], 0)
-  //   : customToastMsg("Sorry! Try again later", 0);
-  message.error(c?.response?.data?.message[0]);
+  c?.response?.data?.message
+    ? customToastMsg(c?.response?.data?.message[0], 0)
+    : customToastMsg("Sorry! Try again later", 0);
+  // message.error(c?.response?.data?.message[0]);
 };
 
 export const countDescription = (description) => {

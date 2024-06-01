@@ -28,6 +28,8 @@ import {
 import * as categoryService from "../../../service/categoryService";
 import classnames from "classnames";
 import { useDispatch } from "react-redux";
+import FileUploadModal from "./FileUploadModal";
+import { Upload } from "react-feather";
 
 const AddCategoryModel = ({ isOpen, toggle }) => {
   const [categoryName, setCategoryName] = useState("");
@@ -36,6 +38,8 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   const [activeTab, setActiveTab] = useState("1");
   const [color, setColor] = useState("#000");
   const [allCategories, setAllCategories] = useState([]);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+
   const dispatch = useDispatch();
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -139,7 +143,9 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
       : addSubCategory(data);
     //toggle();
   };
-
+  const openToggle = () => {
+    setImageModalOpen(!imageModalOpen);
+  };
   return (
     <Modal size="md" isOpen={isOpen} toggle={toggle}>
       <ModalHeader toggle={toggle}>Add New Category</ModalHeader>
@@ -188,25 +194,20 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                   </FormGroup>
 
                   <FormGroup>
-                    <Label for="categoryName">Select image for category </Label>
-                    <Row>
-                      {/* <Col sm={12} md={8} lg={6}>
-                        <SketchPicker
-                          className={"w-100"}
-                          color={color}
-                          onChangeComplete={handleChangeComplete}
-                        />
-                      </Col> */}
-
-                      {/* <Col sm={12} md={4} lg={6} className="px-4 ">
-                        <div
-                          className="w-100 h-25 rounded-2"
-                          style={{ background: color, height: "20px" }}
-                        >
-                          {" "}
-                        </div>
-                      </Col> */}
-                    </Row>
+                    {/* <Label for="categoryName">Select image for category </Label> */}
+                    <FileUploadModal
+                      isOpen={imageModalOpen}
+                      toggle={openToggle}
+                      isMultiple={false}
+                    />
+                    <button
+                      className={"mt-2 clickToUploadButton w-100"}
+                      type="button"
+                      onClick={openToggle}
+                    >
+                      <Upload className={"upload_icon"} size={15} />
+                      Click To Upload
+                    </button>
                   </FormGroup>
 
                   <div className="d-flex justify-content-end">
@@ -260,27 +261,23 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                   </FormGroup>
 
                   <FormGroup>
-                    <Label for="categoryName">
+                    {/* <Label for="categoryName">
                       Select image for subcategory{" "}
-                    </Label>
-                    <Row>
-                      {/* <Col sm={12} md={8} lg={6}>
-                        <SketchPicker
-                          className={"w-100"}
-                          color={color}
-                          onChangeComplete={handleChangeComplete}
-                        />
-                      </Col> */}
+                    </Label> */}
 
-                      {/* <Col sm={12} md={4} lg={6} className="px-4 ">
-                        <div
-                          className="w-100 h-25 rounded-2"
-                          style={{ background: color, height: "20px" }}
-                        >
-                          {" "}
-                        </div>
-                      </Col> */}
-                    </Row>
+                    <FileUploadModal
+                      isOpen={imageModalOpen}
+                      toggle={openToggle}
+                      isMultiple={false}
+                    />
+                    <button
+                      className={"mt-2 clickToUploadButton w-100"}
+                      type="button"
+                      onClick={openToggle}
+                    >
+                      <Upload className={"upload_icon"} size={15} />
+                      Click To Upload
+                    </button>
                   </FormGroup>
                   <div className="d-flex justify-content-end">
                     <Button
