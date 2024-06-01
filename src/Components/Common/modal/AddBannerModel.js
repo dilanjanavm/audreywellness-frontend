@@ -16,9 +16,13 @@ import {
   //   popUploader,
 } from "../../../common/commonFunctions";
 import * as bannerService from "../../../service/bannerService";
+import FileUploadModal from "./FileUploadModal";
+import { Upload } from "react-feather";
+
 const AddBannerModal = ({ isOpen, toggle }) => {
   const [position, setPosition] = useState("");
   const [isUploadModalOpen, setFileUploadModalOpen] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const handleAddBanner = () => {
     let isValidated = false;
@@ -47,6 +51,9 @@ const AddBannerModal = ({ isOpen, toggle }) => {
         })
         .finally();
     }
+  };
+  const openToggle = () => {
+    setImageModalOpen(!imageModalOpen);
   };
 
   return (
@@ -82,12 +89,25 @@ const AddBannerModal = ({ isOpen, toggle }) => {
           </FormGroup>
           <FormGroup>
             {/* <Label>Upload Banner</Label> */}
-            <Button
+            {/* <Button
               className="upload-btn"
               onClick={() => setFileUploadModalOpen(true)}
             >
               <span>Upload Image</span>
-            </Button>
+            </Button> */}
+            <FileUploadModal
+              isOpen={imageModalOpen}
+              toggle={openToggle}
+              isMultiple={false}
+            />
+            <button
+              className={"mt-2 clickToUploadButton w-100"}
+              type="button"
+              onClick={openToggle}
+            >
+              <Upload className={"upload_icon"} size={15} />
+              Click To Upload
+            </button>
           </FormGroup>
         </Form>
       </ModalBody>
