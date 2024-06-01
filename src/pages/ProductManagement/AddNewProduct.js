@@ -23,9 +23,10 @@ import { DownOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Divider, Dropdown, Menu, Select, Checkbox } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
 import ProductVariantsFormRepeater from "../../Components/Common/formRepeters/ProductVariantsFormRepeater";
+import FileUploadModal from "../../Components/Common/modal/FileUploadModal";
 
 const { Option } = Select;
 
@@ -39,7 +40,10 @@ const AddNewProduct = () => {
   const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedAttributes, setSelectedAttributes] = useState([]);
   const [productVariantDetails, setProductVariantDetails] = useState([]);
+  // const [productImages, setProductImages] = useState();
+  const [imageUploadIndex, setImageUploadIndex] = useState(null);
 
   //---------------------data show --------------------------------------
   const [categoryList, setCategoryList] = useState([]);
@@ -48,11 +52,14 @@ const AddNewProduct = () => {
   const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
   const [productColorDetails, setProductColorDetails] = useState([
-    { attributeId: null, color: null, image: null, sizes: [] },
+    { attributeId: null, color: null, image: [], sizes: [] },
   ]);
 
-  const [selectCheckBox, setSelectColorCheckBox] = useState(true);
-  const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(true);
+  const [selectCheckBox, setSelectColorCheckBox] = useState(false);
+  const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(false);
+
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const [removeColor, setRemoveColor] = useState({});
 
@@ -72,6 +79,10 @@ const AddNewProduct = () => {
       ]);
     }
   }, [selectCheckBox]);
+
+  const openToggle = () => {
+    setImageModalOpen(!imageModalOpen);
+  };
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -155,7 +166,7 @@ const AddNewProduct = () => {
         (tag) => tag.attributeId !== attributeId
       );
       if (tagId !== undefined) {
-        newTags.push({ attributeId, tagId });
+        newTags.push(tagId);
       }
       return newTags;
     });
@@ -198,7 +209,6 @@ const AddNewProduct = () => {
           <FormGroup className="col-3">
             <Label>Color</Label>
             <Select
-              allowClear
               showSearch
               placeholder="Select..."
               style={{ width: "100%", height: 40 }}
@@ -223,11 +233,19 @@ const AddNewProduct = () => {
         }
         <FormGroup className="col-3">
           <Label>Image</Label>
-          <Input
-            type="file"
-            onChange={(e) => handleImageChange(e, colorIndex)}
-          />
+          <button
+            className={"mt-2 clickToUploadButton w-100"}
+            type="button"
+            onClick={() => {
+              setImageUploadIndex(colorIndex); // Set the index before opening the modal
+              openToggle();
+            }}
+          >
+            <Upload className={"upload_icon"} size={15} />
+            Click To Upload
+          </button>
         </FormGroup>
+
         {colorIndex < productColorDetails.length - 1 && (
           <Button
             className="col-1"
@@ -237,6 +255,29 @@ const AddNewProduct = () => {
             Delete
           </Button>
         )}
+
+        <FormGroup className="col-5">
+          {detail.image && detail.image.length > 0 && (
+            <div className="d-flex my-2 flex-wrap">
+              {detail.image.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.path}
+                  alt="productImage"
+                  className="mx-2"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) =>
+                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </FormGroup>
       </Row>
     ));
   };
@@ -272,9 +313,10 @@ const AddNewProduct = () => {
     }
   };
 
-  const handleImageChange = (e, index) => {
+  const handleImageChange = (files, index) => {
+    console.log(files, ".................");
     const newColorDetails = [...productColorDetails];
-    newColorDetails[index].image = e.target.files[0];
+    newColorDetails[index].image = files;
     setProductColorDetails(newColorDetails);
   };
 
@@ -297,30 +339,41 @@ const AddNewProduct = () => {
     setRemoveColor(removedColor?.color);
   };
 
+  const getAttributeIds = (name, isHave) => {
+    attributesAndTagList.forEach((attribute) => {
+      if (attribute.name === name && attribute.isDefault) {
+        setSelectedAttributes((prevSelectedAttributes) => {
+          if (isHave) {
+            // Add attribute ID if it is not already in the list
+            if (!prevSelectedAttributes.includes(attribute.id)) {
+              return [...prevSelectedAttributes, attribute.id];
+            }
+          } else {
+            // Remove attribute ID if it is in the list
+            return prevSelectedAttributes.filter((id) => id !== attribute.id);
+          }
+          return prevSelectedAttributes;
+        });
+      }
+    });
+  };
+
   const handleCreateProduct = () => {
     let validation = false;
 
-    // Validate product variant details
-    const isVariantValid = (variant) => {
-      return (
-        variant.color &&
-        variant.name &&
-        variant.sizes.every((size) => size.size && size.qty && size.price)
-      );
-    };
-
-    const hasInvalidValues = (obj) => {
-      for (let key in obj) {
-        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    const filteredList = productVariantDetails.filter(isVariantValid);
-
-    const invalidVariant = productVariantDetails.find(hasInvalidValues);
+    // for (const variant of productVariantDetails) {
+    //   // Check if name, sellingPrice, or availableQty is empty or null
+    //   if (
+    //     !variant.name ||
+    //     variant.variants.some(
+    //       (variantDetail) =>
+    //         !variantDetail.sellingPrice || !variantDetail.availableQty
+    //     )
+    //   ) {
+    //     validation = false;
+    //     break; // Exit loop early if any variant has invalid data
+    //   }
+    // }
 
     productName.trim() === ""
       ? customToastMsg("Product name cannot be empty", 2)
@@ -338,21 +391,18 @@ const AddNewProduct = () => {
       ? customToastMsg("Select product attributes", 2)
       : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
-      : invalidVariant
-      ? customToastMsg(
-          "Product variant details cannot have undefined, null or empty values",
-          2
-        )
-      : (validation = true);
+      : // : !validation
+        // ? customToastMsg("Product variant details cannot have empty values", 2)
+        (validation = true);
 
     if (validation) {
       const data = {
         name: productName,
         description: productDes,
         manufactureDetails: manufactureDetails,
-        fileId: "eb780d00-5988-4ff3-8289-a892c8381b3a",
         categoryId: selectedCategoryId,
-        productAttributeAndTagIds: selectedTags,
+        productTagIds: selectedTags,
+        productAttributeIds: selectedAttributes,
         productVariants: productVariantDetails,
       };
 
@@ -362,6 +412,16 @@ const AddNewProduct = () => {
 
   return (
     <div className="page-content">
+      <FileUploadModal
+        isOpen={imageModalOpen}
+        toggle={openToggle}
+        isMultiple={true}
+        onFileUploadSuccess={(files) => {
+          console.log(files, "00000+++++++++++++++++++++++++++++++++000000000");
+          handleImageChange(files, imageUploadIndex); // Use the correct index here
+        }}
+      />
+
       <Container fluid>
         <div className="d-flex mt-3">
           {" "}
@@ -381,18 +441,7 @@ const AddNewProduct = () => {
           </CardHeader>
           <CardBody>
             <Row>
-              <FormGroup className="col-6">
-                <Label for="productName">Product Name</Label>
-                <Input
-                  type="text"
-                  name="productName"
-                  id="productName"
-                  placeholder="Eg: Vegetable"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                />
-              </FormGroup>
-              <FormGroup className="col-3 d-flex flex-column">
+              <FormGroup className="col-6 d-flex flex-column">
                 <Label for="productCategory">Select Product Category</Label>
                 <Dropdown overlay={renderMenu(categoryList)}>
                   <Button
@@ -403,6 +452,17 @@ const AddNewProduct = () => {
                     <DownOutlined />
                   </Button>
                 </Dropdown>
+              </FormGroup>
+              <FormGroup className="col-6">
+                <Label for="productName">Product Name</Label>
+                <Input
+                  type="text"
+                  name="productName"
+                  id="productName"
+                  placeholder="Eg: Vegetable"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                />
               </FormGroup>
             </Row>
             <Row>
@@ -564,6 +624,7 @@ const AddNewProduct = () => {
                 defaultChecked={selectCheckBox}
                 onChange={(e) => {
                   setSelectColorCheckBox(e.target.checked);
+                  getAttributeIds("Color", e.target.checked);
                 }}
               >
                 Color
@@ -574,6 +635,7 @@ const AddNewProduct = () => {
                 defaultChecked={selectSizeCheckBox}
                 onChange={(e) => {
                   setSelectSizeCheckBox(e.target.checked);
+                  getAttributeIds("Size", e.target.checked);
                 }}
               >
                 Size
@@ -586,11 +648,14 @@ const AddNewProduct = () => {
                 renderColorForms()
               ) : (
                 <FormGroup className="col-3">
-                  <Label>Image</Label>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleImageChange(e, colorIndex)}
-                  />
+                  <button
+                    className={"mt-2 clickToUploadButton w-100"}
+                    type="button"
+                    onClick={openToggle}
+                  >
+                    <Upload className={"upload_icon"} size={15} />
+                    Click To Upload
+                  </button>
                 </FormGroup>
               )}
             </Row>

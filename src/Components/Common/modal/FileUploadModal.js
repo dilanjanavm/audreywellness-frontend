@@ -13,6 +13,7 @@ import "../../../assets/scss/components/banner.scss";
 const { Dragger } = Upload;
 
 import * as fileService from "../../../service/fileService";
+import { handleError } from "../../../common/commonFunctions";
 
 export default function FileUploadModal({
   isOpen,
@@ -20,32 +21,17 @@ export default function FileUploadModal({
   isMultiple,
   onFileUploadSuccess,
 }) {
-  //  const [modal, setModal] = useState(false);
   const [isMediaCenterOpen, setIsMediaCenterOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // const toggle = () => setModal(!modal);
+  const [fileList, setFileList] = useState([]);
+  const [uploadedFileIds, setUploadedFileIds] = useState([]);
 
-  // const props = {
-  //   name: "file",
-  //   multiple: isMultiple,
-  //   action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-  //   onChange(info) {
-  //     const { status } = info.file;
-  //     if (status !== "uploading") {
-  //       console.log(info.file, info.fileList);
-  //     }
-  //     if (status === "done") {
-  //       message.success(`${info.file.name} file uploaded successfully.`);
-  //     } else if (status === "error") {
-  //       message.error(`${info.file.name} file upload failed.`);
-  //     }
-  //   },
-  //   onDrop(e) {
-  //     console.log("Dropped files", e.dataTransfer.files);
-  //   },
-  // };
+  useEffect(() => {
+    console.log(fileList, "/////////////////////////");
+  }, [fileList]);
+
   const props = {
     name: "file",
     multiple: isMultiple,
@@ -54,30 +40,48 @@ export default function FileUploadModal({
       formData.append("file", file);
 
       try {
-        const response = await fileService.upload(formData); // Assuming uploadFile handles multipart form data
+        const response = await fileService.upload(formData);
+        console.log(response, "000000");
+        let temp = {
+          id: response?.data?.id,
+          path: response?.data?.originalPath,
+        };
+        await setUploadedFileIds((prevIds) => [...prevIds, temp]);
+
+        setFileList((prevIds) => [...prevIds, temp]);
         onSuccess(response, file);
-        onFileUploadSuccess(response.data);
-        message.success(`${file.name} file uploaded successfully.`);
       } catch (error) {
-        console.error("File upload error:", error);
+        handleError(error);
+        console.error("Error uploading image:", error);
         onError(error);
-        message.error(`${file.name} file upload failed.`);
       }
+
+      // try {
+      //   const response = await fileService.upload(formData); // Assuming uploadFile handles multipart form data
+      //   onSuccess(response, file);
+      //   onFileUploadSuccess(response.data);
+
+      //   message.success(`${file.name} file uploaded successfully.`);
+      // } catch (error) {
+      //   console.error("File upload error:", error);
+      //   onError(error);
+      //   message.error(`${file.name} file upload failed.`);
+      // }
     },
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (status === "done") {
-        message.success(`${info.file.name} file uploaded successfully.`);
-      } else if (status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-    onDrop(e) {
-      console.log("Dropped files", e.dataTransfer.files);
-    },
+    // onChange(info) {
+    //   const { status } = info.file;
+    //   if (status !== "uploading") {
+    //     console.log(info.file, info.fileList);
+    //   }
+    //   if (status === "done") {
+    //     message.success(`${info.file.name} file uploaded successfully.`);
+    //   } else if (status === "error") {
+    //     message.error(`${info.file.name} file upload failed.`);
+    //   }
+    // },
+    // onDrop(e) {
+    //   console.log("Dropped files", e.dataTransfer.files);
+    // },
   };
   useEffect(() => {
     getAll();
@@ -89,7 +93,7 @@ export default function FileUploadModal({
       .then(async (res) => {
         const imagesArray = await res.data.records; // Assuming records is an array of images
         setImages(imagesArray);
-        console.log("images : ", imagesArray);
+        // console.log("images : ", imagesArray);
       })
       .catch((err) => {
         console.log(err);
@@ -119,18 +123,6 @@ export default function FileUploadModal({
 
   return (
     <div>
-      {/* <Button color="secondary" onClick={toggle}>
-        Upload Image
-      </Button> */}
-      {/* <button
-        className={"mt-2 clickToUploadButton"}
-        type="button"
-        onClick={toggle}
-      >
-        <Upload className={"upload_icon"} size={15} />
-        Click To Upload
-      </button> */}
-
       <Modal isOpen={isOpen} toggle={toggle} size={"lg"}>
         <ModalHeader toggle={toggle}>Choose an image</ModalHeader>
         <ModalBody>
@@ -195,7 +187,14 @@ export default function FileUploadModal({
           )}
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={toggle}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onFileUploadSuccess(fileList);
+              toggle();
+              setFileList([]);
+            }}
+          >
             Confirm upload
           </Button>{" "}
           <Button color="secondary" onClick={toggle}>
