@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalHeader,
@@ -17,12 +17,27 @@ import {
 } from "../../../common/commonFunctions";
 import * as bannerService from "../../../service/bannerService";
 import FileUploadModal from "./FileUploadModal";
+import { DownOutlined } from "@ant-design/icons";
+
 import { Upload } from "react-feather";
+import { Dropdown, Menu } from "antd";
+import { getAllCategoriesWithSubCategories } from "../../../service/categoryService";
 
 const AddBannerModal = ({ isOpen, toggle }) => {
   const [position, setPosition] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedProductCategoryName, setSelectedProductCategoryName] =
+    useState("");
+  const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
+
   const [isUploadModalOpen, setFileUploadModalOpen] = useState(false);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [categoryList, setCategoryList] = useState([]);
+
+  useEffect(() => {
+    loadAllCategoriesWithSubCategories();
+  }, []);
 
   const handleAddBanner = () => {
     let isValidated = false;
@@ -33,16 +48,17 @@ const AddBannerModal = ({ isOpen, toggle }) => {
 
     const data = {
       position: position,
-      fileId: "4bc81b6d-eb20-45f0-b711-660a6dedbf5d",
-      categoryId: "8da4f190-4b0d-41c8-bce1-3d606cf09ea2",
+      fileId: uploadedFile?.id,
+      categoryId: selectedCategoryId,
     };
-    console.log(data, "banner create data");
     if (isValidated) {
       bannerService
         .create(data)
         .then((response) => {
           toggle();
           setPosition("");
+          setSelectedCategoryId("");
+          setUploadedFile(null);
           customToastMsg("Banner successfully created ", 1);
         })
         .catch((error) => {
@@ -52,6 +68,70 @@ const AddBannerModal = ({ isOpen, toggle }) => {
         .finally();
     }
   };
+
+  const loadAllCategoriesWithSubCategories = () => {
+    setCategoryList([]);
+    getAllCategoriesWithSubCategories()
+      .then((res) => {
+        const formattedCategories = res.data.map((cat) => ({
+          key: cat.id,
+          label: cat.name,
+          children:
+            cat.children.length > 0
+              ? cat.children.map((subCat) => ({
+                  key: subCat.id,
+                  label: subCat.name,
+                  parentLabel: cat.name,
+                }))
+              : null,
+        }));
+        setCategoryList(formattedCategories);
+      })
+      .catch((err) => {
+        console.log(err);
+        handleError(err);
+      });
+  };
+  const handleMenuClick = ({ key, item }) => {
+    console.log(key, item);
+    setSelectedCategoryId(key);
+    const parentLabel = item.props.parentLabel;
+    if (parentLabel) {
+      setSelectedProductCategoryName(parentLabel);
+      setSelectedSubCategoryName(item.props.label); // Set the subcategory name
+    } else {
+      setSelectedProductCategoryName(item.props.label);
+      setSelectedSubCategoryName(""); // Clear the subcategory name
+    }
+  };
+
+  const renderMenu = (categories) => (
+    <Menu onClick={handleMenuClick}>
+      {categories.map((category) =>
+        category.children ? (
+          <Menu.SubMenu key={category.key} title={category.label}>
+            {category.children.map((subCategory) => (
+              <Menu.Item
+                key={subCategory.key}
+                parentLabel={category.label}
+                label={subCategory.label}
+              >
+                {subCategory.label}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        ) : (
+          <Menu.Item key={category.key} label={category.label}>
+            {category.label}
+          </Menu.Item>
+        )
+      )}
+    </Menu>
+  );
+  const displayCategory = selectedSubCategoryName
+    ? `${selectedProductCategoryName} > ${selectedSubCategoryName}`
+    : selectedProductCategoryName || "Select...";
+
   const openToggle = () => {
     setImageModalOpen(!imageModalOpen);
   };
@@ -86,19 +166,29 @@ const AddBannerModal = ({ isOpen, toggle }) => {
               <option value="MIDDLE">MIDDLE</option>
               <option value="BOTTOM">BOTTOM</option>
             </Input>
+
+            <Label for="productCategory">Select Product Category</Label>
+            <Dropdown overlay={renderMenu(categoryList)}>
+              <Button
+                className="w-100 text-start"
+                style={{
+                  color: "#000", 
+                  backgroundColor: "#fff", 
+                  borderColor: "#ccc", 
+                  height: 40,
+                }}
+              >
+                <span style={{ width: "95%" }}>{displayCategory}</span>
+                <DownOutlined />
+              </Button>
+            </Dropdown>
           </FormGroup>
           <FormGroup>
-            {/* <Label>Upload Banner</Label> */}
-            {/* <Button
-              className="upload-btn"
-              onClick={() => setFileUploadModalOpen(true)}
-            >
-              <span>Upload Image</span>
-            </Button> */}
             <FileUploadModal
               isOpen={imageModalOpen}
               toggle={openToggle}
               isMultiple={false}
+              onFileUploadSuccess={setUploadedFile}
             />
             <button
               className={"mt-2 clickToUploadButton w-100"}
@@ -117,6 +207,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
           onClick={() => {
             toggle();
             setPosition("");
+            setSelectedCategoryId("");
           }}
         >
           Cancel

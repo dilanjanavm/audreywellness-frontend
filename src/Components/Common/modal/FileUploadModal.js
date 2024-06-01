@@ -14,7 +14,12 @@ const { Dragger } = Upload;
 
 import * as fileService from "../../../service/fileService";
 
-export default function FileUploadModal({ isOpen, toggle, isMultiple }) {
+export default function FileUploadModal({
+  isOpen,
+  toggle,
+  isMultiple,
+  onFileUploadSuccess,
+}) {
   //  const [modal, setModal] = useState(false);
   const [isMediaCenterOpen, setIsMediaCenterOpen] = useState(false);
   const [images, setImages] = useState([]);
@@ -51,6 +56,7 @@ export default function FileUploadModal({ isOpen, toggle, isMultiple }) {
       try {
         const response = await fileService.upload(formData); // Assuming uploadFile handles multipart form data
         onSuccess(response, file);
+        onFileUploadSuccess(response.data);
         message.success(`${file.name} file uploaded successfully.`);
       } catch (error) {
         console.error("File upload error:", error);
