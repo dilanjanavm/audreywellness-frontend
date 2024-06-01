@@ -23,9 +23,10 @@ import { DownOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Divider, Dropdown, Menu, Select, Checkbox } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
 import ProductVariantsFormRepeater from "../../Components/Common/formRepeters/ProductVariantsFormRepeater";
+import FileUploadModal from "../../Components/Common/modal/FileUploadModal";
 
 const { Option } = Select;
 
@@ -40,6 +41,8 @@ const AddNewProduct = () => {
   const [manufactureDetails, setManufactureDetails] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [productVariantDetails, setProductVariantDetails] = useState([]);
+  // const [productImages, setProductImages] = useState();
+  const [imageUploadIndex, setImageUploadIndex] = useState(null);
 
   //---------------------data show --------------------------------------
   const [categoryList, setCategoryList] = useState([]);
@@ -48,11 +51,14 @@ const AddNewProduct = () => {
   const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
   const [productColorDetails, setProductColorDetails] = useState([
-    { attributeId: null, color: null, image: null, sizes: [] },
+    { attributeId: null, color: null, image: [], sizes: [] },
   ]);
 
   const [selectCheckBox, setSelectColorCheckBox] = useState(true);
   const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(true);
+
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const [removeColor, setRemoveColor] = useState({});
 
@@ -72,6 +78,10 @@ const AddNewProduct = () => {
       ]);
     }
   }, [selectCheckBox]);
+
+  const openToggle = () => {
+    setImageModalOpen(!imageModalOpen);
+  };
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
@@ -198,7 +208,6 @@ const AddNewProduct = () => {
           <FormGroup className="col-3">
             <Label>Color</Label>
             <Select
-              allowClear
               showSearch
               placeholder="Select..."
               style={{ width: "100%", height: 40 }}
@@ -223,11 +232,19 @@ const AddNewProduct = () => {
         }
         <FormGroup className="col-3">
           <Label>Image</Label>
-          <Input
-            type="file"
-            onChange={(e) => handleImageChange(e, colorIndex)}
-          />
+          <button
+            className={"mt-2 clickToUploadButton w-100"}
+            type="button"
+            onClick={() => {
+              setImageUploadIndex(colorIndex); // Set the index before opening the modal
+              openToggle();
+            }}
+          >
+            <Upload className={"upload_icon"} size={15} />
+            Click To Upload
+          </button>
         </FormGroup>
+
         {colorIndex < productColorDetails.length - 1 && (
           <Button
             className="col-1"
@@ -237,6 +254,29 @@ const AddNewProduct = () => {
             Delete
           </Button>
         )}
+
+        <FormGroup className="col-5">
+          {detail.image && detail.image.length > 0 && (
+            <div className="d-flex my-2 flex-wrap">
+              {detail.image.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.path}
+                  alt="productImage"
+                  className="mx-2"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) =>
+                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </FormGroup>
       </Row>
     ));
   };
@@ -272,9 +312,10 @@ const AddNewProduct = () => {
     }
   };
 
-  const handleImageChange = (e, index) => {
+  const handleImageChange = (files, index) => {
+    console.log(files, ".................");
     const newColorDetails = [...productColorDetails];
-    newColorDetails[index].image = e.target.files[0];
+    newColorDetails[index].image = files;
     setProductColorDetails(newColorDetails);
   };
 
@@ -339,10 +380,7 @@ const AddNewProduct = () => {
       : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
       : invalidVariant
-      ? customToastMsg(
-          "Product variant details cannot have undefined, null or empty values",
-          2
-        )
+      ? customToastMsg("Product variant details cannot have empty values", 2)
       : (validation = true);
 
     if (validation) {
@@ -350,7 +388,7 @@ const AddNewProduct = () => {
         name: productName,
         description: productDes,
         manufactureDetails: manufactureDetails,
-        fileId: "eb780d00-5988-4ff3-8289-a892c8381b3a",
+        fileId: "",
         categoryId: selectedCategoryId,
         productAttributeAndTagIds: selectedTags,
         productVariants: productVariantDetails,
@@ -362,6 +400,16 @@ const AddNewProduct = () => {
 
   return (
     <div className="page-content">
+      <FileUploadModal
+        isOpen={imageModalOpen}
+        toggle={openToggle}
+        isMultiple={true}
+        onFileUploadSuccess={(files) => {
+          console.log(files, "00000+++++++++++++++++++++++++++++++++000000000");
+          handleImageChange(files, imageUploadIndex); // Use the correct index here
+        }}
+      />
+
       <Container fluid>
         <div className="d-flex mt-3">
           {" "}
@@ -381,18 +429,7 @@ const AddNewProduct = () => {
           </CardHeader>
           <CardBody>
             <Row>
-              <FormGroup className="col-6">
-                <Label for="productName">Product Name</Label>
-                <Input
-                  type="text"
-                  name="productName"
-                  id="productName"
-                  placeholder="Eg: Vegetable"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                />
-              </FormGroup>
-              <FormGroup className="col-3 d-flex flex-column">
+              <FormGroup className="col-6 d-flex flex-column">
                 <Label for="productCategory">Select Product Category</Label>
                 <Dropdown overlay={renderMenu(categoryList)}>
                   <Button
@@ -403,6 +440,17 @@ const AddNewProduct = () => {
                     <DownOutlined />
                   </Button>
                 </Dropdown>
+              </FormGroup>
+              <FormGroup className="col-6">
+                <Label for="productName">Product Name</Label>
+                <Input
+                  type="text"
+                  name="productName"
+                  id="productName"
+                  placeholder="Eg: Vegetable"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                />
               </FormGroup>
             </Row>
             <Row>
@@ -586,11 +634,14 @@ const AddNewProduct = () => {
                 renderColorForms()
               ) : (
                 <FormGroup className="col-3">
-                  <Label>Image</Label>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleImageChange(e, colorIndex)}
-                  />
+                  <button
+                    className={"mt-2 clickToUploadButton w-100"}
+                    type="button"
+                    onClick={openToggle}
+                  >
+                    <Upload className={"upload_icon"} size={15} />
+                    Click To Upload
+                  </button>
                 </FormGroup>
               )}
             </Row>

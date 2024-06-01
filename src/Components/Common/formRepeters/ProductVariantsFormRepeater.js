@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "react-feather";
 import { Button, Card, FormFeedback, Input, Row } from "reactstrap";
-import { customToastMsg } from "../../../common/commonFunctions";
+import { customToastMsg, handleError } from "../../../common/commonFunctions";
 import { getAllAttributesWithTags } from "../../../service/attributeAndTagService";
 import { Select } from "antd";
 
