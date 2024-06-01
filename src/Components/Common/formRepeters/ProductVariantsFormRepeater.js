@@ -16,6 +16,7 @@ const ProductVariantsFormRepeater = ({
   const [inputList, setInputList] = useState([
     {
       color: "",
+      files: [],
       name: "",
       sizes: [],
     },
@@ -29,9 +30,9 @@ const ProductVariantsFormRepeater = ({
   }, []);
 
   useEffect(() => {
-    console.log(removeColor, "remove color");
-    console.log(selectSize, "select size");
-    console.log(variantTypes, "color details");
+    // console.log(removeColor, "remove color");
+    // console.log(selectSize, "select size");
+    // console.log(variantTypes, "color details");
     if (variantTypes && variantTypes.length > 0) {
       let formattedItems = [];
       let shouldClear = false;
@@ -43,6 +44,7 @@ const ProductVariantsFormRepeater = ({
             console.log("attribute null neme , size true");
             formattedItems.push({
               color: variant?.color,
+              files: variant?.image,
               name: variant?.name,
               sizes: variant?.sizes.map((size) => ({
                 size: size.size,
@@ -54,6 +56,7 @@ const ProductVariantsFormRepeater = ({
             console.log("attribute null neme , size false");
             formattedItems.push({
               color: variant?.color,
+              files: variant?.image,
               name: variant?.name,
               sizes: [
                 {
@@ -69,6 +72,7 @@ const ProductVariantsFormRepeater = ({
           if (selectSize) {
             formattedItems.push({
               color: "",
+              files: [],
               name: "",
               sizes: [],
             });
@@ -76,6 +80,7 @@ const ProductVariantsFormRepeater = ({
             console.log("attribute null neme , size false");
             formattedItems.push({
               color: "",
+              files: [],
               name: "",
               sizes: [{ size: "", qty: "", price: "" }],
             });
@@ -168,7 +173,8 @@ const ProductVariantsFormRepeater = ({
         ...inputList,
         {
           color: "",
-          nameL: "",
+          files: [],
+          name: "",
           sizes: [],
         },
       ]);
@@ -178,16 +184,16 @@ const ProductVariantsFormRepeater = ({
   const getVariantTypes = () => {
     console.log(inputList);
 
-    const variants = inputList
-      .map((variant) =>
-        variant.sizes.map((size) => ({
-          sellingPrice: size.price,
-          availableQty: size.qty,
-          name: variant?.name,
-          variantTagIds: [variant.color?.id, size.size.id],
-        }))
-      )
-      .flat();
+    const variants = inputList.map((variant) => ({
+      name: variant?.name,
+      fileIds: variant?.files,
+      baseTagId: variant.color?.id,
+      variants: variant.sizes.map((size) => ({
+        sellingPrice: size.price,
+        availableQty: size.qty,
+        variantTagId: size.size.id,
+      })),
+    }));
 
     getProductVariantData(variants);
   };
@@ -271,7 +277,7 @@ const ProductVariantsFormRepeater = ({
                       Quantity of {size.size.name}
                     </label> */}
                       <Input
-                        type="text"
+                        type="number"
                         name="qty"
                         className="form-control"
                         placeholder="Enter quantity"

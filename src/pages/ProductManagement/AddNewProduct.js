@@ -40,6 +40,7 @@ const AddNewProduct = () => {
   const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedAttributes, setSelectedAttributes] = useState([]);
   const [productVariantDetails, setProductVariantDetails] = useState([]);
   // const [productImages, setProductImages] = useState();
   const [imageUploadIndex, setImageUploadIndex] = useState(null);
@@ -54,8 +55,8 @@ const AddNewProduct = () => {
     { attributeId: null, color: null, image: [], sizes: [] },
   ]);
 
-  const [selectCheckBox, setSelectColorCheckBox] = useState(true);
-  const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(true);
+  const [selectCheckBox, setSelectColorCheckBox] = useState(false);
+  const [selectSizeCheckBox, setSelectSizeCheckBox] = useState(false);
 
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -165,7 +166,7 @@ const AddNewProduct = () => {
         (tag) => tag.attributeId !== attributeId
       );
       if (tagId !== undefined) {
-        newTags.push({ attributeId, tagId });
+        newTags.push(tagId);
       }
       return newTags;
     });
@@ -338,30 +339,41 @@ const AddNewProduct = () => {
     setRemoveColor(removedColor?.color);
   };
 
+  const getAttributeIds = (name, isHave) => {
+    attributesAndTagList.forEach((attribute) => {
+      if (attribute.name === name && attribute.isDefault) {
+        setSelectedAttributes((prevSelectedAttributes) => {
+          if (isHave) {
+            // Add attribute ID if it is not already in the list
+            if (!prevSelectedAttributes.includes(attribute.id)) {
+              return [...prevSelectedAttributes, attribute.id];
+            }
+          } else {
+            // Remove attribute ID if it is in the list
+            return prevSelectedAttributes.filter((id) => id !== attribute.id);
+          }
+          return prevSelectedAttributes;
+        });
+      }
+    });
+  };
+
   const handleCreateProduct = () => {
     let validation = false;
 
-    // Validate product variant details
-    const isVariantValid = (variant) => {
-      return (
-        variant.color &&
-        variant.name &&
-        variant.sizes.every((size) => size.size && size.qty && size.price)
-      );
-    };
-
-    const hasInvalidValues = (obj) => {
-      for (let key in obj) {
-        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    const filteredList = productVariantDetails.filter(isVariantValid);
-
-    const invalidVariant = productVariantDetails.find(hasInvalidValues);
+    // for (const variant of productVariantDetails) {
+    //   // Check if name, sellingPrice, or availableQty is empty or null
+    //   if (
+    //     !variant.name ||
+    //     variant.variants.some(
+    //       (variantDetail) =>
+    //         !variantDetail.sellingPrice || !variantDetail.availableQty
+    //     )
+    //   ) {
+    //     validation = false;
+    //     break; // Exit loop early if any variant has invalid data
+    //   }
+    // }
 
     productName.trim() === ""
       ? customToastMsg("Product name cannot be empty", 2)
@@ -379,18 +391,18 @@ const AddNewProduct = () => {
       ? customToastMsg("Select product attributes", 2)
       : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
-      : invalidVariant
-      ? customToastMsg("Product variant details cannot have empty values", 2)
-      : (validation = true);
+      : // : !validation
+        // ? customToastMsg("Product variant details cannot have empty values", 2)
+        (validation = true);
 
     if (validation) {
       const data = {
         name: productName,
         description: productDes,
         manufactureDetails: manufactureDetails,
-        fileId: "",
         categoryId: selectedCategoryId,
-        productAttributeAndTagIds: selectedTags,
+        productTagIds: selectedTags,
+        productAttributeIds: selectedAttributes,
         productVariants: productVariantDetails,
       };
 
@@ -612,6 +624,7 @@ const AddNewProduct = () => {
                 defaultChecked={selectCheckBox}
                 onChange={(e) => {
                   setSelectColorCheckBox(e.target.checked);
+                  getAttributeIds("Color", e.target.checked);
                 }}
               >
                 Color
@@ -622,6 +635,7 @@ const AddNewProduct = () => {
                 defaultChecked={selectSizeCheckBox}
                 onChange={(e) => {
                   setSelectSizeCheckBox(e.target.checked);
+                  getAttributeIds("Size", e.target.checked);
                 }}
               >
                 Size
