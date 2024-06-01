@@ -3,7 +3,11 @@ import { Row, Col, Button, Label, FormGroup } from "reactstrap";
 import Select from "react-select";
 import { Check } from "react-feather";
 import * as roleAndPermssionService from "../../service/rolePermissionService";
-import { handleError } from "../../common/commonFunctions";
+import {
+  customSweetAlert,
+  customToastMsg,
+  handleError,
+} from "../../common/commonFunctions";
 import { Tree } from "antd";
 import { useDispatch } from "react-redux";
 
@@ -81,23 +85,28 @@ const Permission = () => {
     if (!selectedRole.id) {
       return;
     }
-    const data = {
-      roleId: selectedRole.id,
-      permissionIds: checkedKeys,
-    };
+    customSweetAlert("Are you sure to update permissions ?", 0, async () => {
+      const data = {
+        roleId: selectedRole.id,
+        permissionIds: checkedKeys,
+      };
 
-    try {
-      await roleAndPermssionService
-        .assigneRolePermission(data)
-        .then(async (res) => {
-          await searchPermissionsByRole(res.data.roleId);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } catch (err) {
-      console.log(err);
-    }
+      try {
+        await roleAndPermssionService
+          .assigneRolePermission(data)
+          .then(async (res) => {
+            customToastMsg("Permissions are successfully updated ", 1);
+            await searchPermissionsByRole(res.data.roleId);
+          })
+          .catch((err) => {
+            console.log(err);
+            handleError(err);
+          });
+      } catch (err) {
+        handleError(err);
+        console.log(err);
+      }
+    });
   };
 
   const transformToTreeData = (data) => {

@@ -52,16 +52,7 @@ const BannerManagement = () => {
     });
   };
 
-  const deleteBanner = async (bannerId) => {
-    await bannerService
-      .deleteBanner(bannerId)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  
 
   const renderBannersByPosition = (position) => {
     return (
