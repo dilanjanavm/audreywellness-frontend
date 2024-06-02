@@ -32,7 +32,7 @@ const ProductVariantsFormRepeater = ({
   useEffect(() => {
     // console.log(removeColor, "remove color");
     // console.log(selectSize, "select size");
-    // console.log(variantTypes, "color details");
+    console.log(variantTypes, "color details");
     if (variantTypes && variantTypes.length > 0) {
       let formattedItems = [];
       let shouldClear = false;
@@ -40,11 +40,15 @@ const ProductVariantsFormRepeater = ({
         if (variant?.attributeId != null) {
           shouldClear = true;
 
+          const imageIds = variant?.image
+            ? variant.image.map((img) => img.id)
+            : [];
+
           if (selectSize) {
             console.log("attribute null neme , size true");
             formattedItems.push({
               color: variant?.color,
-              files: variant?.image,
+              files: imageIds,
               name: variant?.name,
               sizes: variant?.sizes.map((size) => ({
                 size: size.size,
@@ -56,7 +60,7 @@ const ProductVariantsFormRepeater = ({
             console.log("attribute null neme , size false");
             formattedItems.push({
               color: variant?.color,
-              files: variant?.image,
+              files: imageIds,
               name: variant?.name,
               sizes: [
                 {
@@ -72,7 +76,7 @@ const ProductVariantsFormRepeater = ({
           if (selectSize) {
             formattedItems.push({
               color: "",
-              files: [],
+              files: variant?.image ? variant.image.map((img) => img.id) : [],
               name: "",
               sizes: [],
             });
@@ -80,7 +84,7 @@ const ProductVariantsFormRepeater = ({
             console.log("attribute null neme , size false");
             formattedItems.push({
               color: "",
-              files: [],
+              files: variant?.image ? variant.image.map((img) => img.id) : [],
               name: "",
               sizes: [{ size: "", qty: "", price: "" }],
             });
@@ -318,7 +322,7 @@ const ProductVariantsFormRepeater = ({
                         Quantity of {size.size.name}
                       </label>
                       <Input
-                        type="text"
+                        type="number"
                         name="qty"
                         className="form-control"
                         placeholder="Enter quantity"
