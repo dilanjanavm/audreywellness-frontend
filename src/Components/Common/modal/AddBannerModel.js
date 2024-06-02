@@ -182,6 +182,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
             isOpen={imageModalOpen}
             toggle={openToggle}
             isMultiple={false}
+            uploadLimit={1}
             onFileUploadSuccess={(files) => {
               setUploadedFile(files);
             }}

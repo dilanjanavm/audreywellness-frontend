@@ -417,6 +417,7 @@ const AddNewProduct = () => {
         isOpen={imageModalOpen}
         toggle={openToggle}
         isMultiple={true}
+        uploadLimit={4}
         onFileUploadSuccess={(files) => {
           console.log(files, "00000+++++++++++++++++++++++++++++++++000000000");
           handleImageChange(files, imageUploadIndex); // Use the correct index here
