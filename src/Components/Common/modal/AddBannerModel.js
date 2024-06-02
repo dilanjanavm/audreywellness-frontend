@@ -4,7 +4,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
   Form,
   FormGroup,
   Label,
@@ -20,7 +19,7 @@ import FileUploadModal from "./FileUploadModal";
 import { DownOutlined } from "@ant-design/icons";
 
 import { Upload } from "react-feather";
-import { Dropdown, Menu } from "antd";
+import { Dropdown, Menu, Button, Select } from "antd";
 import { getAllCategoriesWithSubCategories } from "../../../service/categoryService";
 
 const AddBannerModal = ({ isOpen, toggle }) => {
@@ -32,25 +31,44 @@ const AddBannerModal = ({ isOpen, toggle }) => {
 
   const [isUploadModalOpen, setFileUploadModalOpen] = useState(false);
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
+  const [bannerPositions, setBannerPositions] = useState([]);
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
-  }, []);
+    setBannerPositions([
+      { value: "TOP", label: "TOP" },
+      { value: "MIDDLE", label: "MIDDLE" },
+      { value: "BOTTOM", label: "BOTTOM" },
+    ]);
+  }, [isOpen]);
 
   const handleAddBanner = () => {
     let isValidated = false;
 
     position === ""
-      ? customToastMsg("Postion name cannot be empty")
+      ? customToastMsg("Select position")
+      : selectedCategoryId === ""
+      ? customToastMsg("Select category")
+      : uploadedFile.length === 0
+      ? customToastMsg("Select image")
       : (isValidated = true);
+
+    let temp = "";
+    uploadedFile.length === 1
+      ? uploadedFile.map((img) => {
+          temp = img.id;
+        })
+      : (temp = "");
 
     const data = {
       position: position,
-      fileId: uploadedFile?.id,
+      fileId: temp,
       categoryId: selectedCategoryId,
     };
+    console.log(data, "00000");
+
     if (isValidated) {
       bannerService
         .create(data)
@@ -58,7 +76,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
           toggle();
           setPosition("");
           setSelectedCategoryId("");
-          setUploadedFile(null);
+          setUploadedFile([]);
           customToastMsg("Banner successfully created ", 1);
         })
         .catch((error) => {
@@ -92,6 +110,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
         handleError(err);
       });
   };
+
   const handleMenuClick = ({ key, item }) => {
     console.log(key, item);
     setSelectedCategoryId(key);
@@ -128,6 +147,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
       )}
     </Menu>
   );
+
   const displayCategory = selectedSubCategoryName
     ? `${selectedProductCategoryName} > ${selectedSubCategoryName}`
     : selectedProductCategoryName || "Select...";
@@ -141,42 +161,57 @@ const AddBannerModal = ({ isOpen, toggle }) => {
       isOpen={isOpen}
       toggle={() => {
         toggle();
+        setPosition("");
+        setSelectedCategoryId("");
+        setUploadedFile([]);
       }}
     >
       <ModalHeader
         toggle={() => {
           toggle();
+          setPosition("");
+          setSelectedCategoryId("");
+          setUploadedFile([]);
         }}
       >
         Add New Banner
       </ModalHeader>
       <ModalBody>
         <Form>
+          <FileUploadModal
+            isOpen={imageModalOpen}
+            toggle={openToggle}
+            isMultiple={false}
+            onFileUploadSuccess={(files) => {
+              setUploadedFile(files);
+            }}
+          />
           <FormGroup>
             <Label for="position">Banner Position</Label>
-            <Input
-              type="select"
-              name="select"
+            <Select
               id="position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              placeholder="Select..."
+              allowClear
+              value={
+                bannerPositions.find((tag) => tag.value === position) ||
+                undefined
+              }
+              onChange={(value) => setPosition(value)}
+              style={{ width: "100%", height: 40 }}
             >
-              <option value="">Select Position</option>
-              <option value="TOP">TOP</option>
-              <option value="MIDDLE">MIDDLE</option>
-              <option value="BOTTOM">BOTTOM</option>
-            </Input>
-
+              {bannerPositions.map((pos) => (
+                <Option key={pos.value} value={pos.value}>
+                  {pos.label}
+                </Option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormGroup className="col-12 d-flex flex-column">
             <Label for="productCategory">Select Product Category</Label>
             <Dropdown overlay={renderMenu(categoryList)}>
               <Button
                 className="w-100 text-start"
-                style={{
-                  color: "#000", 
-                  backgroundColor: "#fff", 
-                  borderColor: "#ccc", 
-                  height: 40,
-                }}
+                style={{ color: "#878a99", height: 40 }}
               >
                 <span style={{ width: "95%" }}>{displayCategory}</span>
                 <DownOutlined />
@@ -184,12 +219,6 @@ const AddBannerModal = ({ isOpen, toggle }) => {
             </Dropdown>
           </FormGroup>
           <FormGroup>
-            <FileUploadModal
-              isOpen={imageModalOpen}
-              toggle={openToggle}
-              isMultiple={false}
-              onFileUploadSuccess={setUploadedFile}
-            />
             <button
               className={"mt-2 clickToUploadButton w-100"}
               type="button"
@@ -199,22 +228,46 @@ const AddBannerModal = ({ isOpen, toggle }) => {
               Click To Upload
             </button>
           </FormGroup>
+          <FormGroup className="col-5">
+            {uploadedFile && uploadedFile.length > 0 && (
+              <div className="d-flex my-2 flex-wrap">
+                {uploadedFile.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img.path}
+                    alt="productImage"
+                    className="mx-2"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                    }}
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button
-          color="secondary"
+        <button
+          className="btn btn-secondary "
           onClick={() => {
             toggle();
             setPosition("");
             setSelectedCategoryId("");
+            setUploadedFile([]);
           }}
         >
           Cancel
-        </Button>{" "}
-        <Button color="primary" onClick={handleAddBanner}>
+        </button>{" "}
+        <button className="btn btn-primary " onClick={handleAddBanner}>
           Add Banner
-        </Button>
+        </button>
       </ModalFooter>
     </Modal>
   );

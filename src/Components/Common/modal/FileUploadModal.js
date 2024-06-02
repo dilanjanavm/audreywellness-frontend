@@ -197,7 +197,13 @@ export default function FileUploadModal({
           >
             Confirm upload
           </Button>{" "}
-          <Button color="secondary" onClick={toggle}>
+          <Button
+            color="secondary"
+            onClick={() => {
+              toggle();
+              setFileList([]);
+            }}
+          >
             Cancel
           </Button>
         </ModalFooter>
