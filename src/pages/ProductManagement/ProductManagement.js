@@ -12,7 +12,9 @@ import {
   Row,
 } from "reactstrap";
 import ProductCard from "../../Components/Common/cards/ProductCard";
-import { getAllProducts } from "../../service/productService";
+// import { getAllProducts } from "../../service/productService";
+import * as productVariantService from "../../service/productVariantService";
+
 import { handleError } from "../../common/commonFunctions";
 
 const ProductManagement = () => {
@@ -31,24 +33,28 @@ const ProductManagement = () => {
     loadAllProducts();
   }, [isRefresh]);
 
-  const loadAllProducts = () => {
+  const loadAllProducts = async () => {
     setProductList([]);
     let temp = [];
-    getAllProducts()
+    await productVariantService
+      .getAllProductVariants()
       .then((res) => {
         console.log(res);
-        res?.data.map((product, index) => {
+        res?.data.map((productVarition, index) => {
           temp.push({
-            id: product?.id,
-            name: product?.name,
-            category: product?.category,
-            productImage: product?.file,
-            status: product?.status,
+            id: productVarition?.id,
+            name: productVarition?.name,
+            category: productVarition?.category,
+            productImage: productVarition?.file,
+            status: productVarition?.status,
+            priceRange: productVarition?.priceRange,
+            productId: productVarition?.productId,
           });
         });
         setProductList(temp);
       })
       .catch((err) => {
+        console.log(err);
         handleError(err);
       });
   };
@@ -70,7 +76,6 @@ const ProductManagement = () => {
             >
               <Button
                 color="primary"
-               
                 onClick={() => {
                   history("/create-product");
                 }}
