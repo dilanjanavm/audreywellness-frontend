@@ -13,13 +13,15 @@ import "../../../assets/scss/components/banner.scss";
 const { Dragger } = Upload;
 
 import * as fileService from "../../../service/fileService";
-import { handleError } from "../../../common/commonFunctions";
+import { customToastMsg, handleError } from "../../../common/commonFunctions";
+import { Trash } from "react-feather";
 
 export default function FileUploadModal({
   isOpen,
   toggle,
   isMultiple,
   onFileUploadSuccess,
+  uploadLimit,
 }) {
   const [isMediaCenterOpen, setIsMediaCenterOpen] = useState(false);
   const [images, setImages] = useState([]);
@@ -27,10 +29,21 @@ export default function FileUploadModal({
 
   const [fileList, setFileList] = useState([]);
   const [uploadedFileIds, setUploadedFileIds] = useState([]);
+  const [isUploadLimitExceeded, setIsUploadLimitExceeded] = useState(false);
 
   useEffect(() => {
     console.log(fileList, "/////////////////////////");
   }, [fileList]);
+
+  useEffect(() => {
+    setIsUploadLimitExceeded(fileList.length > uploadLimit);
+    if (fileList.length > uploadLimit) {
+      customToastMsg(
+        " Upload limit exceeded. Please remove some files to proceed.",
+        2
+      );
+    }
+  }, [fileList, uploadLimit]);
 
   const props = {
     name: "file",
@@ -68,17 +81,17 @@ export default function FileUploadModal({
       //   message.error(`${file.name} file upload failed.`);
       // }
     },
-    // onChange(info) {
-    //   const { status } = info.file;
-    //   if (status !== "uploading") {
-    //     console.log(info.file, info.fileList);
-    //   }
-    //   if (status === "done") {
-    //     message.success(`${info.file.name} file uploaded successfully.`);
-    //   } else if (status === "error") {
-    //     message.error(`${info.file.name} file upload failed.`);
-    //   }
-    // },
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== "uploading") {
+        // console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
     // onDrop(e) {
     //   console.log("Dropped files", e.dataTransfer.files);
     // },
@@ -119,6 +132,11 @@ export default function FileUploadModal({
       return name;
     }
     return name.substring(0, length) + "...";
+  };
+
+  const removeFile = (file) => {
+    const newFileList = fileList.filter((f) => f.id !== file.id);
+    setFileList(newFileList);
   };
 
   return (
@@ -172,7 +190,13 @@ export default function FileUploadModal({
               </div>
             </div>
           ) : (
-            <Dragger {...props}>
+            <Dragger
+              {...props}
+              beforeUpload={() => {
+                return fileList.length < uploadLimit;
+              }}
+              disabled={fileList.length >= uploadLimit}
+            >
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
@@ -185,6 +209,42 @@ export default function FileUploadModal({
               </p>
             </Dragger>
           )}
+          <div className="d-flex flex-wrap">
+            {fileList.map((file) => (
+              <div key={file.id} style={{ position: "relative" }}>
+                <img
+                  key={file.id}
+                  src={file.path}
+                  alt="productImage"
+                  className="mx-2"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) =>
+                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                  }
+                />
+
+                <Trash
+                  onClick={() => removeFile(file)}
+                  size={20}
+                  className="shadow"
+                  style={{
+                    position: "absolute",
+                    backgroundColor:"white",
+                    borderRadius:2,
+                    color:"gray",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button
@@ -194,10 +254,17 @@ export default function FileUploadModal({
               toggle();
               setFileList([]);
             }}
+            disabled={isUploadLimitExceeded} // Add this line
           >
             Confirm upload
           </Button>{" "}
-          <Button color="secondary" onClick={toggle}>
+          <Button
+            color="secondary"
+            onClick={() => {
+              toggle();
+              setFileList([]);
+            }}
+          >
             Cancel
           </Button>
         </ModalFooter>

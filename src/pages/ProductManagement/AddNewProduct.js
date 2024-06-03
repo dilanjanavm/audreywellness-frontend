@@ -205,7 +205,7 @@ const AddNewProduct = () => {
   const renderColorForms = () => {
     return productColorDetails.map((detail, colorIndex) => (
       <Row key={colorIndex} className="align-items-center">
-        {
+        {selectCheckBox && (
           <FormGroup className="col-3">
             <Label>Color</Label>
             <Select
@@ -230,7 +230,7 @@ const AddNewProduct = () => {
                 ))}
             </Select>
           </FormGroup>
-        }
+        )}
         <FormGroup className="col-3">
           <Label>Image</Label>
           <button
@@ -239,6 +239,7 @@ const AddNewProduct = () => {
             onClick={() => {
               setImageUploadIndex(colorIndex); // Set the index before opening the modal
               openToggle();
+              console.log(colorIndex, "color index++++++++++");
             }}
           >
             <Upload className={"upload_icon"} size={15} />
@@ -321,7 +322,7 @@ const AddNewProduct = () => {
   };
 
   const addColorForm = () => {
-    let temp = { attributeId: null, color: null, image: null, sizes: [] };
+    let temp = { attributeId: null, color: null, image: [], sizes: [] };
     setProductColorDetails([...productColorDetails, temp]);
   };
 
@@ -416,6 +417,7 @@ const AddNewProduct = () => {
         isOpen={imageModalOpen}
         toggle={openToggle}
         isMultiple={true}
+        uploadLimit={4}
         onFileUploadSuccess={(files) => {
           console.log(files, "00000+++++++++++++++++++++++++++++++++000000000");
           handleImageChange(files, imageUploadIndex); // Use the correct index here
@@ -644,20 +646,7 @@ const AddNewProduct = () => {
           </Row>
           <CardBody>
             <Row className="border rounded mx-1 my-1 pt-2">
-              {selectCheckBox ? (
-                renderColorForms()
-              ) : (
-                <FormGroup className="col-3">
-                  <button
-                    className={"mt-2 clickToUploadButton w-100"}
-                    type="button"
-                    onClick={openToggle}
-                  >
-                    <Upload className={"upload_icon"} size={15} />
-                    Click To Upload
-                  </button>
-                </FormGroup>
-              )}
+              {renderColorForms()}
             </Row>
             <ProductVariantsFormRepeater
               removeColor={removeColor}
