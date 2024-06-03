@@ -10,6 +10,7 @@ import {
 } from "../../common/commonFunctions";
 import { Tree } from "antd";
 import { useDispatch } from "react-redux";
+import '../../assets/scss/custom/Permission.scss'
 
 const Permission = () => {
   document.title = "Permission | Address Shop";
@@ -160,7 +161,7 @@ const Permission = () => {
       </Row>
       <Row>
         <Col>
-          <div style={{ margin: "20px 0" }}>
+          <div className={"custom-tree"} style={{ margin: "20px 0" }}>
             <Tree
               checkable
               checkedKeys={checkedKeys}
