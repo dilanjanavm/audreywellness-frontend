@@ -27,6 +27,7 @@ import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
 import ProductVariantsFormRepeater from "../../Components/Common/formRepeters/ProductVariantsFormRepeater";
 import FileUploadModal from "../../Components/Common/modal/FileUploadModal";
+import * as productService from "../../service/productService";
 
 const { Option } = Select;
 
@@ -359,7 +360,7 @@ const AddNewProduct = () => {
     });
   };
 
-  const handleCreateProduct = () => {
+  const handleCreateProduct = async () => {
     let validation = false;
 
     // for (const variant of productVariantDetails) {
@@ -408,6 +409,14 @@ const AddNewProduct = () => {
       };
 
       console.log(data);
+      await productService
+        .addNewProduct(data)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err, "errr");
+        });
     }
   };
 

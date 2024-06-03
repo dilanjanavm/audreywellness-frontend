@@ -15,7 +15,7 @@ export async function addNewProduct(data) {
   (apiObject.method = "POST"),
     (apiObject.authentication = true),
     (apiObject.isWithoutPrefix = false);
-  apiObject.endpoint = ``;
+  apiObject.endpoint = `api/admin/product/create`;
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }
