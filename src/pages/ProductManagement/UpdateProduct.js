@@ -20,7 +20,7 @@ import { getAllCategoriesWithSubCategories } from "../../service/categoryService
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft } from "react-feather";
 import { useNavigate } from "react-router-dom";
-import { getProductDetailsById } from "../../service/productService";
+import { getProductBaseVariationDetailsById } from "../../service/productBaseVariationService";
 
 const { Option } = Select;
 
@@ -102,7 +102,7 @@ const UpdateProduct = () => {
 
   const loadProductDetailsById = () => {
     setProductDetails([]);
-    getProductDetailsById()
+    getProductBaseVariationDetailsById()
       .then((res) => {
         console.log(res);
       })

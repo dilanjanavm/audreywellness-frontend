@@ -1,14 +1,14 @@
 import ApiService from "./apiService";
 
-export async function getAllProducts() {
-  const apiObject = {};
-  (apiObject.method = "GET"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
-  apiObject.endpoint = `api/product/find-all`;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
-}
+// export async function getAllProducts() {
+//   const apiObject = {};
+//   (apiObject.method = "GET"),
+//     (apiObject.authentication = true),
+//     (apiObject.isWithoutPrefix = false);
+//   apiObject.endpoint = `api/product/find-all`;
+//   apiObject.body = null;
+//   return await ApiService.callApi(apiObject);
+// }
 
 export async function addNewProduct(data) {
   const apiObject = {};
@@ -40,15 +40,7 @@ export async function deleteProduct(productId) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function getProductDetailsById(productId) {
-  const apiObject = {};
-  (apiObject.method = "GET"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
-  apiObject.endpoint = `api/product-variant/find-all-by-product-id/${productId}`;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
-}
+
 
 export async function checkProductNameExists(productName) {
   const apiObject = {};
