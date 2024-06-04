@@ -1,9 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "react-feather";
-import { Button, Card, FormFeedback, Input, Row } from "reactstrap";
-import { customToastMsg, handleError } from "../../../common/commonFunctions";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Col,
+  FormFeedback,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+} from "reactstrap";
+import {
+  countDescription,
+  customToastMsg,
+  handleError,
+} from "../../../common/commonFunctions";
 import { getAllAttributesWithTags } from "../../../service/attributeAndTagService";
-import { Select } from "antd";
+import { Divider, Select } from "antd";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { desMaxLimit } from "../../../common/util";
+import "../../../assets/scss/components/productAdd.scss";
 
 const { Option } = Select;
 
@@ -18,6 +37,7 @@ const ProductVariantsFormRepeater = ({
       color: "",
       files: [],
       name: "",
+      description: "",
       sizes: [],
     },
   ]);
@@ -50,6 +70,7 @@ const ProductVariantsFormRepeater = ({
               color: variant?.color,
               files: imageIds,
               name: variant?.name,
+              description: variant?.description ? variant?.description : "",
               sizes: variant?.sizes.map((size) => ({
                 size: size.size,
                 qty: size.qty,
@@ -62,6 +83,7 @@ const ProductVariantsFormRepeater = ({
               color: variant?.color,
               files: imageIds,
               name: variant?.name,
+              description: variant?.description ? variant?.description : "",
               sizes: [
                 {
                   size: "",
@@ -78,6 +100,7 @@ const ProductVariantsFormRepeater = ({
               color: "",
               files: variant?.image ? variant.image.map((img) => img.id) : [],
               name: "",
+              description: "",
               sizes: [],
             });
           } else {
@@ -86,6 +109,7 @@ const ProductVariantsFormRepeater = ({
               color: "",
               files: variant?.image ? variant.image.map((img) => img.id) : [],
               name: "",
+              description: "",
               sizes: [{ size: "", qty: "", price: "" }],
             });
           }
@@ -127,11 +151,18 @@ const ProductVariantsFormRepeater = ({
   };
 
   const handleInputChange = (e, index, sizeIndex) => {
+    console.log(e, index, sizeIndex);
     const { name, value } = e.target;
     const list = [...inputList];
     name === "name"
       ? (list[index][name] = value)
       : (list[index].sizes[sizeIndex][name] = value);
+    setInputList(list);
+  };
+
+  const handleDesChange = (data, index) => {
+    const list = [...inputList];
+    list[index].description = data;
     setInputList(list);
   };
 
@@ -179,6 +210,7 @@ const ProductVariantsFormRepeater = ({
           color: "",
           files: [],
           name: "",
+          description: "",
           sizes: [],
         },
       ]);
@@ -190,11 +222,12 @@ const ProductVariantsFormRepeater = ({
 
     const variants = inputList.map((variant) => ({
       name: variant?.name,
+      description: variant?.description,
       fileIds: variant?.files,
       baseTagId: variant.color?.id,
       variants: variant.sizes.map((size) => ({
-        sellingPrice: size.price,
-        availableQty: size.qty,
+        sellingPrice: parseFloat(size.price),
+        availableQty: parseFloat(size.qty),
         variantTagId: size.size.id,
       })),
     }));
@@ -203,159 +236,251 @@ const ProductVariantsFormRepeater = ({
   };
 
   return (
-    <div className="row w-100">
+    <div className="row w-100 ">
       {inputList.map((variant, i) => (
-        <Card className="d-flex my-3 mx-3 p-3" key={i}>
-          <div className="row w-100">
-            {variantTypes &&
-            variantTypes.length === 1 &&
-            variant?.color === "" ? (
-              ""
-            ) : (
-              <div className="form-group col-md-2 col-lg-1">
-                <label className="form-label">Color</label>
-                <h6 className="fw-normal">{variant?.color?.name}</h6>
-              </div>
-            )}
-            <div className="form-group col-md-2 col-lg-3">
-              <label className="form-label">Name</label>
-              <Input
-                type="text"
-                name="name"
-                className="form-control"
-                placeholder="Enter name"
-                value={variant.name != undefined ? variant.name : ""}
-                onChange={(e) => handleInputChange(e, i, name)}
-              />
-            </div>
+        <Card className="d-flex mx-3 py-3" key={i}>
+          {variantTypes &&
+          variantTypes.length === 1 &&
+          variant?.color === "" ? (
+            ""
+          ) : (
+            <CardHeader className="pt-0 pb-2 px-1">
+              <h5>{variant?.color?.name} Color</h5>
+            </CardHeader>
+          )}
 
-            {variantTypes &&
-            variantTypes.length === 1 &&
-            variant?.color === "" &&
-            !selectSize ? (
-              ""
-            ) : variantTypes && variantTypes.length > 0 && selectSize ? (
-              <div className="form-group col-md-3 col-lg-3">
-                <label className="form-label">Size</label>
-                <Select
-                  mode="multiple"
-                  allowClear
-                  showSearch
-                  placeholder="Select..."
-                  style={{ width: "100%", height: 40 }}
-                  value={variant.sizes.map((s) => s.size.id)}
-                  onChange={(selectedOption) =>
-                    handleSelectChange(
-                      sizeTagList.filter((tag) =>
-                        selectedOption.includes(tag.id)
-                      ),
-                      i,
-                      "size"
-                    )
-                  }
-                >
-                  {sizeTagList.map((tag) => (
-                    <Option key={tag.id} value={tag.id}>
-                      {tag.name}
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            ) : (
-              ""
-            )}
+          <CardBody className="row w-100">
+            <Row>
+              <Col sm={6}>
+                <div className="form-group col-12">
+                  <label className="form-label">Name</label>
+                  <Input
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    placeholder="Enter name"
+                    value={variant.name != undefined ? variant.name : ""}
+                    onChange={(e) => handleInputChange(e, i, name)}
+                  />
+                </div>
 
-            {selectSize ? (
-              <div className="form-group col-md-12 col-lg-12 ">
-                {variant.sizes.map((size, sizeIndex) => (
-                  <Row
-                    key={sizeIndex}
-                    className="d-flex justify-content-end my-3"
-                  >
-                    <div className="form-group col-md-1 col-lg-1 d-flex align-items-center">
-                      {/* <label className="form-label">Size</label> */}
-                      <h6 className="fw-normal">{size.size.name}</h6>
-                    </div>
-                    <div className="form-group col-md-4 col-lg-4">
-                      {/* <label className="form-label">
+                {variantTypes &&
+                variantTypes.length === 1 &&
+                variant?.color === "" &&
+                !selectSize ? (
+                  ""
+                ) : variantTypes && variantTypes.length > 0 && selectSize ? (
+                  <div className="form-group col-12 my-3">
+                    <label className="form-label">Size</label>
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      showSearch
+                      placeholder="Select..."
+                      style={{ width: "100%", height: 40 }}
+                      value={variant.sizes.map((s) => s.size.id)}
+                      onChange={(selectedOption) =>
+                        handleSelectChange(
+                          sizeTagList.filter((tag) =>
+                            selectedOption.includes(tag.id)
+                          ),
+                          i,
+                          "size"
+                        )
+                      }
+                    >
+                      {sizeTagList.map((tag) => (
+                        <Option key={tag.id} value={tag.id}>
+                          {tag.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {!selectSize && (
+                  <div className="col-md-6 col-lg-12 my-3">
+                    {variant.sizes.map((size, sizeIndex) => (
+                      <Row key={sizeIndex}>
+                        <div className="form-group col-6">
+                          <label className="form-label">
+                            Quantity of {size.size.name}
+                          </label>
+                          <Input
+                            type="number"
+                            name="qty"
+                            className="form-control"
+                            placeholder="Enter quantity"
+                            value={size.qty}
+                            onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                            invalid={size.qty < 0}
+                          />
+                          {size.qty < 0 && (
+                            <FormFeedback>Invalid Quantity</FormFeedback>
+                          )}
+                        </div>
+                        <div className="form-group col-6">
+                          <label className="form-label">
+                            Price of {size.size.name}
+                          </label>
+                          <Input
+                            type="number"
+                            name="price"
+                            className="form-control"
+                            placeholder="Enter price"
+                            value={size.price}
+                            onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                            invalid={size.price < 0}
+                          />
+                          {size.price < 0 && (
+                            <FormFeedback>Invalid Price</FormFeedback>
+                          )}
+                        </div>
+                      </Row>
+                    ))}
+                  </div>
+                )}
+              </Col>
+              <Col sm={6}>
+                <div>
+                  <div className="d-flex justify-content-between">
+                    <Label>Description</Label>
+                    {countDescription(variant.description) > desMaxLimit ? (
+                      <span className="text-count text-danger">
+                        {countDescription(variant.description)} of {desMaxLimit}{" "}
+                        Characters
+                      </span>
+                    ) : (
+                      <span className="text-count text-muted">
+                        {countDescription(variant.description)} of {desMaxLimit}{" "}
+                        Characters
+                      </span>
+                    )}
+                  </div>
+                  <CKEditor
+                    className="custom-ckeditor"
+                    name="description"
+                    onChange={(event, editor) => {
+                      const data = editor.getData();
+                      handleDesChange(data, i);
+                    }}
+                    config={{
+                      toolbar: {
+                        items: [
+                          "heading",
+                          "|",
+                          "bold",
+                          "italic",
+                          "underline",
+                          "strikethrough",
+                          "|",
+                          "bulletedList",
+                          "numberedList",
+                          "|",
+                          "alignment",
+                          "|",
+                          "indent",
+                          "outdent",
+                          "|",
+                          "fontColor",
+                          "fontSize",
+                          "fontBackgroundColor",
+                          "|",
+                          "undo",
+                          "redo",
+                          "|",
+                          "cut",
+                          "copy",
+                          "paste",
+                          "|",
+                          "removeFormat",
+                          "|",
+                          "blockQuote",
+                          "horizontalLine",
+                          "|",
+                          "code",
+                          "|",
+                          "specialCharacters",
+                          "|",
+                        ],
+                      },
+                    }}
+                    editor={ClassicEditor}
+                    data={variant.description}
+                    onReady={(editor) => {}}
+                  />
+                </div>
+              </Col>
+            </Row>
+
+            {selectSize && (
+              <div className="mt-2">
+                <div className="form-group col-md-12 col-lg-12 ">
+                  {variant.sizes.length > 0 && (
+                    <>
+                      <Divider orientation="left">Size details</Divider>
+                      <Row>
+                        <Col sm={1}>
+                          <h6>Size</h6>
+                        </Col>
+                        <Col sm={4}>
+                          <h6>Quantity</h6>
+                        </Col>
+                        <Col sm={4}>
+                          <h6>Price</h6>
+                        </Col>
+                      </Row>
+                    </>
+                  )}
+
+                  {variant.sizes.map((size, sizeIndex) => (
+                    <Row key={sizeIndex} className="d-flex my-3">
+                      <div className="form-group col-md-1 col-lg-1 d-flex align-items-center">
+                        {/* <label className="form-label">Size</label> */}
+                        <h6 className="fw-normal">{size.size.name}</h6>
+                      </div>
+                      <div className="form-group col-md-4 col-lg-4">
+                        {/* <label className="form-label">
                       Quantity of {size.size.name}
                     </label> */}
-                      <Input
-                        type="number"
-                        name="qty"
-                        className="form-control"
-                        placeholder="Enter quantity"
-                        value={size.qty}
-                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                        invalid={size.qty < 0}
-                      />
-                      {size.qty < 0 && (
-                        <FormFeedback>Invalid Quantity</FormFeedback>
-                      )}
-                    </div>
-                    <div className="form-group col-md-4 col-lg-4">
-                      {/* <label className="form-label">
+                        <Input
+                          type="number"
+                          name="qty"
+                          className="form-control"
+                          placeholder="Enter quantity"
+                          value={size.qty}
+                          onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                          invalid={size.qty < 0}
+                        />
+                        {size.qty < 0 && (
+                          <FormFeedback>Invalid Quantity</FormFeedback>
+                        )}
+                      </div>
+                      <div className="form-group col-md-4 col-lg-4">
+                        {/* <label className="form-label">
                       Price of {size.size.name}
                     </label> */}
-                      <Input
-                        type="number"
-                        name="price"
-                        className="form-control"
-                        placeholder="Enter price"
-                        value={size.price}
-                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                        invalid={size.price < 0}
-                      />
-                      {size.price < 0 && (
-                        <FormFeedback>Invalid Price</FormFeedback>
-                      )}
-                    </div>
-                  </Row>
-                ))}
-              </div>
-            ) : (
-              <div className="form-group col-md-6 col-lg-6 ">
-                {variant.sizes.map((size, sizeIndex) => (
-                  <Row key={sizeIndex}>
-                    <div className="form-group col-md-6 col-lg-6">
-                      <label className="form-label">
-                        Quantity of {size.size.name}
-                      </label>
-                      <Input
-                        type="number"
-                        name="qty"
-                        className="form-control"
-                        placeholder="Enter quantity"
-                        value={size.qty}
-                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                        invalid={size.qty < 0}
-                      />
-                      {size.qty < 0 && (
-                        <FormFeedback>Invalid Quantity</FormFeedback>
-                      )}
-                    </div>
-                    <div className="form-group col-md-6 col-lg-6">
-                      <label className="form-label">
-                        Price of {size.size.name}
-                      </label>
-                      <Input
-                        type="number"
-                        name="price"
-                        className="form-control"
-                        placeholder="Enter price"
-                        value={size.price}
-                        onChange={(e) => handleInputChange(e, i, sizeIndex)}
-                        invalid={size.price < 0}
-                      />
-                      {size.price < 0 && (
-                        <FormFeedback>Invalid Price</FormFeedback>
-                      )}
-                    </div>
-                  </Row>
-                ))}
+                        <Input
+                          type="number"
+                          name="price"
+                          className="form-control"
+                          placeholder="Enter price"
+                          value={size.price}
+                          onChange={(e) => handleInputChange(e, i, sizeIndex)}
+                          invalid={size.price < 0}
+                        />
+                        {size.price < 0 && (
+                          <FormFeedback>Invalid Price</FormFeedback>
+                        )}
+                      </div>
+                    </Row>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
+          </CardBody>
         </Card>
       ))}
     </div>

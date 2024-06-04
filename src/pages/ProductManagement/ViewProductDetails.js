@@ -1,4 +1,4 @@
-import { Divider, Tag } from "antd";
+import { Carousel, Divider, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { ArrowLeft } from "react-feather";
 import { useDispatch } from "react-redux";
@@ -6,8 +6,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Col, Container, Row } from "reactstrap";
 import parse from "html-react-parser";
 import "../../assets/scss/components/viewProduct.scss";
-import { getProductDetailsById } from "../../service/productService";
 import { handleError } from "../../common/commonFunctions";
+import { getProductBaseVariationDetailsById } from "../../service/productBaseVariationService";
 
 const ViewProductDetails = () => {
   const location = useLocation();
@@ -27,24 +27,9 @@ const ViewProductDetails = () => {
 
   const loadProductDetailsById = () => {
     setProductDetails([]);
-    let temp = [];
-    getProductDetailsById(productId)
+    getProductBaseVariationDetailsById(productId)
       .then((res) => {
-        console.log(res);
-        res?.data.map((product, index) => {
-          temp.push({
-            id: product?.id,
-            name: product?.name,
-            description: product?.description,
-            manufactureDetails: product?.manufactureDetails,
-            category: product?.category,
-            file: product?.file,
-            status: product?.status,
-            productVariants: product?.productVariants,
-          });
-        });
-        console.log(temp);
-        setProductDetails(temp);
+        setProductDetails(res?.data);
       })
       .catch((err) => {
         handleError(err);
@@ -69,19 +54,26 @@ const ViewProductDetails = () => {
             <Col sm={12} md={6} lg={6} xl={3}>
               <div className="object-fit-cover d-flex justify-content-center justify-content-xl-start justify-content-lg-start justify-content-md-start">
                 {productDetails?.file ? (
-                  <img
-                    // key={index}
-                    src={productDetails?.file?.originalPath}
-                    alt="productIamge"
-                    // alt={img?.altTag}
-                    className="object-fit-cover"
-                    width="80%"
-                    height="auto"
-                    onError={(e) =>
-                      (e.target.src =
-                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                    }
-                  />
+                  <Carousel autoplay>
+                    {productDetails?.file.map((img, index) => (
+                      <div
+                        key={index}
+                        className="d-flex justify-content-center"
+                      >
+                        <img
+                          src={img?.originalPath}
+                          alt={img?.altTag}
+                          className="object-fit-cover"
+                          width="80%"
+                          height="auto"
+                          onError={(e) =>
+                            (e.target.src =
+                              "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                          }
+                        />
+                      </div>
+                    ))}
+                  </Carousel>
                 ) : (
                   <img
                     src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
@@ -91,30 +83,12 @@ const ViewProductDetails = () => {
                     height="auto"
                   />
                 )}
-                {/* {productDetails?.file ? (
-                  <img
-                    // key={index} // Remember to add a unique key for each list item
-                    src={productDetails?.file?.originalPath}
-                    alt="product image"
-                    // alt={img?.altTag}
-                    className="object-fit-cover"
-                    width="80%"
-                    height="auto"
-                    onError={(e) =>
-                      (e.target.src =
-                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                    }
-                  />
-                ) : (
-                  <img
-                    src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
-                    alt="placeholder"
-                    className="object-fit-cover"
-                    width="80%"
-                    height="auto"
-                  />
-                )} */}
               </div>
+
+              <div
+                className="object-fit-cover d-flex justify-content-center justify-content-xl-start justify-content-lg-start "
+                style={{ height: "100%", width: "100%" }}
+              ></div>
             </Col>
             <Col
               sm={12}
@@ -125,39 +99,20 @@ const ViewProductDetails = () => {
             >
               <h4>{productDetails?.name}</h4>
 
-              {productDetails?.fromPrice === null ? (
-                <h5 className="product-data my-3">
-                  From LKR : <Tag>Not Send</Tag>
-                </h5>
-              ) : (
-                <h5 className="product-data my-3">
-                  From LKR{" "}
-                  {parseFloat(productDetails?.fromPrice).toLocaleString(
-                    "en-US",
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
-                </h5>
-              )}
+              <h5 className="product-data my-2">
+                This is a product variant of {productDetails?.product?.name}
+              </h5>
 
-              <div
-                className="d-flex align-items-center position-relative "
-                style={{ width: "fit-content", paddingRight: 40 }}
-              >
-                <h5 className="product-data my-2">
-                  Category : {productDetails?.category?.name}{" "}
-                </h5>
-                <div
-                  className="color-div"
-                  style={{
-                    backgroundColor: `#${productDetails?.category?.color}`,
-                  }}
-                ></div>
-              </div>
+              <h5 className="product-data my-2">
+                {productDetails?.baseVariant?.attribute?.name} :{" "}
+                {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
+              </h5>
 
-              <h5 className="product-data my-3">
+              <h5 className="product-data my-2">
+                Category : {productDetails?.category?.categoryHierarchy}{" "}
+              </h5>
+
+              <h5 className="product-data my-2">
                 Status :
                 <Tag
                   className="ms-3 fs-6 "
@@ -184,7 +139,7 @@ const ViewProductDetails = () => {
               md={12}
               lg={12}
               xl={2}
-              className="d-flex justify-content-center justify-content-md-end align-items-start mt-5 mt-xl-5"
+              className="d-flex justify-content-center justify-content-md-end align-items-start mt-5 mt-xl-2"
             >
               <button
                 type="button"
@@ -199,11 +154,50 @@ const ViewProductDetails = () => {
               </button>
             </Col>
 
-            {/* <Col sm={12} md={12} lg={12} xl={12}>
+            <Col sm={12} md={12} lg={12} xl={12}>
               <h5 className="product-data my-3 text-center text-md-start mt-5">
-                {parse(productDetails?.description)}
+                Manufacture Details :{" "}
+                {parse(
+                  productDetails?.product?.manufactureDetails
+                    ? productDetails?.product?.manufactureDetails
+                    : ""
+                )}
               </h5>
-            </Col> */}
+            </Col>
+
+            <Col sm={12} md={12} lg={12} xl={12}>
+              <h5 className="product-data my-3 text-center text-md-start mt-3">
+                Product Variant Description :{" "}
+                {parse(
+                  productDetails?.description ? productDetails?.description : ""
+                )}
+              </h5>
+            </Col>
+
+            <Col sm={12} md={12} lg={12} xl={12}>
+              <h5 className="product-data my-3 text-center text-md-start mt-3">
+                Product Size Variants :{" "}
+                {productDetails?.sizeVariants
+                  ? productDetails?.sizeVariants.map((size, index) => {
+                      <Row>
+                        <Col>
+                          <h5>
+                            {size?.attribute?.name +
+                              " " +
+                              size?.attribute?.tag?.name}
+                          </h5>
+                        </Col>
+                        <Col>
+                          <h5>{size?.availableQty}</h5>
+                        </Col>
+                        <Col>
+                          <h5>{size?.sellingPrice}</h5>
+                        </Col>
+                      </Row>;
+                    })
+                  : ""}
+              </h5>
+            </Col>
           </Row>
           <Divider className="my-5" />
           <Row className="px-4 mb-4">

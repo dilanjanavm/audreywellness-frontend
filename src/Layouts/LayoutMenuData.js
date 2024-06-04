@@ -268,6 +268,19 @@ const Navdata = () => {
           },
           stateVariables: isProduct,
         },
+        // {
+        //   id: "addNewProductStep",
+        //   label: "old Add New Product",
+        //   icon: <FeatherIcon icon="grid" className="icon-dual" />,
+        //   link: "/create-product-old",
+        //   click: function (e) {
+        //     e.preventDefault();
+        //     setIsProduct(!isProduct);
+        //     setIscurrentState("Products");
+        //     updateIconSidebar(e);
+        //   },
+        //   stateVariables: isProduct,
+        // },
         {
           id: "updateProduct",
           label: "Update Product",
@@ -295,7 +308,7 @@ const Navdata = () => {
           },
           stateVariables: isProduct,
         },
-        
+
         {
           id: "categoryManagement",
           label: "Category Management",

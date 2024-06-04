@@ -39,6 +39,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   const [color, setColor] = useState("#000");
   const [allCategories, setAllCategories] = useState([]);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState([]);
 
   const dispatch = useDispatch();
   const toggleTab = (tab) => {
@@ -79,19 +80,28 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   }, [isOpen]);
 
   const handleSubmit = () => {
-    let data = {
-      name: categoryName,
-      fileId: null,
-    };
-
     categoryName.trim() === ""
-      ? customToastMsg("Category name cannot be empty!", 0)
-      : addCategory(data);
-    //toggle();
+      ? customToastMsg("Category name cannot be empty!")
+      : uploadedFile.length === 0
+      ? customToastMsg("Select image")
+      : addCategory();
   };
 
-  const addCategory = (data) => {
+  const addCategory = () => {
     // popUploader(dispatch, true);
+
+    let temp = "";
+    uploadedFile.length === 1
+      ? uploadedFile.map((img) => {
+          temp = img.id;
+        })
+      : (temp = "");
+
+    let data = {
+      name: categoryName,
+      fileId: temp,
+    };
+
     categoryService
       .create(data)
       .then((res) => {
@@ -99,56 +109,94 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
         toggle();
         setCategoryName("");
         setActiveTab("1");
+        setUploadedFile([]);
         // popUploader(dispatch, false);
       })
       .catch((c) => {
         console.log(c);
+        handleError(c);
         // popUploader(dispatch, false);
-        // c.response?.data.message
-        //   ? customToastMsg(c.response.data.message, 0)
-        //   : customToastMsg("Sorry! Try again later", 0);
       });
   };
 
-  const addSubCategory = (data) => {
-    console.log(data, "dataaaaa");
+  const handleSubCategory = () => {
+    selectedParent.trim() === ""
+      ? customToastMsg("Select category for your new subcategory !")
+      : categoryName.trim() === ""
+      ? customToastMsg("Category name cannot be empty!")
+      : uploadedFile.length === 0
+      ? customToastMsg("Select image")
+      : addSubCategory();
+  };
+
+  const addSubCategory = () => {
     // popUploader(dispatch, true);
+
+    let temp = "";
+    uploadedFile.length === 1
+      ? uploadedFile.map((img) => {
+          temp = img.id;
+        })
+      : (temp = "");
+
+    let data = {
+      name: categoryName,
+      parentId: selectedParent,
+      fileId: temp,
+    };
+
     categoryService
       .create(data)
       .then((res) => {
         customToastMsg("Sub Category Successfully added !", 1);
         toggle();
         setCategoryName("");
-
+        setSelectedParent("");
         setActiveTab("1");
+        setUploadedFile([]);
       })
       .catch((c) => {
         console.log(c);
+        handleError(c);
         // popUploader(dispatch, false);
-        // c.response?.data.message
-        //   ? customToastMsg(c.response.data.message, 0)
-        //   : customToastMsg("Sorry! Try again later", 0);
       });
   };
-  const handleSubCategory = () => {
-    let data = {
-      name: categoryName,
-      parentId: selectedParent,
-    };
 
-    selectedParent.trim() === ""
-      ? customToastMsg("Select category for your new subcategory !", 0)
-      : categoryName.trim() === ""
-      ? customToastMsg("Category name cannot be empty!", 0)
-      : addSubCategory(data);
-    //toggle();
-  };
   const openToggle = () => {
     setImageModalOpen(!imageModalOpen);
   };
   return (
-    <Modal size="md" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Add New Category</ModalHeader>
+    <Modal
+      size="md"
+      isOpen={isOpen}
+      toggle={() => {
+        toggle();
+        setCategoryName("");
+        setSelectedParent("");
+        setActiveTab("1");
+        setUploadedFile([]);
+      }}
+    >
+      <FileUploadModal
+        isOpen={imageModalOpen}
+        toggle={openToggle}
+        isMultiple={false}
+        uploadLimit={1}
+        onFileUploadSuccess={(files) => {
+          setUploadedFile(files);
+        }}
+      />
+      <ModalHeader
+        toggle={() => {
+          toggle();
+          setCategoryName("");
+          setSelectedParent("");
+          setActiveTab("1");
+          setUploadedFile([]);
+        }}
+      >
+        Add New Category
+      </ModalHeader>
       <ModalBody>
         <Nav tabs>
           <NavItem>
@@ -158,6 +206,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                 setCategoryName("");
                 setSelectedParent("");
                 toggleTab("1");
+                setUploadedFile([]);
               }}
             >
               Add New Main Category
@@ -170,6 +219,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                 setCategoryName("");
                 setSelectedParent("");
                 toggleTab("2");
+                setUploadedFile([]);
               }}
             >
               Add New Subcategory
@@ -195,11 +245,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
 
                   <FormGroup>
                     {/* <Label for="categoryName">Select image for category </Label> */}
-                    <FileUploadModal
-                      isOpen={imageModalOpen}
-                      toggle={openToggle}
-                      isMultiple={false}
-                    />
+
                     <button
                       className={"mt-2 clickToUploadButton w-100"}
                       type="button"
@@ -209,13 +255,42 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                       Click To Upload
                     </button>
                   </FormGroup>
+                  <FormGroup className="col-5">
+                    {uploadedFile && uploadedFile.length > 0 && (
+                      <div className="d-flex my-2 flex-wrap">
+                        {uploadedFile.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img.path}
+                            alt="productImage"
+                            className="mx-2"
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "cover",
+                            }}
+                            onError={(e) =>
+                              (e.target.src =
+                                "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </FormGroup>
 
                   <div className="d-flex justify-content-end">
                     <Button
                       className="mx-2"
                       outline
                       color="secondary"
-                      onClick={toggle}
+                      onClick={() => {
+                        toggle();
+                        setCategoryName("");
+                        setSelectedParent("");
+                        setActiveTab("1");
+                        setUploadedFile([]);
+                      }}
                     >
                       Cancel
                     </Button>{" "}
@@ -265,11 +340,6 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                       Select image for subcategory{" "}
                     </Label> */}
 
-                    <FileUploadModal
-                      isOpen={imageModalOpen}
-                      toggle={openToggle}
-                      isMultiple={false}
-                    />
                     <button
                       className={"mt-2 clickToUploadButton w-100"}
                       type="button"
@@ -279,12 +349,41 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                       Click To Upload
                     </button>
                   </FormGroup>
+                  <FormGroup className="col-5">
+                    {uploadedFile && uploadedFile.length > 0 && (
+                      <div className="d-flex my-2 flex-wrap">
+                        {uploadedFile.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img.path}
+                            alt="productImage"
+                            className="mx-2"
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "cover",
+                            }}
+                            onError={(e) =>
+                              (e.target.src =
+                                "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </FormGroup>
                   <div className="d-flex justify-content-end">
                     <Button
                       className="mx-2"
                       outline
                       color="secondary"
-                      onClick={toggle}
+                      onClick={() => {
+                        toggle();
+                        setCategoryName("");
+                        setSelectedParent("");
+                        setActiveTab("1");
+                        setUploadedFile([]);
+                      }}
                     >
                       Cancel
                     </Button>{" "}

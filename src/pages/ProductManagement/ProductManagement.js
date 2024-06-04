@@ -12,8 +12,7 @@ import {
   Row,
 } from "reactstrap";
 import ProductCard from "../../Components/Common/cards/ProductCard";
-// import { getAllProducts } from "../../service/productService";
-import * as productVariantService from "../../service/productVariantService";
+import * as productBaseVariantService from "../../service/productBaseVariationService";
 
 import { handleError } from "../../common/commonFunctions";
 
@@ -36,8 +35,8 @@ const ProductManagement = () => {
   const loadAllProducts = async () => {
     setProductList([]);
     let temp = [];
-    await productVariantService
-      .getAllProductVariants()
+    await productBaseVariantService
+      .getAllProductBaseVariation()
       .then((res) => {
         console.log(res);
         res?.data.map((productVarition, index) => {
@@ -115,7 +114,6 @@ const ProductManagement = () => {
               <ProductCard
                 reload={async () => {
                   setIsRefresh(true);
-                  loadAllProducts();
                 }}
                 productData={product}
               />

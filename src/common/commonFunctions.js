@@ -215,3 +215,7 @@ export const countDescription = (description) => {
 
   return characterCount;
 };
+
+export const popUploader = (dispatch, val) => {
+  dispatch({ type: "IS_LOADER", value: { isLoader: val, type: 0 } });
+};

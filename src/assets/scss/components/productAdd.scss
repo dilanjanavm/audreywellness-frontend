@@ -1,0 +1,10 @@
+// .productVariationDes {
+//   .ck-editor__editable_inline:not(.ck-comment__input *) {
+//     height: 100px !important;
+//     overflow-y: auto;
+//   }
+// }
+
+.custom-ckeditor .ck-editor__editable_inline {
+  height: 200px !important;
+}
