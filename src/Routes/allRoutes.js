@@ -31,6 +31,7 @@ import ViewProductDetails from "../pages/ProductManagement/ViewProductDetails";
 import BannerManagement from "../pages/BannerManagement/BannerManagement";
 import FeatureManagement from "../pages/FeatureManagement/FeatureManagement";
 import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
+import AddProduct from "../pages/ProductManagement/AddProduct";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -50,7 +51,8 @@ const authProtectedRoutes = [
   },
   { path: "*", component: <Navigate to="/dashboard" /> },
 
-  { path: "/create-product", component: <AddNewProduct /> },
+  { path: "/create-product", component: <AddProduct /> },
+  { path: "/create-product-old", component: <AddNewProduct /> },
   { path: "/update-product", component: <UpdateProduct /> },
   { path: "/product-view", component: <ViewProductDetails /> },
   { path: "/product-management", component: <ProductManagement /> },
