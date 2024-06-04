@@ -115,7 +115,6 @@ const ProductManagement = () => {
               <ProductCard
                 reload={async () => {
                   setIsRefresh(true);
-                  loadAllProducts();
                 }}
                 productData={product}
               />

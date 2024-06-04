@@ -115,6 +115,39 @@ const ViewProductDetails = () => {
                   />
                 )} */}
               </div>
+
+              {/* <div
+              className="object-fit-cover d-flex justify-content-center justify-content-xl-start justify-content-lg-start "
+              style={{ height: "100%", width: "100%" }}
+            >
+              <Carousel autoplay>
+                {subProductImg.map((img, index) => (
+                  <div key={index} className="d-flex justify-content-center">
+                    {img?.imageSizes ? (
+                      <img
+                        src={img?.imageSizes?.original}
+                        alt={img?.altTag}
+                        className="object-fit-cover "
+                        width="80%"
+                        height="auto"
+                        onError={(e) =>
+                          (e.target.src =
+                            "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                        }
+                      />
+                    ) : (
+                      <img
+                        src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
+                        alt="placeholder"
+                        className="object-fit-cover"
+                        width="80%"
+                        height="auto"
+                      />
+                    )}
+                  </div>
+                ))}
+              </Carousel>
+            </div> */}
             </Col>
             <Col
               sm={12}

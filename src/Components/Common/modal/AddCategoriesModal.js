@@ -114,10 +114,8 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
       })
       .catch((c) => {
         console.log(c);
+        handleError(c);
         // popUploader(dispatch, false);
-        // c.response?.data.message
-        //   ? customToastMsg(c.response.data.message, 0)
-        //   : customToastMsg("Sorry! Try again later", 0);
       });
   };
 
@@ -159,6 +157,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
       })
       .catch((c) => {
         console.log(c);
+        handleError(c);
         // popUploader(dispatch, false);
       });
   };

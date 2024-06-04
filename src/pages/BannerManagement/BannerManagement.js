@@ -5,10 +5,17 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Plus } from "react-feather";
 import * as bannerService from "../../service/bannerService";
 import BannerModel from "../../Components/Common/modal/AddBannerModel";
-import { customSweetAlert } from "../../common/commonFunctions";
+import {
+  customSweetAlert,
+  handleError,
+  popUploader,
+} from "../../common/commonFunctions";
+import { useDispatch } from "react-redux";
 
 const BannerManagement = () => {
   document.title = "Banners | Address Shop";
+
+  const dispatch = useDispatch();
 
   const [banners, setBanners] = useState([]);
   const [isAddBannerModalOpen, setIsAddBannerModalOpen] = useState(false);
@@ -20,11 +27,15 @@ const BannerManagement = () => {
   }, []);
 
   const getAllBanners = async () => {
+    popUploader(dispatch, true);
     try {
       const res = await bannerService.getAll();
       console.log(res, "banner response");
+      popUploader(dispatch, false);
       setBanners(res.data);
     } catch (error) {
+      popUploader(dispatch, false);
+      handleError(error);
       message.error("Failed to fetch banners");
     }
   };
@@ -51,8 +62,6 @@ const BannerManagement = () => {
         });
     });
   };
-
-  
 
   const renderBannersByPosition = (position) => {
     return (

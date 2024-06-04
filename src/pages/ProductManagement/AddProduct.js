@@ -374,6 +374,7 @@ const AddProduct = () => {
   };
 
   const validationProductDetails = () => {
+    let validate = false;
     selectedCategoryId.trim() === ""
       ? customToastMsg("Select product category first", 2)
       : productName.trim() === ""
@@ -388,7 +389,18 @@ const AddProduct = () => {
       ? customToastMsg("Manufacture details limit exceed", 2)
       : // : selectedTags.length === 0
         // ? customToastMsg("Select product attributes", 2)
-        next();
+        (validate = true);
+
+    if (validate) {
+      productService
+        .checkProductNameExists(productName)
+        .then((res) => {
+          next();
+        })
+        .catch((err) => {
+          handleError(err);
+        });
+    }
   };
 
   const handleCreateProduct = async () => {
@@ -783,6 +795,17 @@ const AddProduct = () => {
           handleImageChange(files, imageUploadIndex); // Use the correct index here
         }}
       />
+      <div className="d-flex mt-3">
+        {" "}
+        <ArrowLeft
+          style={{ cursor: "pointer" }}
+          size={18}
+          onClick={() => {
+            history("/product-management");
+          }}
+        />{" "}
+        <h4>Add New Product</h4>
+      </div>
       <Steps className="mt-4 px-5" current={current} items={items} />
       <div className="">{steps[current].content}</div>
     </div>

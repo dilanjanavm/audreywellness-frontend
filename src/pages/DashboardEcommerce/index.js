@@ -1,8 +1,8 @@
 import React from "react";
 import { Container } from "reactstrap";
-import LoaderTea from "../../Components/Common/loader/loaderview";
+
 import { Button } from "antd";
-import  ImageUploadModal  from '../../Components/Common/modal/FileUploadModal'
+import ImageUploadModal from "../../Components/Common/modal/FileUploadModal";
 
 const DashboardEcommerce = () => {
   document.title = "Dashboard | Velzon - React Admin & Dashboard Template";
@@ -16,7 +16,6 @@ const DashboardEcommerce = () => {
           </Button> */}
 
           <ImageUploadModal />
-
         </Container>
       </div>
     </React.Fragment>

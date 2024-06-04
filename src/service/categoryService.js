@@ -45,7 +45,7 @@ export async function update(id, data) {
   apiObject.authentication = false;
   apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = "api/category/update";
+  apiObject.endpoint = `api/category/update/${id}`;
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }

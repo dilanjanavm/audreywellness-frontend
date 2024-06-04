@@ -1,29 +1,28 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import {BrowserRouter} from "react-router-dom";
-import {Provider} from "react-redux";
-import {configureStore} from "@reduxjs/toolkit";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "./slices";
-import {ToastContainer} from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import LoaderTea from "./Components/Common/loader/loaderview";
-
-const store = configureStore({reducer: rootReducer, devTools: true});
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import SweetLoader from "./Components/Common/loader/sweetLoader";
+const store = configureStore({ reducer: rootReducer, devTools: true });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-    <Provider store={store}>
-        <React.Fragment>
-            <BrowserRouter basename={process.env.PUBLIC_URL}>
-                {/*<LoaderTea/>*/}
-                <App/>
-                <ToastContainer newestOnTop/>
-            </BrowserRouter>
-        </React.Fragment>
-    </Provider>
+  <Provider store={store}>
+    <React.Fragment>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
+        <SweetLoader />
+        <App />
+        <ToastContainer newestOnTop />
+      </BrowserRouter>
+    </React.Fragment>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

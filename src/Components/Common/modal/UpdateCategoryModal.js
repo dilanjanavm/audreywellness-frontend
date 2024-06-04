@@ -76,33 +76,46 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
   };
 
   const handleSubCategory = () => {
+    let isValidated = false;
+
+    categoryName.trim() === ""
+      ? customToastMsg("Category name cannot be empty!")
+      : uploadedFile.length === 0
+      ? customToastMsg("Select image")
+      : (isValidated = true);
+
+    let temp = "";
+    uploadedFile.length === 1
+      ? uploadedFile.map((img) => {
+          temp = img.id;
+        })
+      : (temp = "");
+
     let data = {
       name: categoryName,
       parent_id: selectedParent,
-      fileId:
-        Object.keys(uploadedFile).length === 0
-          ? currentData?.file
-          : uploadedFile,
+      fileId: Object.keys(uploadedFile).length === 0 ? currentData?.file : temp,
     };
-    customSweetAlert("Are you sure to update this?", 2, () => {
-      categoryName.trim() === ""
-        ? customToastMsg("Category name cannot be empty!", 0)
-        : categoryService
-            .update(currentData.id, data)
-            .then((res) => {
-              customToastMsg("Category updated successfully !", 1);
-              toggle();
-              setCategoryName("");
-              setSelectedParent("");
-              setUploadedFile([]);
-            })
-            .catch((c) => {
-              console.log(c);
-              c.response?.data.message
-                ? customToastMsg(c.response.data.message, 0)
-                : customToastMsg("Sorry! Try again later", 0);
-            });
-    });
+
+    if (isValidated) {
+      customSweetAlert("Are you sure to update this?", 2, () => {
+        categoryService
+          .update(currentData.id, data)
+          .then((res) => {
+            customToastMsg("Category updated successfully !", 1);
+            toggle();
+            setCategoryName("");
+            setSelectedParent("");
+            setUploadedFile([]);
+          })
+          .catch((c) => {
+            console.log(c);
+            c.response?.data.message
+              ? customToastMsg(c.response.data.message, 0)
+              : customToastMsg("Sorry! Try again later", 0);
+          });
+      });
+    }
   };
 
   return (
