@@ -1,4 +1,4 @@
-import { Carousel, Divider, Tag } from "antd";
+import { Carousel, Divider, Pagination, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { ArrowLeft } from "react-feather";
 import { useDispatch } from "react-redux";
@@ -6,8 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Col, Container, Row } from "reactstrap";
 import parse from "html-react-parser";
 import "../../assets/scss/components/viewProduct.scss";
-import { handleError } from "../../common/commonFunctions";
+import { handleError, popUploader } from "../../common/commonFunctions";
 import { getProductBaseVariationDetailsById } from "../../service/productBaseVariationService";
+import ProductCard from "../../Components/Common/cards/ProductCard";
 
 const ViewProductDetails = () => {
   const location = useLocation();
@@ -26,13 +27,16 @@ const ViewProductDetails = () => {
   }, [productId]);
 
   const loadProductDetailsById = () => {
+    popUploader(dispatch, true);
     setProductDetails([]);
     getProductBaseVariationDetailsById(productId)
       .then((res) => {
         setProductDetails(res?.data);
+        popUploader(dispatch, false);
       })
       .catch((err) => {
         handleError(err);
+        popUploader(dispatch, false);
       });
   };
 
@@ -102,16 +106,25 @@ const ViewProductDetails = () => {
               <h5 className="product-data my-2">
                 This is a product variant of {productDetails?.product?.name}
               </h5>
-
-              <h5 className="product-data my-2">
-                {productDetails?.baseVariant?.attribute?.name} :{" "}
-                {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
-              </h5>
+              {productDetails?.baseVariant && (
+                <h5 className="product-data my-2">
+                  {productDetails?.baseVariant?.attribute?.name} :{" "}
+                  {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
+                </h5>
+              )}
 
               <h5 className="product-data my-2">
                 Category : {productDetails?.category?.categoryHierarchy}{" "}
               </h5>
 
+              {productDetails?.productAttributes &&
+                productDetails?.productAttributes.map((att, index) => {
+                  return (
+                    <h5 className="product-data my-2">
+                      {att?.attribute?.name} : {att?.attribute?.tag?.name}{" "}
+                    </h5>
+                  );
+                })}
               <h5 className="product-data my-2">
                 Status :
                 <Tag
@@ -154,9 +167,76 @@ const ViewProductDetails = () => {
               </button>
             </Col>
 
+            {productDetails?.sizeVariants && (
+              <Col sm={12} md={12} lg={12} xl={12}>
+                <h5 className="product-data fw-semibold text-center text-md-start  mt-5">
+                  Product Size Variants :{" "}
+                </h5>
+                <Row className="ms-2">
+                  <Row>
+                    <Col sm={3} md={3} lg={2} xl={1} xxl={1} className="border">
+                      <h5 className="product-data my-2 ">Size</h5>
+                    </Col>
+                    <Col sm={5} md={5} lg={4} xl={3} xxl={3} className="border">
+                      <h5 className="product-data my-2 text-center">
+                        Available Quantity
+                      </h5>
+                    </Col>
+                    <Col sm={4} md={4} lg={3} xl={2} xxl={2} className="border">
+                      <h5 className="product-data my-2 text-center">Price</h5>
+                    </Col>
+                  </Row>{" "}
+                  {productDetails?.sizeVariants.map((size, index) => {
+                    return (
+                      <Row>
+                        <Col
+                          sm={3}
+                          md={3}
+                          lg={2}
+                          xl={1}
+                          xxl={1}
+                          className="border  px-2"
+                        >
+                          <h5 className="product-data my-2">
+                            {size?.attribute?.tag?.name}
+                          </h5>
+                        </Col>
+                        <Col
+                          sm={5}
+                          md={5}
+                          lg={4}
+                          xl={3}
+                          xxl={3}
+                          className="border "
+                        >
+                          <h5 className="product-data my-2 text-center">
+                            {size?.availableQty}
+                          </h5>
+                        </Col>
+                        <Col
+                          sm={4}
+                          md={4}
+                          lg={3}
+                          xl={2}
+                          xxl={2}
+                          className="border"
+                        >
+                          <h5 className="product-data my-2 text-end">
+                            LKR {parseFloat(size?.sellingPrice).toFixed(2)}
+                          </h5>
+                        </Col>
+                      </Row>
+                    );
+                  })}
+                </Row>
+              </Col>
+            )}
+
             <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data my-3 text-center text-md-start mt-5">
+              <h5 className="product-data fw-semibold text-center text-md-start  my-4">
                 Manufacture Details :{" "}
+              </h5>
+              <h5 className="product-data text-center text-md-start ">
                 {parse(
                   productDetails?.product?.manufactureDetails
                     ? productDetails?.product?.manufactureDetails
@@ -166,41 +246,42 @@ const ViewProductDetails = () => {
             </Col>
 
             <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data my-3 text-center text-md-start mt-3">
+              <h5 className="product-data fw-semibold text-center text-md-start my-4">
                 Product Variant Description :{" "}
+              </h5>
+              <h5 className="product-data text-center text-md-start">
                 {parse(
                   productDetails?.description ? productDetails?.description : ""
                 )}
               </h5>
             </Col>
-
-            <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data my-3 text-center text-md-start mt-3">
-                Product Size Variants :{" "}
-                {productDetails?.sizeVariants
-                  ? productDetails?.sizeVariants.map((size, index) => {
-                      <Row>
-                        <Col>
-                          <h5>
-                            {size?.attribute?.name +
-                              " " +
-                              size?.attribute?.tag?.name}
-                          </h5>
-                        </Col>
-                        <Col>
-                          <h5>{size?.availableQty}</h5>
-                        </Col>
-                        <Col>
-                          <h5>{size?.sellingPrice}</h5>
-                        </Col>
-                      </Row>;
-                    })
-                  : ""}
-              </h5>
-            </Col>
           </Row>
-          <Divider className="my-5" />
+
+          <Divider className="my-4" />
+
           <Row className="px-4 mb-4">
+            {productDetails?.product?.productBaseVariant.length > 0 ? (
+              <>
+                <h5 className="product-data fw-semibold text-center text-md-start my-4">
+                  Other Variants{" "}
+                </h5>
+                <Row className="mx-2 mb-3">
+                  {productDetails?.product?.productBaseVariant.map(
+                    (product, index) => (
+                      <ProductCard
+                        reload={async () => {
+                          setIsRefresh(true);
+                        }}
+                        productData={product}
+                      />
+                    )
+                  )}
+                </Row>
+              </>
+            ) : (
+              ""
+            )}
+
             {/* <Row>
               <Col
                 className=" d-flex justify-content-end"
@@ -211,9 +292,9 @@ const ViewProductDetails = () => {
               >
                 <Pagination
                   className="my-3"
-                  current={currentPage}
-                  onChange={onChangePagination}
-                  total={totalRecodes}
+                  // current={currentPage}
+                  // onChange={onChangePagination}
+                  // total={totalRecodes}
                   defaultPageSize={12}
                   showTotal={(total) => `Total ${total} items`}
                 />
