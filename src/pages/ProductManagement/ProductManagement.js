@@ -51,7 +51,7 @@ const ProductManagement = () => {
             id: productVarition?.id,
             name: productVarition?.name,
             category: productVarition?.category,
-            productImage: productVarition?.file,
+            file: productVarition?.file,
             status: productVarition?.status,
             priceRange: productVarition?.priceRange,
             productId: productVarition?.productId,
