@@ -7,10 +7,11 @@ import {
   customSweetAlert,
   customToastMsg,
   handleError,
+  popUploader,
 } from "../../common/commonFunctions";
 import { Tree } from "antd";
 import { useDispatch } from "react-redux";
-import '../../assets/scss/custom/Permission.scss'
+import "../../assets/scss/custom/Permission.scss";
 
 const Permission = () => {
   document.title = "Permission | Address Shop";
@@ -44,9 +45,13 @@ const Permission = () => {
   };
 
   const loadAllRoles = async () => {
+    popUploader(dispatch, true);
+
     const status = 1;
     try {
       const res = await roleAndPermssionService.getAllRoles(status);
+      popUploader(dispatch, false);
+
       const temp = res?.data.map((role) => ({
         value: role?.id,
         label: role?.name,
@@ -61,11 +66,15 @@ const Permission = () => {
       }
     } catch (error) {
       console.log(error);
+      popUploader(dispatch, false);
+
       handleError(error);
     }
   };
 
   const searchPermissionsByRole = async (roleId) => {
+    popUploader(dispatch, true);
+
     const withPermissions = true;
     try {
       const res =
@@ -73,11 +82,14 @@ const Permission = () => {
           roleId,
           withPermissions
         );
+      popUploader(dispatch, false);
+
       const transformedData = transformToTreeData(res.data);
       const checked = extractCheckedKeys(res.data);
       setPermissionTreeData(transformedData);
       setCheckedKeys(checked);
     } catch (error) {
+      popUploader(dispatch, false);
       console.log(error);
     }
   };
@@ -93,9 +105,12 @@ const Permission = () => {
       };
 
       try {
+        popUploader(dispatch, true);
+
         await roleAndPermssionService
           .assigneRolePermission(data)
           .then(async (res) => {
+            popUploader(dispatch, false);
             customToastMsg("Permissions are successfully updated ", 1);
             await searchPermissionsByRole(res.data.roleId);
           })

@@ -19,6 +19,7 @@ import {
   sweetAlertConformation,
   customToastMsg,
   handleError,
+  popUploader,
 } from "../../common/commonFunctions";
 const CustomerManagement = () => {
   document.title = "Customers | Address Shop";
@@ -34,11 +35,13 @@ const CustomerManagement = () => {
   }, []);
 
   const loadAllCustomers = () => {
-    // dispatch(showLoader(true));
+    popUploader(dispatch, true);
+
     customerService
       .getAll()
       .then((res) => {
-        //     dispatch(hideLoader(true));
+        popUploader(dispatch, false);
+
         console.log(res, "custromers");
         const formattedData = res.data.map((record) => {
           // let actionText = record.status === 1 ? "Terminate" : "Activate";
@@ -82,8 +85,8 @@ const CustomerManagement = () => {
         setMemberTableList(formattedData);
       })
       .catch((err) => {
-        console.log(err);
-        // handleError(err);
+        popUploader(dispatch, false);
+        handleError(err);
       });
   };
 
@@ -148,8 +151,7 @@ const CustomerManagement = () => {
     setSearchContactNo(e.target.value);
     // If search input is empty, load all members
     if (e.target.value === "") {
-       loadAllCustomers();
-      
+      loadAllCustomers();
     } else {
       // Otherwise, filter members based on the search input
       const filteredMembers = memberTableList.filter((member) =>
