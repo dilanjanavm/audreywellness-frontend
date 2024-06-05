@@ -13,8 +13,12 @@ import {
 } from "reactstrap";
 import ProductCard from "../../Components/Common/cards/ProductCard";
 import * as productBaseVariantService from "../../service/productBaseVariationService";
-
-import { handleError } from "../../common/commonFunctions";
+import {
+  customSweetAlert,
+  handleError,
+  popUploader,
+} from "../../common/commonFunctions";
+import { useDispatch } from "react-redux";
 
 const ProductManagement = () => {
   document.title = "Product | Address Shop";
@@ -23,7 +27,7 @@ const ProductManagement = () => {
 
   const [productList, setProductList] = useState([]);
   const [isRefresh, setIsRefresh] = useState(false);
-
+  const dispatch = useDispatch();
   useEffect(() => {
     loadAllProducts();
   }, []);
@@ -33,12 +37,15 @@ const ProductManagement = () => {
   }, [isRefresh]);
 
   const loadAllProducts = async () => {
+    popUploader(dispatch, true);
     setProductList([]);
     let temp = [];
     await productBaseVariantService
       .getAllProductBaseVariation()
       .then((res) => {
         console.log(res);
+        popUploader(dispatch, false);
+
         res?.data.map((productVarition, index) => {
           temp.push({
             id: productVarition?.id,
@@ -53,6 +60,8 @@ const ProductManagement = () => {
         setProductList(temp);
       })
       .catch((err) => {
+        popUploader(dispatch, false);
+
         console.log(err);
         handleError(err);
       });

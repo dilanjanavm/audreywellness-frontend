@@ -13,11 +13,14 @@ import {
 import {
   customToastMsg,
   handleError,
+  popUploader,
   //   popUploader,
 } from "../../../common/commonFunctions";
 import * as roleService from "../../../service/rolePermissionService";
+import { useDispatch } from "react-redux";
 const AddRoleModal = ({ isOpen, toggle }) => {
   const [roleName, setRoleName] = useState("");
+  let dispatch = useDispatch();
 
   const handleAddRole = () => {
     let isValidated = false;
@@ -33,11 +36,14 @@ const AddRoleModal = ({ isOpen, toggle }) => {
       roleService
         .createRole(data)
         .then((response) => {
+          popUploader(dispatch, false);
+
           toggle();
           setRoleName("");
           customToastMsg("Role successfully created ", 1);
         })
         .catch((error) => {
+          popUploader(dispatch, false);
           console.log(error);
           handleError(error);
         })
@@ -83,11 +89,7 @@ const AddRoleModal = ({ isOpen, toggle }) => {
         >
           Cancel
         </Button>{" "}
-        <Button
-          color="primary"
-          onClick={handleAddRole}
-         
-        >
+        <Button color="primary" onClick={handleAddRole}>
           Add Role
         </Button>
       </ModalFooter>
