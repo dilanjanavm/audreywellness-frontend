@@ -11,7 +11,11 @@ import {
 import { Plus } from "react-feather";
 import AddRoleModal from "../../Components/Common/modal/AddRoleModel";
 import UpdateRoleModal from "../../Components/Common/modal/UpdateRoleModel";
-import { handleError, customToastMsg } from "../../common/commonFunctions";
+import {
+  handleError,
+  customToastMsg,
+  popUploader,
+} from "../../common/commonFunctions";
 import { Table } from "antd";
 import { RoleTableColumns } from "../../common/tableColumns";
 import debounce from "lodash/debounce";
@@ -57,12 +61,15 @@ const RoleManagement = () => {
   };
 
   const loadAllRoles = async () => {
-    // dispatch(showLoader(true));
+    popUploader(dispatch, true);
+
     const withPermission = "";
     roleAndPermssionService
       .getAllRoles(withPermission)
       .then((res) => {
         console.log(res);
+        popUploader(dispatch, false);
+
         let temp = [];
         const sortedRoles = res?.data.sort((a, b) => {
           if (a.isDefault && !b.isDefault) return -1;
@@ -111,7 +118,9 @@ const RoleManagement = () => {
         // dispatch(hideLoader(false));
       })
       .catch((c) => {
-        //   handleError(c);
+        popUploader(dispatch, false);
+        handleError(c);
+
         // dispatch(hideLoader(false));
       })
       .finally();
@@ -178,12 +187,7 @@ const RoleManagement = () => {
           xl={3}
           className="d-flex justify-content-end"
         >
-          <Button
-            color="primary"
-            className="w-80"
-            onClick={toggleAddRoleModal}
-            
-          >
+          <Button color="primary" className="w-80" onClick={toggleAddRoleModal}>
             <Plus size={19} /> Add New
           </Button>
         </Col>

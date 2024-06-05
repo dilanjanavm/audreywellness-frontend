@@ -15,7 +15,11 @@ import Select from "react-select";
 import { Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import moment from "moment/moment";
-import { customToastMsg, handleError } from "../../../common/commonFunctions";
+import {
+  customToastMsg,
+  handleError,
+  popUploader,
+} from "../../../common/commonFunctions";
 import * as staffService from "../../../service/staffService";
 import * as rolePermssionService from "../../../service/rolePermissionService";
 import * as fileService from "../../../service/fileService";
@@ -55,7 +59,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     setFirstName(updateValue?.user?.firstName);
     setLastName(updateValue?.user?.lastName);
     setEmail(updateValue?.user?.email);
-    setContactNo(updateValue?.user?.contactNo);
+    setContactNo(updateValue?.user?.staff?.contactNo);
     setSelectedRole(updateValue?.user?.role?.id);
     setSelectedCountry(updateValue?.user?.country?.dialCode);
     if (updateValue?.user?.photo) {
@@ -101,7 +105,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
   const getAllRoles = async () => {
     setRoleList([]);
-    // dispatch(showLoader(true));
     const withPermission = false;
     await rolePermssionService
       .getAllRoles(withPermission)

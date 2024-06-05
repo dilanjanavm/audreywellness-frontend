@@ -20,6 +20,7 @@ import {
   customSweetAlert,
   customToastMsg,
   handleError,
+  popUploader,
 } from "../../common/commonFunctions";
 const StaffManagement = () => {
   document.title = "Staff Management| Address Shop";
@@ -35,49 +36,53 @@ const StaffManagement = () => {
   }, []);
 
   const loadAllStaffs = () => {
-    // dispatch(showLoader(true));
-    staffService.getAll().then((res) => {
-      //     dispatch(hideLoader(true));
-      console.log(res, ":::::");
-      const formattedData = res.data.map((record) => ({
-        name: record.user.firstName + " " + record.user.lastName,
-        email: record.user.email,
-        status: record.user.status,
-        contactNo: record.user.staff?.contactNo
-          ? record.user.staff?.contactNo
-          : "empty",
-        role: record.user?.role,
-        roleName: record.user.role.name,
-        action: (
-          <>
-            <Button
-              color="warning"
-              className="mx-2"
-              outline
-              onClick={(e) => {
-                toggleModal(record);
-              }}
-            >
-              <span>Update</span>
-            </Button>
-            <Button
-              color="danger"
-              className=""
-              outline
-              onClick={() => deleteStaff(record.id)}
-            >
-              <span>Remove</span>
-            </Button>
-          </>
-        ),
-      }));
-      console.log(formattedData, "formated data");
-      setStaffTableList(formattedData);
-    });
-    //   .catch((err) => {
-    //     console.log(err);
-    //     handleError(err);
-    //   });
+    popUploader(dispatch, true);
+
+    staffService
+      .getAll()
+      .then((res) => {
+        popUploader(dispatch, false);
+
+        console.log(res, ":::::");
+        const formattedData = res.data.map((record) => ({
+          name: record.user.firstName + " " + record.user.lastName,
+          email: record.user.email,
+          status: record.user.status,
+          contactNo: record.user.staff?.contactNo
+            ? record.user.staff?.contactNo
+            : "empty",
+          role: record.user?.role,
+          roleName: record.user.role.name,
+          action: (
+            <>
+              <Button
+                color="warning"
+                className="mx-2"
+                outline
+                onClick={(e) => {
+                  toggleModal(record);
+                }}
+              >
+                <span>Update</span>
+              </Button>
+              <Button
+                color="danger"
+                className=""
+                outline
+                onClick={() => deleteStaff(record.id)}
+              >
+                <span>Remove</span>
+              </Button>
+            </>
+          ),
+        }));
+        console.log(formattedData, "formated data");
+        setStaffTableList(formattedData);
+      })
+      .catch((err) => {
+        popUploader(dispatch, false);
+        handleError(err);
+      });
   };
 
   const deleteStaff = async (staffId) => {
