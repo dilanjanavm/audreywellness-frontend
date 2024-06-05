@@ -111,7 +111,12 @@ const ViewProductDetails = () => {
               <h5 className="product-data my-2">
                 Category : {productDetails?.category?.categoryHierarchy}{" "}
               </h5>
-
+              {productDetails?.productAttributes.map((att, index) => {
+                 <h5 className="product-data my-2">
+                 {productDetails?.baseVariant?.attribute?.name} :{" "}
+                 {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
+               </h5>
+              })}
               <h5 className="product-data my-2">
                 Status :
                 <Tag
@@ -155,8 +160,10 @@ const ViewProductDetails = () => {
             </Col>
 
             <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data my-3 text-center text-md-start mt-5">
+              <h5 className="product-data fw-semibold text-center text-md-start mt-5 mb-3">
                 Manufacture Details :{" "}
+              </h5>
+              <h5 className="product-data text-center text-md-start ">
                 {parse(
                   productDetails?.product?.manufactureDetails
                     ? productDetails?.product?.manufactureDetails
@@ -166,8 +173,10 @@ const ViewProductDetails = () => {
             </Col>
 
             <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data my-3 text-center text-md-start mt-3">
+              <h5 className="product-data fw-semibold text-center text-md-start my-3">
                 Product Variant Description :{" "}
+              </h5>
+              <h5 className="product-data text-center text-md-start">
                 {parse(
                   productDetails?.description ? productDetails?.description : ""
                 )}
