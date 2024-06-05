@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Col, Container, Row } from "reactstrap";
 import parse from "html-react-parser";
 import "../../assets/scss/components/viewProduct.scss";
-import { handleError } from "../../common/commonFunctions";
+import { handleError, popUploader } from "../../common/commonFunctions";
 import { getProductBaseVariationDetailsById } from "../../service/productBaseVariationService";
 import ProductCard from "../../Components/Common/cards/ProductCard";
 
@@ -27,13 +27,16 @@ const ViewProductDetails = () => {
   }, [productId]);
 
   const loadProductDetailsById = () => {
+    popUploader(dispatch, true);
     setProductDetails([]);
     getProductBaseVariationDetailsById(productId)
       .then((res) => {
         setProductDetails(res?.data);
+        popUploader(dispatch, false);
       })
       .catch((err) => {
         handleError(err);
+        popUploader(dispatch, false);
       });
   };
 
@@ -103,16 +106,17 @@ const ViewProductDetails = () => {
               <h5 className="product-data my-2">
                 This is a product variant of {productDetails?.product?.name}
               </h5>
-
-              <h5 className="product-data my-2">
-                {productDetails?.baseVariant?.attribute?.name} :{" "}
-                {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
-              </h5>
+              {productDetails?.baseVariant && (
+                <h5 className="product-data my-2">
+                  {productDetails?.baseVariant?.attribute?.name} :{" "}
+                  {productDetails?.baseVariant?.attribute?.tag?.name}{" "}
+                </h5>
+              )}
 
               <h5 className="product-data my-2">
                 Category : {productDetails?.category?.categoryHierarchy}{" "}
               </h5>
-              {console.log(productDetails?.productAttributes)}
+
               {productDetails?.productAttributes &&
                 productDetails?.productAttributes.map((att, index) => {
                   return (
@@ -163,12 +167,11 @@ const ViewProductDetails = () => {
               </button>
             </Col>
 
-            <Col sm={12} md={12} lg={12} xl={12}>
-              <h5 className="product-data fw-semibold text-center text-md-start  mt-5">
-                Product Size Variants :{" "}
-              </h5>
-
-              {productDetails?.sizeVariants && (
+            {productDetails?.sizeVariants && (
+              <Col sm={12} md={12} lg={12} xl={12}>
+                <h5 className="product-data fw-semibold text-center text-md-start  mt-5">
+                  Product Size Variants :{" "}
+                </h5>
                 <Row className="ms-2">
                   <Row>
                     <Col sm={3} md={3} lg={2} xl={1} xxl={1} className="border">
@@ -226,8 +229,8 @@ const ViewProductDetails = () => {
                     );
                   })}
                 </Row>
-              )}
-            </Col>
+              </Col>
+            )}
 
             <Col sm={12} md={12} lg={12} xl={12}>
               <h5 className="product-data fw-semibold text-center text-md-start  my-4">
@@ -253,27 +256,32 @@ const ViewProductDetails = () => {
               </h5>
             </Col>
           </Row>
+
           <Divider className="my-4" />
+
           <Row className="px-4 mb-4">
-            {productDetails?.product?.productBaseVariant && (
-              <h5 className="product-data fw-semibold text-center text-md-start my-4">
-                Other Variants :{" "}
-              </h5>
+            {productDetails?.product?.productBaseVariant.length > 0 ? (
+              <>
+                <h5 className="product-data fw-semibold text-center text-md-start my-4">
+                  Other Variants{" "}
+                </h5>
+                <Row className="mx-2 mb-3">
+                  {productDetails?.product?.productBaseVariant.map(
+                    (product, index) => (
+                      <ProductCard
+                        reload={async () => {
+                          setIsRefresh(true);
+                        }}
+                        productData={product}
+                      />
+                    )
+                  )}
+                </Row>
+              </>
+            ) : (
+              ""
             )}
 
-            <Row className="mx-2 mb-3">
-              {productDetails?.product?.productBaseVariant &&
-                productDetails?.product?.productBaseVariant.map(
-                  (product, index) => (
-                    <ProductCard
-                      reload={async () => {
-                        setIsRefresh(true);
-                      }}
-                      productData={product}
-                    />
-                  )
-                )}
-            </Row>
             {/* <Row>
               <Col
                 className=" d-flex justify-content-end"
