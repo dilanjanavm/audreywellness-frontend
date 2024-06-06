@@ -185,8 +185,19 @@ const ProductCard = ({ productData, reload }) => {
           </h6>
           {productData?.priceRange && (
             <h6 className="product-category text-truncate d-flex">
-              <Tooltip title={productData?.priceRange}>
+              {/* <Tooltip title={productData?.priceRange}>
                 {"LKR " + productData?.priceRange.range}
+              </Tooltip> */}
+              {/* <Tooltip title={productData?.priceRange}>
+                {typeof productData?.priceRange === "object"
+                  ? "LKR " + productData?.priceRange.range
+                  : "LKR " + productData?.priceRange}
+              </Tooltip> */}
+              <Tooltip title={productData?.priceRange}>
+                {productData?.priceRange &&
+                typeof productData?.priceRange === "object"
+                  ? "LKR " + productData?.priceRange.range
+                  : "LKR " + (productData?.priceRange || "N/A")}
               </Tooltip>
             </h6>
           )}
