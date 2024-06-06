@@ -147,11 +147,11 @@ export const CustomerTableColumns = [
       </Tag>
     ),
   },
-  {
-    title: "Action",
-    key: "action",
-    render: (text, record) => <div>{record.action}</div>,
-  },
+  // {
+  //   title: "Action",
+  //   key: "action",
+  //   render: (text, record) => <div>{record.action}</div>,
+  // },
 ];
 
 export const RoleTableColumns = [
