@@ -84,9 +84,9 @@ const ProductCard = ({ productData, reload }) => {
 
   const updateProductDetails = () => {
     console.log(productData);
-    history("/update-product", {
-      state: { productId: productData?.id },
-    });
+    // history("/update-product", {
+    //   state: { productId: productData?.id },
+    // });
   };
 
   const viewMoreProductDetails = () => {
@@ -168,19 +168,19 @@ const ProductCard = ({ productData, reload }) => {
             </div>
           </div>
         </div>
-        <div className="product-info">
+        <div
+          className="product-info"
+          onClick={() => {
+            viewMoreProductDetails();
+          }}
+        >
           <h6 className="product-category text-truncate d-flex">
             <Tooltip title={productData?.category?.categoryHierarchy}>
               {productData?.category?.categoryHierarchy}
             </Tooltip>
           </h6>
 
-          <h6
-            className="product-title text-truncate"
-            onClick={() => {
-              viewMoreProductDetails();
-            }}
-          >
+          <h6 className="product-title text-truncate">
             <Tooltip title={productData?.name}>{productData?.name}</Tooltip>
           </h6>
           {productData?.priceRange && (

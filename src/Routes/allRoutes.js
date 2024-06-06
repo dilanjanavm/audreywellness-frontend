@@ -53,7 +53,7 @@ const authProtectedRoutes = [
 
   { path: "/create-product", component: <AddProduct /> },
   { path: "/create-product-old", component: <AddNewProduct /> },
-  { path: "/update-product", component: <UpdateProduct /> },
+  // { path: "/update-product", component: <UpdateProduct /> },
   { path: "/product-view", component: <ViewProductDetails /> },
   { path: "/product-management", component: <ProductManagement /> },
 

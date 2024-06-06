@@ -269,10 +269,10 @@ const Navdata = () => {
           stateVariables: isProduct,
         },
         // {
-        //   id: "addNewProductStep",
-        //   label: "old Add New Product",
+        //   id: "updateProduct",
+        //   label: "Update Product",
         //   icon: <FeatherIcon icon="grid" className="icon-dual" />,
-        //   link: "/create-product-old",
+        //   link: "/update-product",
         //   click: function (e) {
         //     e.preventDefault();
         //     setIsProduct(!isProduct);
@@ -281,19 +281,6 @@ const Navdata = () => {
         //   },
         //   stateVariables: isProduct,
         // },
-        {
-          id: "updateProduct",
-          label: "Update Product",
-          icon: <FeatherIcon icon="grid" className="icon-dual" />,
-          link: "/update-product",
-          click: function (e) {
-            e.preventDefault();
-            setIsProduct(!isProduct);
-            setIscurrentState("Products");
-            updateIconSidebar(e);
-          },
-          stateVariables: isProduct,
-        },
 
         {
           id: "featureManagement",
