@@ -80,9 +80,9 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
 
     categoryName.trim() === ""
       ? customToastMsg("Category name cannot be empty!")
-      : uploadedFile.length === 0
-      ? customToastMsg("Select image")
-      : (isValidated = true);
+      : // : uploadedFile.length === 0
+        // ? customToastMsg("Select image")
+        (isValidated = true);
 
     let temp = "";
     uploadedFile.length === 1
