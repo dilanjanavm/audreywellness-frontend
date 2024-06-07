@@ -110,16 +110,54 @@ const FeatureValue = ({
                 />
               </FormGroup>
             </Col>
-            <Col sm={6} md={8} lg={9}>
+            {/* <Col sm={6} md={8} lg={9}>
               <FormGroup className="featureValueTags">
                 <Label>Values</Label>
-                <div class="d-flex flex-row">
+                <div class="d-flex flex-row ">
                   {currentData?.tags?.map((value, index) => (
-                    <div className=" mx-1 ">
+                    <div className=" mx-1  ">
                       <h5>
                         {" "}
                         <span className="md badge bg-primary-subtle text-primary badge-border">
                           {value?.name}{" "}
+                        </span>
+                      </h5>
+                    </div>
+                  ))}
+                </div>
+              </FormGroup>
+            </Col> */}
+
+            <Col sm={6} md={8} lg={9}>
+              <FormGroup className="featureValueTags">
+                <Label>Values</Label>
+                <div
+                  style={{
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexWrap: "wrap",
+                  }}
+                  className="d-flex flex-row"
+                >
+                  {currentData?.tags?.map((value, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        margin: "5px",
+                        maxWidth: "200px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      className="tag-item"
+                    >
+                      <h5>
+                        <span
+                          style={{ whiteSpace: "nowrap" }}
+                          className="md badge bg-primary-subtle text-primary badge-border"
+                        >
+                          {value?.name}
                         </span>
                       </h5>
                     </div>
