@@ -2,10 +2,10 @@ import React from "react";
 import { Container } from "reactstrap";
 
 import { Button } from "antd";
-import ImageUploadModal from "../../Components/Common/modal/FileUploadModal";
+// import ImageUploadModal from "../../Components/Common/modal/FileUploadModal";
 
 const DashboardEcommerce = () => {
-  document.title = "Dashboard | Velzon - React Admin & Dashboard Template";
+  document.title = "Dashboard | Address Shop";
   return (
     <React.Fragment>
       <div className="page-content">
@@ -15,7 +15,7 @@ const DashboardEcommerce = () => {
             Upload image
           </Button> */}
 
-          <ImageUploadModal />
+          {/* <ImageUploadModal /> */}
         </Container>
       </div>
     </React.Fragment>

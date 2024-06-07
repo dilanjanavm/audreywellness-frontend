@@ -12,17 +12,19 @@ import {
 } from "reactstrap";
 import {
   customToastMsg,
-  //   handleError,
-  //   popUploader,
+  handleError,
+  popUploader,
 } from "../../../common/commonFunctions";
 
 import * as roleService from "../../../service/rolePermissionService";
 
 import { Switch } from "antd";
+import { useDispatch } from "react-redux";
 
 const UpdateRoleModal = ({ isOpen, currentData, onClose }) => {
   const [roleName, setRoleName] = useState("");
   const [roleStatus, setRoleStatus] = useState("");
+  let dispatch = useDispatch();
 
   useEffect(() => {
     setRoleName(currentData.name);
@@ -42,17 +44,19 @@ const UpdateRoleModal = ({ isOpen, currentData, onClose }) => {
     };
 
     if (isValidated) {
-      console.log(currentData.id, data);
+      popUploader(dispatch, true);
       roleService
         .update(currentData.id, data)
         .then((response) => {
+          // popUploader(dispatch, false);
           onClose();
           setRoleName("");
           setRoleStatus("");
-          customToastMsg("Role updated successfully", 1);
+          customToastMsg("Role successfully updated ", 1);
         })
         .catch((err) => {
           console.log(err);
+          popUploader(dispatch, false);
           handleError(err);
         })
         .finally();

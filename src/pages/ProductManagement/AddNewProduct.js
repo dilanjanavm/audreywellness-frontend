@@ -389,13 +389,13 @@ const AddNewProduct = () => {
       ? customToastMsg("Manufacture details cannot be empty", 2)
       : countDescription(manufactureDetails) > desMaxLimit
       ? customToastMsg("Manufacture details limit exceed", 2)
-      : // : selectedTags.length === 0
-      // ? customToastMsg("Select product attributes", 2)
-      productVariantDetails.length === 0
+      : selectedTags.length === 0
+      ? customToastMsg("Select product attributes", 2)
+      : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
-      : // : !validation
-        // ? customToastMsg("Product variant details cannot have empty values", 2)
-        (validation = true);
+      : !validation
+      ? customToastMsg("Product variant details cannot have empty values", 2)
+      : (validation = true);
 
     if (validation) {
       const data = {
