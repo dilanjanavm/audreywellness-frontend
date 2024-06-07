@@ -103,7 +103,7 @@ const Register = () => {
                                     <CardBody className="p-4">
                                         <div className="text-center mt-2">
                                             <h5 className="text-primary">Create New Account</h5>
-                                            <p className="text-muted">Get your free velzon account now</p>
+                                            {/* <p className="text-muted">Get your free velzon account now</p> */}
                                         </div>
                                         <div className="p-2 mt-4">
                                             <Form

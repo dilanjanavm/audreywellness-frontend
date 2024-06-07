@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  NavItem,
+  NavLink,
+  Nav,
+} from "reactstrap";
 
 import styles from "../../../assets/scss/custom/FileUploadModal.module.scss";
 
@@ -13,8 +22,13 @@ import "../../../assets/scss/components/banner.scss";
 const { Dragger } = Upload;
 
 import * as fileService from "../../../service/fileService";
-import { customToastMsg, handleError } from "../../../common/commonFunctions";
+import {
+  customToastMsg,
+  handleError,
+  popUploader,
+} from "../../../common/commonFunctions";
 import { Trash } from "react-feather";
+import { useDispatch } from "react-redux";
 
 export default function FileUploadModal({
   isOpen,
@@ -30,6 +44,8 @@ export default function FileUploadModal({
   const [fileList, setFileList] = useState([]);
   const [uploadedFileIds, setUploadedFileIds] = useState([]);
   const [isUploadLimitExceeded, setIsUploadLimitExceeded] = useState(false);
+  const [activeTab, setActiveTab] = useState("1");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     console.log(fileList, "/////////////////////////");
@@ -96,14 +112,23 @@ export default function FileUploadModal({
     //   console.log("Dropped files", e.dataTransfer.files);
     // },
   };
+  const toggleTab = (tab) => {
+    if (activeTab !== tab) {
+      setActiveTab(tab);
+    }
+  };
   useEffect(() => {
     getAll();
   }, []);
 
-  const getAll = () => {
-    fileService
+  const getAll = async () => {
+    // popUploader(dispatch, true);
+
+    await fileService
       .getAll()
       .then(async (res) => {
+        // popUploader(dispatch, false);
+
         const imagesArray = await res.data.records; // Assuming records is an array of images
         setImages(imagesArray);
         // console.log("images : ", imagesArray);
@@ -144,20 +169,47 @@ export default function FileUploadModal({
       <Modal isOpen={isOpen} toggle={toggle} size={"lg"}>
         <ModalHeader toggle={toggle}>Choose an image</ModalHeader>
         <ModalBody>
-          <Button
+          {/* <Button
             onClick={() => {
               setIsMediaCenterOpen(false);
             }}
           >
-            Local upload
+            Local Upload
           </Button>
           <Button
             onClick={() => {
               setIsMediaCenterOpen(true);
             }}
           >
-            Media center
-          </Button>
+            Media Center
+          </Button> */}
+          <Nav tabs>
+            <NavItem>
+              <NavLink
+                style={{ cursor: "pointer" }}
+                className={{ active: activeTab === "1" }}
+                onClick={() => {
+                  setIsMediaCenterOpen(false);
+                  toggleTab("1");
+                }}
+              >
+                Local Upload
+              </NavLink>
+            </NavItem>
+
+            <NavItem>
+              <NavLink
+                style={{ cursor: "pointer" }}
+                className={{ active: activeTab === "2" }}
+                onClick={() => {
+                  setIsMediaCenterOpen(true);
+                  toggleTab("2");
+                }}
+              >
+                Media center
+              </NavLink>
+            </NavItem>
+          </Nav>
           <hr />
 
           {isMediaCenterOpen ? (
@@ -233,9 +285,9 @@ export default function FileUploadModal({
                   className="shadow"
                   style={{
                     position: "absolute",
-                    backgroundColor:"white",
-                    borderRadius:2,
-                    color:"gray",
+                    backgroundColor: "white",
+                    borderRadius: 2,
+                    color: "gray",
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",

@@ -49,9 +49,9 @@ const AddBannerModal = ({ isOpen, toggle }) => {
 
     position === ""
       ? customToastMsg("Select position")
-      : selectedCategoryId === ""
-      ? customToastMsg("Select category")
-      : uploadedFile.length === 0
+      : // : selectedCategoryId === ""
+      // ? customToastMsg("Select category")
+      uploadedFile.length === 0
       ? customToastMsg("Select image")
       : (isValidated = true);
 
