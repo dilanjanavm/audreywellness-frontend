@@ -53,6 +53,7 @@ const StaffManagement = () => {
             : "empty",
           role: record.user?.role,
           roleName: record.user.role.name,
+          file: record.user?.file,
           action: (
             <>
               <Button

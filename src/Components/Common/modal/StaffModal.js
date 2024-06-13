@@ -39,6 +39,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const [userImage, setUserImage] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [countryList, setCountryList] = useState([]);
+  const [file, setFile] = useState("");
 
   const [fileList, setFileList] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -62,18 +63,18 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     setContactNo(updateValue?.user?.staff?.contactNo);
     setSelectedRole(updateValue?.user?.role?.id);
     setSelectedCountry(updateValue?.user?.country?.dialCode);
-    if (updateValue?.user?.photo) {
+    if (updateValue?.user?.file) {
       setFileList([
         {
-          uid: updateValue?.user?.photo?.id,
+          uid: updateValue?.user?.file?.id,
           name: "image.png",
           status: "done",
-          url: updateValue?.user?.photo?.path,
+          url: updateValue?.user?.file?.originalPath,
         },
       ]);
       setUserImage({
-        id: updateValue?.user?.photo?.id,
-        path: updateValue?.user?.photo?.path,
+        id: updateValue?.user?.file?.id,
+        path: updateValue?.user?.file?.originalPath,
       });
     }
   };
@@ -127,24 +128,20 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   };
 
   const getAllCountries = async () => {
-    setCountryList([]);
-    console.log("triggerd");
-
+    // setCountryList([]);
     await countryService
       .getAll((response) => {
-        console.log(response.data, "countrrrr");
+        console.log(response.data, "---------------ddddd-----------------");
+        // let temp = [];
+        // countries.map((country, index) => {
+        //   temp.push({ value: country.dial_code, label: country.country_name });
+        // });
+        // setCountryList(temp);
       })
       .catch((err) => {
         console.log(err, "errr in countruy funtion");
       });
 
-    // dispatch(showLoader(true));
-    // let temp = [];
-    // countries.map((country, index) => {
-    //   temp.push({ value: country.dial_code, label: country.country_name });
-    // });
-    // setCountryList(temp);
-    // dispatch(hideLoader(false));
   };
 
   const onChangeUserImage = ({ fileList: newFileList }) => {
@@ -163,8 +160,8 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       console.log("Upload response:", response);
 
       const temp = {
-        id: response?.id,
-        path: response?.path,
+        id: response?.data?.id,
+        path: response?.data?.originalPath,
       };
       console.log(temp);
       setUserImage(temp);
@@ -201,20 +198,26 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       contactNo: contactNo,
       // country: selectedCountry,
       roleId: `${selectedRole}`,
-      photo: userImage,
+      fileId: userImage?.id,
     };
     console.log(data, "create data staff");
 
     if (isValidated) {
+      popUploader(dispatch, true);
+
       staffService
         .create(data)
         .then(async (res) => {
           console.log(res, "creatd response");
-          // clearInputs();
-          // await toggle();
-          // await customToastMsg("Staff create successfully", 1);
+          popUploader(dispatch, false);
+
+          clearInputs();
+          await toggle();
+          await customToastMsg("Staff successfully created", 1);
         })
         .catch((err) => {
+          popUploader(dispatch, false);
+
           console.log(err);
           handleError(err);
         });
@@ -237,32 +240,37 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       : (isValidated = true);
 
     const data = {
-      firstName: firstName,
-      lastName: lastName,
+      contactNo: contactNo,
       user: {
+        firstName: firstName,
+        lastName: lastName,
         email: email,
-        contactNo: contactNo,
         country: selectedCountry,
         role: {
           id: `${selectedRole}`,
         },
 
-        photo: userImage,
+        file: userImage,
       },
     };
     if (isValidated) {
-      // staffService
-      //   .update(updateValue?.id, data)
-      //   .then(async (res) => {
-      //     // setIsSuccess(true);
-      //     clearInputs();
-      //     await toggle();
-      //     await customToastMsg("Staff update successfully", 1);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //     handleError(err);
-      //   });
+      popUploader(dispatch, true);
+
+      staffService
+        .update(updateValue?.user?.staff?.id, data)
+        .then(async (res) => {
+          console.log(res);
+          // setIsSuccess(true);
+          popUploader(dispatch, false);
+          clearInputs();
+          await toggle();
+          await customToastMsg("Staff successfully updated", 1);
+        })
+        .catch((err) => {
+          console.log(err);
+          popUploader(dispatch, false);
+          handleError(err);
+        });
     }
   };
   return (

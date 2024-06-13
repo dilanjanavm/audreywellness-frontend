@@ -38,12 +38,14 @@ export async function deleteRole(roleId) {
 }
 
 export async function update(roleId, data) {
-  // const apiObject = {};
-  // apiObject.method = "GET";
-  // apiObject.authentication = true;
-  // apiObject.endpoint = `api/role/find-all?withPermission=${withPermission}`;
-  // const result = await ApiService.callApi(apiObject);
-  // return result;
+  const apiObject = {};
+  apiObject.method = "PUT";
+  apiObject.authentication = false;
+  apiObject.urlencoded = false;
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/role/update/${roleId}`;
+  apiObject.body = data;
+  return await ApiService.callApi(apiObject);
 }
 
 export async function assigneRolePermission(data) {
