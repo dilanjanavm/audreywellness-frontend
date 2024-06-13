@@ -47,13 +47,14 @@ const ProductManagement = () => {
         popUploader(dispatch, false);
 
         res?.data.map((productVarition, index) => {
+          console.log("Product Variation:", productVarition);
           temp.push({
             id: productVarition?.id,
             name: productVarition?.name,
             category: productVarition?.category,
             file: productVarition?.file,
             status: productVarition?.status,
-            priceRange: productVarition?.priceRange,
+            priceRange: JSON.stringify(productVarition?.priceRange),
             productId: productVarition?.productId,
           });
         });
