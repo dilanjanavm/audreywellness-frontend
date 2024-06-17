@@ -327,6 +327,19 @@ const Navdata = () => {
       },
       stateVariables: isApps,
     },
+    {
+      id: "apps",
+      label: "Order",
+      icon: <FeatherIcon icon="layout" className="icon-dual" />,
+      link: "/order-management",
+      click: function (e) {
+        e.preventDefault();
+        setIsApps(!isApps);
+        setIscurrentState("Apps");
+        updateIconSidebar(e);
+      },
+      stateVariables: isApps,
+    },
 
     // {
     // id: "authentication",

@@ -32,6 +32,7 @@ import BannerManagement from "../pages/BannerManagement/BannerManagement";
 import FeatureManagement from "../pages/FeatureManagement/FeatureManagement";
 import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
 import AddProduct from "../pages/ProductManagement/AddProduct";
+import OrderManagement from "../pages/OrderManagement/OrderManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -64,6 +65,11 @@ const authProtectedRoutes = [
     path: "/customer-management",
     exact: true,
     component: <CustomerManagement />,
+  },
+  {
+    path: "/order-management",
+    exact: true,
+    component: <OrderManagement />,
   },
 
   {

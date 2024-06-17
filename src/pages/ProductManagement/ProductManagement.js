@@ -47,13 +47,14 @@ const ProductManagement = () => {
         popUploader(dispatch, false);
 
         res?.data.map((productVarition, index) => {
+          console.log("Product Variation:", productVarition);
           temp.push({
             id: productVarition?.id,
             name: productVarition?.name,
             category: productVarition?.category,
             file: productVarition?.file,
             status: productVarition?.status,
-            priceRange: productVarition?.priceRange,
+            priceRange: JSON.stringify(productVarition?.priceRange?.range),
             productId: productVarition?.productId,
           });
         });
@@ -104,7 +105,7 @@ const ProductManagement = () => {
                 />
               </FormGroup>
             </Col>
-            {/* <Col sm={12} md={6} lg={3} xl={3}>
+            <Col sm={12} md={6} lg={3} xl={3}>
               <FormGroup>
                 <Label for="email">Search by Email</Label>
                 <Input
@@ -116,7 +117,7 @@ const ProductManagement = () => {
                   //   onChange={handleSearchEmailChange}
                 />
               </FormGroup>
-            </Col> */}
+            </Col>
           </Row>
           <Row className="mx-2 mb-3">
             {productList.map((product, index) => (
