@@ -33,7 +33,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash/debounce";
 import { Redirect } from "react-router-dom";
-
+import * as orderService from "../../service/orderService";
 
 const OrderManagement = () => {
   document.title = "Orders | Address";
@@ -60,114 +60,119 @@ const OrderManagement = () => {
 
   const { RangePicker } = DatePicker;
 
-//   useEffect(() => {
-//     loadAllOrders(currentPage);
-//     loadAllDeliverySlots();
-//     loadAllOrderStatus();
-//   }, []);
+  useEffect(() => {
+    loadAllOrders(currentPage);
+    // loadAllDeliverySlots();
+    // loadAllOrderStatus();
+  }, []);
 
-//   const loadAllDeliverySlots = () => {
-//     setDeliverySlotList([]);
-//     let temp = [];
-//     popUploader(dispatch, true);
-//     getAllDeliverySlotsToDropdown()
-//       .then((resp) => {
-//         console.log(resp, "166565");
-//         let temp = [];
-//         resp?.data?.records.map((time, index) => {
-//           temp.push({ value: time?.id, label: time?.name });
-//         });
-//         setDeliverySlotList(temp);
-//         popUploader(dispatch, false);
-//       })
-//       .catch((err) => {
-//         popUploader(dispatch, false);
-//         handleError(err);
-//       })
-//       .finally();
-//   };
+  //   const loadAllDeliverySlots = () => {
+  //     setDeliverySlotList([]);
+  //     let temp = [];
+  //     popUploader(dispatch, true);
+  //     getAllDeliverySlotsToDropdown()
+  //       .then((resp) => {
+  //         console.log(resp, "166565");
+  //         let temp = [];
+  //         resp?.data?.records.map((time, index) => {
+  //           temp.push({ value: time?.id, label: time?.name });
+  //         });
+  //         setDeliverySlotList(temp);
+  //         popUploader(dispatch, false);
+  //       })
+  //       .catch((err) => {
+  //         popUploader(dispatch, false);
+  //         handleError(err);
+  //       })
+  //       .finally();
+  //   };
 
-//   const loadAllOrderStatus = () => {
-//     setStatusList([]);
-//     let temp = [];
-//     popUploader(dispatch, true);
-//     getAllOrderStatus()
-//       .then((resp) => {
-//         let temp = [];
-//         // console.log(resp);
-//         for (let key in resp?.data) {
-//           temp.push({ value: key, label: resp?.data[key] });
-//         }
-//         setStatusList(temp);
-//         popUploader(dispatch, false);
-//       })
-//       .catch((err) => {
-//         popUploader(dispatch, false);
-//         handleError(err);
-//       })
-//       .finally();
-//   };
+  //   const loadAllOrderStatus = () => {
+  //     setStatusList([]);
+  //     let temp = [];
+  //     popUploader(dispatch, true);
+  //     getAllOrderStatus()
+  //       .then((resp) => {
+  //         let temp = [];
+  //         // console.log(resp);
+  //         for (let key in resp?.data) {
+  //           temp.push({ value: key, label: resp?.data[key] });
+  //         }
+  //         setStatusList(temp);
+  //         popUploader(dispatch, false);
+  //       })
+  //       .catch((err) => {
+  //         popUploader(dispatch, false);
+  //         handleError(err);
+  //       })
+  //       .finally();
+  //   };
 
-//   const loadAllOrders = (currentPage) => {
-//     let temp = [];
-//     clearFiltrationFields();
-//     popUploader(dispatch, true);
-//     getAllOrders(currentPage)
-//       .then((resp) => {
-//         resp?.data?.records.map((ord, index) => {
-//           temp.push({
-//             order_id: ord?.orderId,
-//             customer:
-//               ord?.orderCustomer?.firstName +
-//               " " +
-//               ord?.orderCustomer?.lastName,
-//             contactNo: ord?.orderCustomer?.contactNo,
-//             order_date: moment(ord?.createdAt).format("YYYY-MM-DD"),
-//             amount: parseFloat(ord?.total).toFixed(2),
-//             delivery_status: ord?.orderStatus,
-//             action: (
-//               <>
-//                 <Button
-//                   onClick={() =>
-//                     // history("/order-details", { state: { orderData: ord } })
-//                     history("/order-detail", {
-//                       state: { orderData: ord?.id },
-//                     })
-//                   }
-//                   color="primary"
-//                   outline
-//                   className="m-2"
-//                 >
-//                   View
-//                 </Button>
-//                 {/* {checkPermission(UPDATE_ORDER) && (
-//                   <Button color="warning" outline className="m-2">
-//                     Update
-//                   </Button>
-//                 )} */}
-//               </>
-//             ),
-//           });
-//         });
-//         setOrderList(temp);
-//         setCurrentPage(resp?.data?.currentPage);
-//         setTotalRecodes(resp?.data?.totalRecords);
-//         popUploader(dispatch, false);
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         popUploader(dispatch, false);
-//         handleError(err);
-//       })
-//       .finally();
-//   };
+  const loadAllOrders = async (currentPage) => {
+    let temp = [];
+    // clearFiltrationFields();
+    popUploader(dispatch, true);
+    await orderService
+      .getAllOrders(currentPage)
+      .then((resp) => {
+        console.log(resp);
+        resp?.data?.map((ord, index) => {
+          temp.push({
+            orderCode: ord?.orderCode,
+            trackingCode: ord?.trackingCode,
+            customerName:
+              ord?.billingDetail[0]?.firstName +
+              " " +
+              ord?.billingDetail[0]?.lastName,
+            contactNo: ord?.billingDetail[0]?.contactNo,
+            orderDate: moment(ord?.billingDetail[0]?.createdAt).format(
+              "YYYY-MM-DD"
+            ),
+            total: parseFloat(ord?.netTotal).toFixed(2),
+            status: ord?.status,
+            action: (
+              <>
+                <Button
+                  onClick={() =>
+                    // history("/order-details", { state: { orderData: ord } })
+                    history("/order-detail", {
+                      state: { orderData: ord?.id },
+                    })
+                  }
+                  color="primary"
+                  outline
+                  className="m-2"
+                >
+                  View
+                </Button>
+                {/* {checkPermission(UPDATE_ORDER) && (
+                    <Button color="warning" outline className="m-2">
+                      Update
+                    </Button>
+                  )} */}
+              </>
+            ),
+          });
+        });
+        setOrderList(temp);
+        setCurrentPage(resp?.data?.currentPage);
+        setTotalRecodes(resp?.data?.totalRecords);
+        popUploader(dispatch, false);
+      })
+      .catch((err) => {
+        console.log(err);
+        popUploader(dispatch, false);
+        handleError(err);
+      })
+      .finally();
+  };
 
   const toggleTab = (tab, type) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
       history("/order-management");
       setSelectedStatus(type);
-    //   debounceHandleSearchOrderFiltration("", "", "", "", "", type, 1);
+      //   debounceHandleSearchOrderFiltration("", "", "", "", "", type, 1);
     }
   };
 
@@ -202,101 +207,101 @@ const OrderManagement = () => {
       : toggleTab("1", "All");
   };
 
-//   const handleSearchOrderFiltration = (
-//     orderId,
-//     CusName,
-//     Contact,
-//     dateRange,
-//     deliverySlot,
-//     Status,
-//     currentPage
-//   ) => {
-//     console.log(dateRange, "00555555555555");
-//     if (
-//       !orderId &&
-//       !CusName &&
-//       !Contact &&
-//       (dateRange === undefined || dateRange === null || dateRange === "") &&
-//       deliverySlot === "" &&
-//       (Status === undefined || Status === null || Status === "")
-//     ) {
-//       loadAllOrders(currentPage);
-//     } else {
-//       let startDate = ""; // Default to empty string
-//       let endDate = ""; // Default to empty string
+  //   const handleSearchOrderFiltration = (
+  //     orderId,
+  //     CusName,
+  //     Contact,
+  //     dateRange,
+  //     deliverySlot,
+  //     Status,
+  //     currentPage
+  //   ) => {
+  //     console.log(dateRange, "00555555555555");
+  //     if (
+  //       !orderId &&
+  //       !CusName &&
+  //       !Contact &&
+  //       (dateRange === undefined || dateRange === null || dateRange === "") &&
+  //       deliverySlot === "" &&
+  //       (Status === undefined || Status === null || Status === "")
+  //     ) {
+  //       loadAllOrders(currentPage);
+  //     } else {
+  //       let startDate = ""; // Default to empty string
+  //       let endDate = ""; // Default to empty string
 
-//       if (dateRange && dateRange.length === 2) {
-//         // Check if dateRange is not null and has two elements
-//         startDate = moment(dateRange[0]).format("YYYY-MM-DD");
-//         endDate = moment(dateRange[1]).format("YYYY-MM-DD");
-//       }
+  //       if (dateRange && dateRange.length === 2) {
+  //         // Check if dateRange is not null and has two elements
+  //         startDate = moment(dateRange[0]).format("YYYY-MM-DD");
+  //         endDate = moment(dateRange[1]).format("YYYY-MM-DD");
+  //       }
 
-//       setOrderList([]);
-//       let data = {
-//         orderId: orderId,
-//         cusName: CusName,
-//         contact: Contact,
-//         startDate: startDate,
-//         endDate: endDate,
-//         deliverySlot: deliverySlot,
-//         status: Status === undefined ? "" : Status === null ? "" : Status,
-//       };
+  //       setOrderList([]);
+  //       let data = {
+  //         orderId: orderId,
+  //         cusName: CusName,
+  //         contact: Contact,
+  //         startDate: startDate,
+  //         endDate: endDate,
+  //         deliverySlot: deliverySlot,
+  //         status: Status === undefined ? "" : Status === null ? "" : Status,
+  //       };
 
-//       let temp = [];
-//       popUploader(dispatch, true);
-//       searchOrderFiltration(data, currentPage)
-//         .then((resp) => {
-//           resp?.data?.records.map((ord, index) => {
-//             temp.push({
-//               order_id: ord?.orderId,
-//               customer:
-//                 ord?.orderCustomer?.firstName +
-//                 " " +
-//                 ord?.orderCustomer?.lastName,
-//               contactNo: ord?.orderCustomer?.contactNo,
-//               order_date: moment(ord?.createdAt).format("YYYY-MM-DD"),
-//               amount: parseFloat(ord?.total).toFixed(2),
-//               delivery_status: ord?.orderStatus,
-//               action: (
-//                 <>
-//                   <Button
-//                     onClick={() =>
-//                       history("/order-detail", {
-//                         state: { orderData: ord?.id },
-//                       })
-//                     }
-//                     color="primary"
-//                     outline
-//                     className="m-2"
-//                   >
-//                     View
-//                   </Button>
-//                   {/* {checkPermission(UPDATE_ORDER) && (
-//                     <Button color="warning" outline className="m-2">
-//                       Update
-//                     </Button>
-//                   )} */}
-//                 </>
-//               ),
-//             });
-//           });
-//           setOrderList(temp);
-//           setCurrentPage(resp?.data?.currentPage);
-//           setTotalRecodes(resp?.data?.totalRecords);
-//           popUploader(dispatch, false);
-//         })
-//         .catch((err) => {
-//           handleError(err);
-//           popUploader(dispatch, false);
-//         })
-//         .finally();
-//     }
-//   };
+  //       let temp = [];
+  //       popUploader(dispatch, true);
+  //       searchOrderFiltration(data, currentPage)
+  //         .then((resp) => {
+  //           resp?.data?.records.map((ord, index) => {
+  //             temp.push({
+  //               order_id: ord?.orderId,
+  //               customer:
+  //                 ord?.orderCustomer?.firstName +
+  //                 " " +
+  //                 ord?.orderCustomer?.lastName,
+  //               contactNo: ord?.orderCustomer?.contactNo,
+  //               order_date: moment(ord?.createdAt).format("YYYY-MM-DD"),
+  //               amount: parseFloat(ord?.total).toFixed(2),
+  //               delivery_status: ord?.orderStatus,
+  //               action: (
+  //                 <>
+  //                   <Button
+  //                     onClick={() =>
+  //                       history("/order-detail", {
+  //                         state: { orderData: ord?.id },
+  //                       })
+  //                     }
+  //                     color="primary"
+  //                     outline
+  //                     className="m-2"
+  //                   >
+  //                     View
+  //                   </Button>
+  //                   {/* {checkPermission(UPDATE_ORDER) && (
+  //                     <Button color="warning" outline className="m-2">
+  //                       Update
+  //                     </Button>
+  //                   )} */}
+  //                 </>
+  //               ),
+  //             });
+  //           });
+  //           setOrderList(temp);
+  //           setCurrentPage(resp?.data?.currentPage);
+  //           setTotalRecodes(resp?.data?.totalRecords);
+  //           popUploader(dispatch, false);
+  //         })
+  //         .catch((err) => {
+  //           handleError(err);
+  //           popUploader(dispatch, false);
+  //         })
+  //         .finally();
+  //     }
+  //   };
 
-//   const debounceHandleSearchOrderFiltration = React.useCallback(
-//     debounce(handleSearchOrderFiltration, 500),
-//     []
-//   );
+  //   const debounceHandleSearchOrderFiltration = React.useCallback(
+  //     debounce(handleSearchOrderFiltration, 500),
+  //     []
+  //   );
 
   const onChangePagination = (page) => {
     console.log(page);
@@ -312,28 +317,28 @@ const OrderManagement = () => {
         selectedStatus === null ||
         selectedStatus === "")
     ) {
-    //   loadAllOrders(page);
+      //   loadAllOrders(page);
     } else {
-    //   debounceHandleSearchOrderFiltration(
-    //     searchOrderId,
-    //     searchCustomerName,
-    //     searchCustomerContactNo,
-    //     searchDateRange,
-    //     selectedDeliverySlot,
-    //     selectedStatus,
-    //     page
-    //   );
+      //   debounceHandleSearchOrderFiltration(
+      //     searchOrderId,
+      //     searchCustomerName,
+      //     searchCustomerContactNo,
+      //     searchDateRange,
+      //     selectedDeliverySlot,
+      //     selectedStatus,
+      //     page
+      //   );
     }
   };
 
-//   const clearFiltrationFields = () => {
-//     setActiveTab("1");
-//     setSearchOrderId("");
-//     setSearchCustomerName("");
-//     setSearchDateRange("");
-//     setSelectedStatus("");
-//     setSelectedDeliverySlot("");
-//   };
+  //   const clearFiltrationFields = () => {
+  //     setActiveTab("1");
+  //     setSearchOrderId("");
+  //     setSearchCustomerName("");
+  //     setSearchDateRange("");
+  //     setSelectedStatus("");
+  //     setSelectedDeliverySlot("");
+  //   };
 
   return (
     <div className="page-content">
