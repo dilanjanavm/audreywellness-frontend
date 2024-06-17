@@ -453,7 +453,7 @@ const OrderManagement = () => {
                 <Col sm={12} md={6} lg={2}>
                   <Label>Search By Order Id</Label>
                   <Input
-                    placeholder="Search order by order id"
+                    placeholder="ORD-000000"
                     value={searchOrderId}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -472,7 +472,7 @@ const OrderManagement = () => {
                 <Col sm={12} md={6} lg={3}>
                   <Label>Search By Customer First Name</Label>
                   <Input
-                    placeholder="Search order by customer first name"
+                    placeholder="first name"
                     value={searchCustomerName}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -491,7 +491,7 @@ const OrderManagement = () => {
                 <Col sm={12} md={6} lg={3}>
                   <Label>Search By Contact No</Label>
                   <Input
-                    placeholder="Search order by customer contact no"
+                    placeholder="contact no"
                     value={searchCustomerContactNo}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -542,7 +542,7 @@ const OrderManagement = () => {
                   />
                 </Col>
 
-                <Col sm={12} md={6} lg={3}>
+                {/* <Col sm={12} md={6} lg={3}>
                   <Label for="exampleEmail">Search by Delivery Slot</Label>
                   <Select
                     className="basic-single"
@@ -566,7 +566,7 @@ const OrderManagement = () => {
                     }}
                     options={deliverySlotList}
                   />
-                </Col>
+                </Col> */}
 
                 <Col sm={12} md={6} lg={3}>
                   <Label>Search By Order Status</Label>
