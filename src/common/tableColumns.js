@@ -250,45 +250,73 @@ export const CategoryTableColumns = [
 ];
 export const OrderListTableColumns = [
   {
-    title: "Image",
-    dataIndex: "file",
-    key: "file",
-
-    render: (text, record) => (
-      <div
-        style={{
-          maxWidth: 120,
-          minWidth: 80,
-        }}
-      >
-        {record.file}
-      </div>
-    ),
+    title: "Order Code",
+    dataIndex: "orderCode",
+    key: "orderCode",
   },
 
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
+    title: "Tracking Code",
+    dataIndex: "trackingCode",
+    key: "trackingCode",
   },
 
   {
-    title: "Hierarchy",
-    dataIndex: "hierarchy",
-    key: "hierarchy",
+    title: "Customer Name",
+    dataIndex: "customerName",
+    key: "customerName",
+  },
+
+  {
+    title: "Contact No",
+    dataIndex: "contactNo",
+    key: "contactNo",
+  },
+  {
+    title: "created date",
+    dataIndex: "orderDate",
+    key: "orderDate",
+  },
+
+  {
+    title: "Total",
+    dataIndex: "total",
+    key: "total",
   },
 
   {
     title: "Status",
     key: "status",
-    width: "12%",
+    width: "15%",
     dataIndex: "status",
     render: (status) => (
       <Tag
-        color={status === 1 ? "success" : status === 2 ? "error" : "default"}
+        color={
+          status === "PENDING"
+            ? "warning"
+            : status === "PROCESSING"
+            ? "processing"
+            : status === "SHIPPED"
+            ? "purple"
+            : status === "DELIVERED"
+            ? "success"
+            : status === "CANCELLED"
+            ? "error"
+            : "default"
+        }
         key={status}
       >
-        {status === 1 ? "ACTIVE" : status === 2 ? "INACTIVE" : "none"}
+        {status === "PENDING"
+          ? "PENDING"
+          : status === "PROCESSING"
+          ? "PROCESSING"
+          : status === "SHIPPED"
+          ? "DELIVERING"
+          : status === "DELIVERED"
+          ? "DELIVERED"
+          : status === "CANCELLED"
+          ? "CANCELLED"
+          : "none"}
       </Tag>
     ),
   },
