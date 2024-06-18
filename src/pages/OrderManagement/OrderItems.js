@@ -25,23 +25,15 @@ const OrderItems = ({ data }) => {
               <div className="d-flex">
                 <div className="flex-shrink-0 avatar-md bg-light rounded p-1">
                   {orderItem?.productBaseVariant?.file ? (
-                    orderItem.productBaseVariant?.file.map((img, index) => {
-                      if (img) {
-                        console.log(img, "================");
-                        return (
-                          <img
-                            className="w-100 h-100 object-fit-cover"
-                            key={index} // Remember to add a unique key for each list item
-                            src={img?.originalPath}
-                            alt={img?.altTag}
-                            onError={(e) =>
-                              (e.target.src =
-                                "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                            }
-                          />
-                        );
+                    <img
+                      className="w-100 h-100 object-fit-cover"
+                      src={orderItem?.productBaseVariant?.file[0]?.originalPath}
+                      alt="img"
+                      onError={(e) =>
+                        (e.target.src =
+                          "https://i.ibb.co/qpB9ZCZ/placeholder.png")
                       }
-                    })
+                    />
                   ) : (
                     <img
                       src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
@@ -52,7 +44,7 @@ const OrderItems = ({ data }) => {
                 </div>
                 <div className="flex-grow-1 ms-3">
                   <h5 className="fs-15">
-                    {orderItem?.productBaseVariant?.name}
+                    {orderItem?.productBaseVariant.name}
                   </h5>
 
                   <p className="text-muted mb-0">
