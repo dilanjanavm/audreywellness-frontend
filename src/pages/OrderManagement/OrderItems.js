@@ -75,7 +75,8 @@ const OrderItems = ({ data }) => {
             <td className="text-center">
               LKR{" "}
               {parseFloat(
-                (orderItem?.sellingPrice * (100 - orderItem?.discount)) / 100
+                // (orderItem?.sellingPrice * (100 - orderItem?.discount)) / 100
+                (orderItem?.sellingPrice * (100 - 0)) / 100
               ).toFixed(2)}
             </td>
             <td className="fw-medium text-center">
@@ -85,9 +86,8 @@ const OrderItems = ({ data }) => {
             <td className="fw-medium text-end">
               LKR{" "}
               {parseFloat(
-                ((orderItem?.sellingPrice * (100 - orderItem?.discount)) /
-                  100) *
-                  orderItem.qty
+                // ((orderItem?.sellingPrice * (100 - orderItem?.discount)) /
+                ((orderItem?.sellingPrice * (100 - 0)) / 100) * orderItem.qty
               ).toFixed(2)}
             </td>
           </tr>

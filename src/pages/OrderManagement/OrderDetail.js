@@ -423,9 +423,9 @@ const OrderDetail = (props) => {
                     </span>
                   </p>
 
-                  <p className="text-muted mb-2 mx-3">
+                  {/* <p className="text-muted mb-2 mx-3">
                     Order Description : {orderDetails?.description}
-                  </p>
+                  </p> */}
 
                   <p className="mb-2">
                     Order Placed Date :{" "}
@@ -482,7 +482,7 @@ const OrderDetail = (props) => {
                   <li>
                     <div className="d-flex align-items-center">
                       <div className="flex-shrink-0">
-                        {orderDetails?.orderCustomer?.photo ? (
+                        {/* {orderDetails?.orderCustomer?.photo ? (
                           <img
                             src={orderDetails?.orderCustomer?.photo?.path}
                             alt="customer"
@@ -494,10 +494,10 @@ const OrderDetail = (props) => {
                             alt="customer"
                             className="avatar-sm rounded"
                           />
-                        )}
+                        )} */}
                       </div>
                       <div className="flex-grow-1 ms-3">
-                        <p className="text-muted mb-0">Customer</p>
+                        {/* <p className="text-muted mb-0">Customer</p> */}
                         <h6 className="fs-14 mb-1">
                           {" "}
                           {orderDetails?.orderCustomer?.firstName}{" "}
