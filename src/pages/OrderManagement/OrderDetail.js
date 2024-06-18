@@ -255,7 +255,9 @@ const OrderDetail = (props) => {
                                 <td>Sub Total : </td>
                                 <td className="text-end">
                                   LKR{" "}
-                                  {parseFloat(orderDetails.total).toFixed(2)}
+                                  {parseFloat(orderDetails?.subTotal).toFixed(
+                                    2
+                                  )}
                                 </td>
                               </tr>
                               {/*<tr>*/}
@@ -276,7 +278,7 @@ const OrderDetail = (props) => {
                                 <th scope="row">Total :</th>
                                 <th className="text-end">
                                   LKR{" "}
-                                  {parseFloat(orderDetails.total).toFixed(2)}
+                                  {parseFloat(orderDetails.netTotal).toFixed(2)}
                                 </th>
                               </tr>
                             </tbody>
@@ -375,8 +377,8 @@ const OrderDetail = (props) => {
                           >
                             <div className="accordion-body ms-2 ps-5 pt-0">
                               <h6 className="mb-1">
-                                This order has reached {timeline?.orderStatus?.name} status
-                                on
+                                This order has reached{" "}
+                                {timeline?.orderStatus?.name} status on
                               </h6>
                               <p className="text-muted">
                                 {moment(timeline?.createdAt).format(
@@ -416,7 +418,9 @@ const OrderDetail = (props) => {
                 <div>
                   <p className=" mb-0">
                     Order Id :{" "}
-                    <span className="fw-semibold">{orderDetails?.orderCode}</span>
+                    <span className="fw-semibold">
+                      {orderDetails?.orderCode}
+                    </span>
                   </p>
 
                   <p className="text-muted mb-2 mx-3">
@@ -544,7 +548,7 @@ const OrderDetail = (props) => {
                 <div className="d-flex justify-content-between">
                   <h5 className="card-title mb-0">
                     <i className="ri-map-pin-line align-middle me-1 text-muted"></i>{" "}
-                    Billing Address
+                    Billing Details
                   </h5>
 
                   {/* <Button
@@ -560,16 +564,21 @@ const OrderDetail = (props) => {
               <CardBody>
                 <ul className="list-unstyled vstack gap-2 fs-13 mb-0">
                   <li className="fw-medium fs-14">
-                    {orderDetails?.orderCustomer?.firstName}{" "}
-                    {orderDetails?.orderCustomer?.lastName}
+                    {orderDetails?.billingDetail?.firstName}{" "}
+                    {orderDetails?.billingDetail?.lastName}
                   </li>
-                  <li>{orderDetails?.billingAddress?.address}</li>
-                  {/* <li>{orderDetails?.billing_address?.city}</li>
-                  <li>{orderDetails?.billing_address?.province}</li>
-                  <li>{orderDetails?.billing_address?.country}</li>
+                  <li>{orderDetails?.billingDetail?.contactNo}</li>
+                  <li>{orderDetails?.billingDetail?.email}</li>
+                  <li>{orderDetails?.billingDetail?.postalCode}</li>
+                  <li>{orderDetails?.billingDetail?.country}</li>
+                  <li>{orderDetails?.billingDetail?.province}</li>
+                  <li>{orderDetails?.billingDetail?.state}</li>
+                  <li>{orderDetails?.billingDetail?.city}</li>
+                  <li>{orderDetails?.billingDetail?.addressLine1}</li>
+                  <li>{orderDetails?.billingDetail?.addressLine2}</li>
                   <li>
-                    Postal code :{orderDetails?.billing_address?.postal_code}
-                  </li> */}
+                    Postal code :{orderDetails?.billingDetail?.postalCode}
+                  </li>
                 </ul>
               </CardBody>
             </Card>
@@ -579,7 +588,7 @@ const OrderDetail = (props) => {
                 <div className="d-flex justify-content-between">
                   <h5 className="card-title mb-0">
                     <i className="ri-map-pin-line align-middle me-1 text-muted"></i>{" "}
-                    Shipping Address
+                    Shipping Details
                   </h5>
 
                   {/* <Button
@@ -596,17 +605,21 @@ const OrderDetail = (props) => {
                 <ul className="list-unstyled vstack gap-2 fs-13 mb-0">
                   <ul className="list-unstyled vstack gap-2 fs-13 mb-0">
                     <li className="fw-medium fs-14">
-                      {orderDetails?.orderCustomer?.firstName}{" "}
-                      {orderDetails?.orderCustomer?.lastName}
+                      {orderDetails?.shippingDetail?.firstName}{" "}
+                      {orderDetails?.shippingDetail?.lastName}
                     </li>
-                    <li>{orderDetails?.shippingAddress?.address}</li>
-                    {/* <li>{orderDetails?.shipping_address?.address}</li>
-                    <li>{orderDetails?.shipping_address?.city}</li>
-                    <li>{orderDetails?.shipping_address?.province}</li>
-                    <li>{orderDetails?.shipping_address?.country}</li>
+                    <li>{orderDetails?.shippingDetail?.contactNo}</li>
+                    <li>{orderDetails?.shippingDetail?.email}</li>
+                    <li>{orderDetails?.shippingDetail?.postalCode}</li>
+                    <li>{orderDetails?.shippingDetail?.country}</li>
+                    <li>{orderDetails?.shippingDetail?.province}</li>
+                    <li>{orderDetails?.shippingDetail?.state}</li>
+                    <li>{orderDetails?.shippingDetail?.city}</li>
+                    <li>{orderDetails?.shippingDetail?.addressLine1}</li>
+                    <li>{orderDetails?.shippingDetail?.addressLine2}</li>
                     <li>
-                      Postal code :{orderDetails?.shipping_address?.postal_code}
-                    </li> */}
+                      Postal code :{orderDetails?.shippingDetail?.postalCode}
+                    </li>
                   </ul>
                 </ul>
               </CardBody>

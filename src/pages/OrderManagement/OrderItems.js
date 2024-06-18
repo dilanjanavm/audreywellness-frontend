@@ -19,18 +19,20 @@ const OrderItems = ({ data }) => {
       /> */}
       {data?.map((orderItem, index) => (
         <>
+          {console.log("Order Item:", orderItem)}
           <tr>
             <td>
               <div className="d-flex">
                 <div className="flex-shrink-0 avatar-md bg-light rounded p-1">
-                  {orderItem?.files && orderItem.files.length > 0 ? (
-                    orderItem.files.map((img, index) => {
-                      if (img?.isDefault) {
+                  {orderItem?.productBaseVariant?.file ? (
+                    orderItem.productBaseVariant?.file.map((img, index) => {
+                      if (img) {
+                        console.log(img, "================");
                         return (
                           <img
                             className="w-100 h-100 object-fit-cover"
                             key={index} // Remember to add a unique key for each list item
-                            src={img?.imageSizes?.original}
+                            src={img?.originalPath}
                             alt={img?.altTag}
                             onError={(e) =>
                               (e.target.src =
@@ -49,7 +51,9 @@ const OrderItems = ({ data }) => {
                   )}
                 </div>
                 <div className="flex-grow-1 ms-3">
-                  <h5 className="fs-15">{orderItem?.name}</h5>
+                  <h5 className="fs-15">
+                    {orderItem?.productBaseVariant?.name}
+                  </h5>
 
                   <p className="text-muted mb-0">
                     Discount:{" "}
