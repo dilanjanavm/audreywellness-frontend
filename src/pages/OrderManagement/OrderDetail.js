@@ -24,14 +24,15 @@ import {
 import { ArrowLeft } from "react-feather";
 import { useDispatch } from "react-redux";
 import moment from "moment";
-import Select from "react-select";
+
 import {
   getAllOrderStatus,
   getOrderByOrderId,
   updateOrdersStatus,
 } from "../../service/orderService";
+import * as orderStatusService from "../../service/orderStatusService";
 import { useNavigate } from "react-router-dom";
-
+import Select from "react-select";
 // import defaultUser from "../../../assets/images/default_user_img.png";
 import { Tag } from "antd";
 import OrderItems from "./OrderItems";
@@ -57,14 +58,14 @@ const OrderDetail = (props) => {
   const [addressObj, setAddressObj] = useState("");
   const [orderId, setOrderId] = useState("");
 
-  // useEffect(() => {
-  //   const { state } = location;
-  //   const { orderData } = state;
-  //   loadAllOrderStatus();
-  //   console.log(orderData);
-  //   setOrderDetails(orderData);
-  //   setSelectedStatus(orderDetails?.order_status);
-  // }, [orderDetails]);
+  useEffect(() => {
+    const { state } = location;
+    const { orderData } = state;
+    loadAllOrderStatus();
+    // console.log(orderData);
+    // setOrderDetails(orderData);
+    // setSelectedStatus(orderDetails?.order_status);
+  }, [orderDetails]);
 
   useEffect(() => {
     const { state } = location;
@@ -77,7 +78,6 @@ const OrderDetail = (props) => {
   }, [location]);
 
   const getOrderDetails = (orderId) => {
-    console.log(orderId, "============");
     popUploader(dispatch, true);
     setOrderDetails([]);
     getOrderByOrderId(orderId)
@@ -85,8 +85,7 @@ const OrderDetail = (props) => {
         console.log(res);
         let response = res?.data;
         setOrderDetails(response);
-        // loadAllOrderStatus(response?.timelines, response?.payment);
-        setSelectedStatus(response?.status);
+        setSelectedStatus({ value: "", label: response?.status });
         popUploader(dispatch, false);
       })
       .catch((err) => {
@@ -96,57 +95,46 @@ const OrderDetail = (props) => {
       });
   };
 
-  // const loadAllOrderStatus = (timelines, payment) => {
-  //   setStatusList([]);
-  //   let temp = [];
-  //   popUploader(dispatch, true);
-  //   getAllOrderStatus()
-  //     .then((resp) => {
-  //       for (let key in resp?.data) {
-  //         let disabled = false;
-  //         if (timelines) {
-  //           timelines.forEach((timeline) => {
-  //             if (resp?.data[key] === timeline.type) {
-  //               disabled = true;
-  //             }
-  //           });
-  //         }
-  //         if (payment?.status === "PAID" && resp?.data[key] === "Cancel") {
-  //           continue;
-  //         }
-
-  //         temp.push({
-  //           value: key,
-  //           label: resp?.data[key],
-  //           isDisabled: disabled,
-  //         });
-  //       }
-  //       setStatusList(temp);
-  //       popUploader(dispatch, false);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       popUploader(dispatch, false);
-  //       handleError(err);
-  //     });
-  // };
+  const loadAllOrderStatus = () => {
+    setStatusList([]);
+    let temp = [];
+    popUploader(dispatch, true);
+    orderStatusService
+      .getAll()
+      .then((resp) => {
+        let temp = [];
+        resp.data.map((status, index) => {
+          temp.push({ value: status?.id, label: status?.name });
+        });
+        setStatusList(temp);
+        popUploader(dispatch, false);
+      })
+      .catch((err) => {
+        popUploader(dispatch, false);
+        handleError(err);
+      })
+      .finally();
+  };
 
   const updateStatusOfOrder = () => {
-    // let temp = {
-    //   status: selectedStatus,
-    // };
-    // console.log(temp);
+    let data = {
+      status: selectedStatus,
+    };
+    console.log(data);
+    console.log(orderDetails?.id);
     // popUploader(dispatch, true);
-    // updateOrdersStatus(temp, orderDetails?.id)
-    //   .then((res) => {
-    //     popUploader(dispatch, false);
-    //     customToastMsg("Order status updated successfully", 1);
-    //     getOrderDetails(orderId);
-    //   })
-    //   .catch((c) => {
-    //     popUploader(dispatch, false);
-    //     handleError(c);
-    //   });
+    updateOrdersStatus(orderDetails?.id, data)
+      .then((res) => {
+        // console.log(res);
+        // return;
+        popUploader(dispatch, false);
+        customToastMsg("Order status updated successfully", 1);
+         getOrderDetails(orderId);
+      })
+      .catch((c) => {
+        popUploader(dispatch, false);
+        handleError(c);
+      });
   };
 
   function togglecol1() {
@@ -154,9 +142,10 @@ const OrderDetail = (props) => {
   }
 
   const handleChange = (e) => {
+    console.log(e);
     let status = e?.label;
     console.log(status);
-    setSelectedStatus(status);
+    setSelectedStatus(e);
     setIsBtnDisable(false);
   };
 
@@ -301,7 +290,7 @@ const OrderDetail = (props) => {
                       <Select
                         value={
                           statusList.find(
-                            (option) => option.label === selectedStatus
+                            (option) => option.label === selectedStatus.label
                           ) || null
                         }
                         className="basic-single"

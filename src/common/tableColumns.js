@@ -294,8 +294,6 @@ export const OrderListTableColumns = [
         color={
           status === "PENDING"
             ? "warning"
-            : status === "PROCESSING"
-            ? "processing"
             : status === "SHIPPED"
             ? "purple"
             : status === "DELIVERED"
@@ -311,7 +309,7 @@ export const OrderListTableColumns = [
           : status === "PROCESSING"
           ? "PROCESSING"
           : status === "SHIPPED"
-          ? "DELIVERING"
+          ? "SHIPPED"
           : status === "DELIVERED"
           ? "DELIVERED"
           : status === "CANCELLED"
