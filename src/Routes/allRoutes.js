@@ -33,6 +33,7 @@ import FeatureManagement from "../pages/FeatureManagement/FeatureManagement";
 import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
 import AddProduct from "../pages/ProductManagement/AddProduct";
 import OrderManagement from "../pages/OrderManagement/OrderManagement";
+import OrderDetail from "../pages/OrderManagement/OrderDetail";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -91,6 +92,11 @@ const authProtectedRoutes = [
     path: "/category-management",
     exact: true,
     component: <CategoryManagement />,
+  },
+  {
+    path: "/order-detail",
+    exact: true,
+    component: <OrderDetail />,
   },
 ];
 
