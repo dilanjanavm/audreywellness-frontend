@@ -436,8 +436,8 @@ const AddProduct = () => {
       // ? customToastMsg("Select product attributes", 2)
       productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
-      : !validation
-      ? customToastMsg("Product variant details cannot have empty values", 2)
+      // : !validation
+      // ? customToastMsg("Product variant details cannot have empty values", 2)
       : (validation = true);
 
     if (validation) {
