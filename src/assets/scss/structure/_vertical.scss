@@ -21,6 +21,7 @@
 }
 
 .page-content {
+    min-height: 98vh;
     padding: calc(#{$header-height} + #{$grid-gutter-width}) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
 }
 
