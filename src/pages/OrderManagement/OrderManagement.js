@@ -390,7 +390,7 @@ const OrderManagement = () => {
                     Orders
                   </NavLink>
                 </NavItem>
-                <NavItem>
+                {/* <NavItem>
                   <NavLink
                     className={classnames({ active: activeTab === "2" })}
                     onClick={() => {
@@ -424,9 +424,7 @@ const OrderManagement = () => {
                   >
                     <i className="ri-luggage-cart-line me-1 align-bottom"></i>{" "}
                     Processing
-                    {/* <span className="badge bg-secondary align-middle ms-1">
-                            2
-                          </span> */}
+                   
                   </NavLink>
                 </NavItem>
                 <NavItem>
@@ -452,7 +450,7 @@ const OrderManagement = () => {
                     <i className="ri-close-circle-line me-1 align-bottom"></i>{" "}
                     Cancelled
                   </NavLink>
-                </NavItem>
+                </NavItem> */}
               </Nav>
 
               <Row className="mt-3">

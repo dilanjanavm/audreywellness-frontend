@@ -10,10 +10,8 @@ import {
   Label,
   Row,
 } from "reactstrap";
-import TagsInput from "react-tagsinput";
 import "../../assets/scss/pages/_featuresManagement.scss";
 import { PenTool, Save, Trash, Trash2, X, XCircle } from "react-feather";
-import { TokenField } from "react-tokenfield";
 import UpdateFeatureModel from "../Common/modal/UpadateFeatureModel";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
 import { customSweetAlert, customToastMsg } from "../../common/commonFunctions";

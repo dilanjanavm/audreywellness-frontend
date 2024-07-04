@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Button, Popover, Switch, Tag, Tooltip } from "antd";
 import { useDispatch } from "react-redux";
+import * as productService from "../../../service/productVariantService";
 
 const ProductCard = ({ productData, reload }) => {
   const history = useNavigate();
@@ -64,7 +65,8 @@ const ProductCard = ({ productData, reload }) => {
       2,
       () => {
         // dispatch(showLoader(true));
-        activeInactiveProduct(productData.id, newStatus)
+        productService
+          .activeInactiveProduct(productData.id, newStatus)
           .then((res) => {
             // dispatch(hideLoader(false));
             customToastMsg(
@@ -168,47 +170,47 @@ const ProductCard = ({ productData, reload }) => {
             </div>
           </div>
         </div>
-        <div
-          className="product-info"
-          onClick={() => {
-            viewMoreProductDetails();
-          }}
-        >
-          <h6 className="product-category text-truncate d-flex">
-            <Tooltip title={productData?.category?.categoryHierarchy}>
-              {productData?.category?.categoryHierarchy}
-            </Tooltip>
-          </h6>
-
-          <h6 className="product-title text-truncate">
-            <Tooltip title={productData?.name}>{productData?.name}</Tooltip>
-          </h6>
-          {productData?.priceRange && (
+        <div className="product-info">
+          <div
+            onClick={() => {
+              viewMoreProductDetails();
+            }}
+          >
             <h6 className="product-category text-truncate d-flex">
-              {/* <Tooltip title={productData?.priceRange}>
+              <Tooltip title={productData?.category?.categoryHierarchy}>
+                {productData?.category?.categoryHierarchy}
+              </Tooltip>
+            </h6>
+
+            <h6 className="product-title text-truncate">
+              <Tooltip title={productData?.name}>{productData?.name}</Tooltip>
+            </h6>
+            {productData?.priceRange && (
+              <h6 className="product-category text-truncate d-flex">
+                {/* <Tooltip title={productData?.priceRange}>
                 {"LKR " + productData?.priceRange.range}
               </Tooltip> */}
-              {/* <Tooltip title={productData?.priceRange}>
+                {/* <Tooltip title={productData?.priceRange}>
                 {typeof productData?.priceRange === "object"
                   ? "LKR " + productData?.priceRange.range
                   : "LKR " + productData?.priceRange}
               </Tooltip> */}
-              <Tooltip title={productData?.priceRange}>
-                {productData?.priceRange &&
-                typeof productData?.priceRange === "object"
-                  ? "LKR " + productData?.priceRange.range
-                  : "LKR " + (productData?.priceRange || "N/A")}
-              </Tooltip>
-            </h6>
-          )}
+                <Tooltip title={productData?.priceRange}>
+                  {productData?.priceRange &&
+                  typeof productData?.priceRange === "object"
+                    ? "LKR " + productData?.priceRange.range
+                    : "LKR " + (productData?.priceRange || "N/A")}
+                </Tooltip>
+              </h6>
+            )}
 
-          {/* <h6 className="product-category text-truncate d-flex">
+            {/* <h6 className="product-category text-truncate d-flex">
             <Tooltip title={productData?.priceRange?.range || "N/A"}>
               {"LKR " + (productData?.priceRange?.range || "N/A")}
             </Tooltip>
           </h6> */}
-          <div className=""></div>
-          <h6 className="product-title text-truncate">
+          </div>
+          <h6 className="product-title text-truncate" style={{ zIndex: 10 }}>
             <Switch
               checked={
                 productData.status === 1

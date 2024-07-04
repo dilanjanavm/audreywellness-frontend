@@ -9,3 +9,4 @@ import ApiService from "./apiService";
 //   apiObject.body = null;
 //   return await ApiService.callApi(apiObject);
 // }
+export async function activeInactiveProduct(productId, status) {}
