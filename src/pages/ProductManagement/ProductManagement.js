@@ -27,15 +27,18 @@ const ProductManagement = () => {
 
   const [productList, setProductList] = useState([]);
   const [isRefresh, setIsRefresh] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
     loadAllProducts();
   }, []);
 
   useEffect(() => {
-    loadAllProducts();
-  }, [isRefresh]);
-
+    if (isRefresh || searchQuery === "") {
+      loadAllProducts();
+      setIsRefresh(false);
+    }
+  }, [isRefresh, searchQuery]);
   const loadAllProducts = async () => {
     popUploader(dispatch, true);
     setProductList([]);
@@ -58,6 +61,12 @@ const ProductManagement = () => {
             productId: productVarition?.productId,
           });
         });
+        if (searchQuery) {
+          temp = temp.filter((product) =>
+            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
         setProductList(temp);
       })
       .catch((err) => {
@@ -102,19 +111,11 @@ const ProductManagement = () => {
                   name="name"
                   placeholder="Search by product name"
                   type="text"
-                />
-              </FormGroup>
-            </Col>
-            <Col sm={12} md={6} lg={3} xl={3}>
-              <FormGroup>
-                <Label for="email">Search by Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  placeholder="Search by email"
-                  type="text"
-                  //   value={searchEmail}
-                  //   onChange={handleSearchEmailChange}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsRefresh(true); // Trigger refresh on input change
+                  }}
                 />
               </FormGroup>
             </Col>
@@ -122,6 +123,7 @@ const ProductManagement = () => {
           <Row className="mx-2 mb-3">
             {productList.map((product, index) => (
               <ProductCard
+                key={index}
                 reload={async () => {
                   setIsRefresh(true);
                 }}
