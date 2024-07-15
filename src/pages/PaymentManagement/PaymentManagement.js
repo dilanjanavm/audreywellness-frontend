@@ -32,7 +32,6 @@ import {
 
 import { DatePicker, Space, Table, Pagination } from "antd";
 import debounce from "lodash/debounce";
-import MarkPaymentModal from "./MarkPaymentModal"
 
 export default function PaymentManagement() {
     document.title = "Payment | Address";
@@ -45,6 +44,8 @@ export default function PaymentManagement() {
     const [paymentList, setPaymentList] = useState([]);
 
     const [searchOrderId, setSearchOrderId] = useState("");
+    const [searchTrackingID, setSearchTrackingID] = useState("");
+    const [searchEmail, setSearchEmail] = useState("");
     const [searchCustomerName, setSearchCustomerName] = useState("");
     const [searchOrderDateRange, setSearchOrderDateRange] = useState("");
     const [searchPaymentDateRange, setSearchPaymentDateRange] = useState("");
@@ -94,7 +95,7 @@ export default function PaymentManagement() {
     const loadAllPaymentMethods = () => {
         setPaymentMethodList([]);
         let temp = [];
-       // popUploader(dispatch, true);
+        // popUploader(dispatch, true);
         /*  getAllPaymentMethods()
              .then((resp) => {
                  let temp = [];
@@ -288,7 +289,7 @@ export default function PaymentManagement() {
             };
 
             let temp = [];
-           // popUploader(dispatch, true);
+            // popUploader(dispatch, true);
             /*  searchPaymentFiltrationInOrders(data, currentPage)
                  .then((resp) => {
                      resp?.data?.records.map((ord, index) => {
@@ -449,49 +450,9 @@ export default function PaymentManagement() {
         setSelectedOrderStatus("");
     };
 
-    const toggleMarkPaymentModal = (selectedPayment) => {
-        setIsOpenMrkPaymentModal(!isOpenMrkPaymentModal);
-        if (selectedPayment != "") {
-            setSelectedOrderPayment(selectedPayment);
-        } else {
-            setSelectedOrderPayment("");
-
-            // setSearchOrderId("");
-            // setSearchCustomerName("");
-            // setSearchOrderDateRange("");
-            // setSearchPaymentDateRange("");
-            // setSelectedOrderStatus("");
-            // searchOrderId === "" &&
-            // searchCustomerName === "" &&
-            // searchOrderDateRange === "" &&
-            // searchPaymentDateRange === "" &&
-            // selectedOrderStatus === ""
-            //   ?
-            debounceHandleSearchPaymentFiltration(
-                searchOrderId,
-                searchCustomerName,
-                searchOrderDateRange,
-                searchPaymentDateRange,
-                selectedOrderStatus,
-                selectedPaymentStatus,
-                selectedPaymentMethod,
-                currentPage
-            );
-            // : "";
-        }
-    };
-
     return (
         <>
             <div className="page-content">
-                <MarkPaymentModal
-                    isOpen={isOpenMrkPaymentModal}
-                    currentData={selectedOrderPayment}
-                    onClose={() => {
-                        toggleMarkPaymentModal("");
-                    }}
-                />
-
                 <Container fluid>
                     <div className="row mt-3">
                         <h4>Payment Management</h4>
@@ -531,13 +492,6 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            {" "}
-                                            {/* <Icon
-                                                icon="icon-park-outline:loading-four"
-                                                width="1.1em"
-                                                height="1.1em"
-                                                className=" me-1 mb-1 align-center"
-                                            /> */}{" "}
                                             Pending
                                         </NavLink>
                                     </NavItem>
@@ -549,13 +503,6 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            {" "}
-                                            {/* <Icon
-                                                icon="ri-checkbox-circle-line"
-                                                width="1.1em"
-                                                height="1.1em"
-                                                className=" me-1 mb-1 align-center"
-                                            /> */}{" "}
                                             Paid
                                         </NavLink>
                                     </NavItem>
@@ -567,13 +514,6 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            {" "}
-                                            {/* <Icon
-                                                icon="ri-close-circle-line"
-                                                width="1.1em"
-                                                height="1.1em"
-                                                className=" me-1 mb-1 align-center"
-                                            /> */}{" "}
                                             Fail
                                         </NavLink>
                                     </NavItem>
@@ -581,9 +521,9 @@ export default function PaymentManagement() {
 
                                 <Row className="mt-3">
                                     <Col sm={12} md={6} lg={3} className="mb-3">
-                                        <Label>Search By Order Id</Label>
+                                        <Label>Search By Order ID</Label>
                                         <Input
-                                            placeholder="Search order by order id"
+                                            placeholder="Search order by order ID"
                                             value={searchOrderId}
                                             onChange={(e) => {
                                                 debounceHandleSearchPaymentFiltration(
@@ -695,7 +635,7 @@ export default function PaymentManagement() {
                                         </Col>
                                     )}
 
-                                    {/* <Col sm={12} md={6} lg={3}>
+                                    <Col sm={12} md={6} lg={3}>
                                         <Label>Search By Payment Method</Label>
                                         <Select
                                             value={
@@ -710,21 +650,23 @@ export default function PaymentManagement() {
                                             onChange={handleChangePaymentMethod}
                                             options={paymentMethodList}
                                         />
-                                    </Col> */}
+                                    </Col>
+
                                     <Col sm={12} md={6} lg={3}>
-                                        <Label>Search By Order Status</Label>
-                                        <Select
-                                            value={
-                                                orderStatusList.find(
-                                                    (option) => option.label === selectedOrderStatus
-                                                ) || null
-                                            }
-                                            className="basic-single"
-                                            classNamePrefix="Search order by order status"
-                                            isSearchable={true}
-                                            isClearable
-                                            onChange={handleChangeOrderStatus}
-                                            options={orderStatusList}
+                                        <Label>Search By Tracking ID</Label>
+                                        <Input
+                                            placeholder="Search order by tracking ID"
+                                            value={searchTrackingID}
+                                            onChange={(e) => { }}
+                                        />
+                                    </Col>
+
+                                    <Col sm={12} md={6} lg={3}>
+                                        <Label>Search By Customer Email</Label>
+                                        <Input
+                                            placeholder="Search order by email"
+                                            value={searchEmail}
+                                            onChange={(e) => { }}
                                         />
                                     </Col>
                                 </Row>
