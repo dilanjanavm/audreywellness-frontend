@@ -3,11 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import classnames from "classnames";
 import Select from "react-select";
-/* import {
-    getAllPaymentMethods,
-    getAllPaymentsInOrders,
-    searchPaymentFiltrationInOrders,
-  } from "../../../service/paymentService"; */
+import { getAllPayments } from "../../service/paymentService";
+
 import {
     Card,
     Container,
@@ -24,13 +21,11 @@ import {
 } from "reactstrap";
 
 import {
-    customSweetAlert,
-    customToastMsg,
     handleError,
     popUploader,
 } from "../../common/commonFunctions";
 
-import { DatePicker, Space, Table, Pagination } from "antd";
+import { DatePicker, Table, Pagination } from "antd";
 import debounce from "lodash/debounce";
 
 export default function PaymentManagement() {
@@ -41,7 +36,7 @@ export default function PaymentManagement() {
 
     const [activeTab, setActiveTab] = useState("1");
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
-    const [paymentList, setPaymentList] = useState([]);
+    /* const [paymentList, setPaymentList] = useState([]); */
 
     const [searchOrderId, setSearchOrderId] = useState("");
     const [searchTrackingID, setSearchTrackingID] = useState("");
@@ -56,6 +51,89 @@ export default function PaymentManagement() {
     const [selectedOrderPayment, setSelectedOrderPayment] = useState("");
     const [isOpenMrkPaymentModal, setIsOpenMrkPaymentModal] = useState(false);
 
+    const PaymentTableColumns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+        },
+        {
+            title: 'Order ID',
+            dataIndex: ['order', 'id'],
+            key: 'orderId',
+        },
+        {
+            title: 'Order Code',
+            dataIndex: ['order', 'orderCode'],
+            key: 'orderCode',
+        },
+        {
+            title: 'Order Status',
+            dataIndex: ['order', 'status'],
+            key: 'orderStatus',
+        },
+        {
+            title: 'Tracking Code',
+            dataIndex: ['order', 'trackingCode'],
+            key: 'trackingCode',
+        },
+        {
+            title: 'Net Total',
+            dataIndex: ['order', 'netTotal'],
+            key: 'netTotal',
+        },
+        {
+            title: 'Shipping Fee',
+            dataIndex: ['order', 'shippingFee'],
+            key: 'shippingFee',
+        },
+        {
+            title: 'Sub Total',
+            dataIndex: ['order', 'subTotal'],
+            key: 'subTotal',
+        },
+        {
+            title: 'Discount Amount',
+            dataIndex: ['order', 'discountAmount'],
+            key: 'discountAmount',
+        },
+        {
+            title: 'Order Created At',
+            dataIndex: ['order', 'createdAt'],
+            key: 'orderCreatedAt',
+        },
+    ];
+
+    const paymentList = [
+        {
+            id: '03b0af35-98c1-454e-9ffa-bc1c3517059c',
+            status: 'SUCCESS',
+            createdAt: '2024-07-08T08:59:25.925Z',
+            order: {
+                id: 'ee0c3c7d-b52a-4ec1-b7c9-d38113a5aebd',
+                orderCode: 'ORD-13189712',
+                status: 'PENDING',
+                trackingCode: null,
+                netTotal: 1750,
+                shippingFee: 200,
+                subTotal: 1500,
+                discountAmount: null,
+                createdAt: '2024-07-08T08:59:25.925Z',
+            },
+        },
+    ];
+
+
     //-------------------------- pagination --------------------------
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,8 +143,8 @@ export default function PaymentManagement() {
 
     useEffect(() => {
         loadAllPayments(currentPage);
-        loadAllPaymentMethods();
-        loadAllOrderStatus();
+        /* getPaymentsByPage(pageNumber);
+        loadAllOrderStatus(); */
     }, []);
 
     const toggleTab = (tab, type) => {
@@ -92,50 +170,13 @@ export default function PaymentManagement() {
         }
     };
 
-    const loadAllPaymentMethods = () => {
-        setPaymentMethodList([]);
-        let temp = [];
-        // popUploader(dispatch, true);
-        /*  getAllPaymentMethods()
-             .then((resp) => {
-                 let temp = [];
-                 resp?.data?.paymentMethods.map((method, index) => {
-                     temp.push({ value: method?.id, label: method?.name });
-                 });
-                 setPaymentMethodList(temp);
-            popUploader(dispatch, false);
-             })
-             .catch((err) => {
-            popUploader(dispatch, false);
-                 handleError(err);
-             }); */
-    };
-
-    const loadAllOrderStatus = () => {
-        setOrderStatusList([]);
-        let temp = [];
-        // popUploader(dispatch, true);
-        /* getAllOrderStatus()
-            .then((resp) => {
-                let temp = [];
-                for (let key in resp?.data) {
-                    temp.push({ value: key, label: resp?.data[key] });
-                }
-                setOrderStatusList(temp);
-                popUploader(dispatch, false);
-            })
-            .catch((err) => {
-                popUploader(dispatch, false);
-                handleError(err);
-            })
-            .finally(); */
-    };
     const loadAllPayments = (currentPage) => {
         let temp = [];
         clearFiltrationFields();
-        //popUploader(dispatch, true);
-        /* getAllPaymentsInOrders(currentPage)
+        popUploader(dispatch, true);
+        getAllPayments(currentPage)
             .then((resp) => {
+                console.log(resp.data);
                 resp?.data?.records.map((ord, index) => {
                     temp.push({
                         orderId: ord?.orderId,
@@ -203,14 +244,36 @@ export default function PaymentManagement() {
                 setPaymentList(temp);
                 setCurrentPage(resp?.data?.currentPage);
                 setTotalRecodes(resp?.data?.totalRecords);
-            popUploader(dispatch, false);
+                popUploader(dispatch, false);
             })
             .catch((err) => {
-            popUploader(dispatch, false);
+                popUploader(dispatch, false);
+                handleError(err);
+            })
+            .finally();
+    };
+
+
+    const loadAllOrderStatus = () => {
+        setOrderStatusList([]);
+        let temp = [];
+        // popUploader(dispatch, true);
+        /* getAllOrderStatus()
+            .then((resp) => {
+                let temp = [];
+                for (let key in resp?.data) {
+                    temp.push({ value: key, label: resp?.data[key] });
+                }
+                setOrderStatusList(temp);
+                popUploader(dispatch, false);
+            })
+            .catch((err) => {
+                popUploader(dispatch, false);
                 handleError(err);
             })
             .finally(); */
     };
+
 
     const handleSearchPaymentFiltration = (
         orderId,
@@ -480,8 +543,8 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            <i className="ri-store-2-fill me-1 align-bottom"></i> All
-                                            Payments
+                                            <i className="ri-apps-fill me-1 align-bottom"></i>
+                                            All Payments
                                         </NavLink>
                                     </NavItem>
                                     <NavItem>
@@ -492,7 +555,8 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            Pending
+                                            <i className="ri-checkbox-circle-fill me-1 align-bottom"></i>
+                                            Success
                                         </NavLink>
                                     </NavItem>
                                     <NavItem>
@@ -503,7 +567,20 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
-                                            Paid
+                                            <i className="ri-close-circle-fill me-1 align-bottom"></i>
+                                            Cancelled
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            className={classnames({ active: activeTab === "3" })}
+                                            onClick={() => {
+                                                toggleTab("3", "PAID");
+                                            }}
+                                            href="#"
+                                        >
+                                            <i className="ri-refund-fill me-1 align-bottom"></i>
+                                            Refund
                                         </NavLink>
                                     </NavItem>
                                     <NavItem>
@@ -514,6 +591,7 @@ export default function PaymentManagement() {
                                             }}
                                             href="#"
                                         >
+                                            <i className="ri-error-warning-fill me-1 align-bottom"></i>
                                             Fail
                                         </NavLink>
                                     </NavItem>
@@ -560,6 +638,25 @@ export default function PaymentManagement() {
                                             }}
                                         />
                                     </Col>
+
+                                    <Col sm={12} md={6} lg={3}>
+                                        <Label>Search By Customer Email</Label>
+                                        <Input
+                                            placeholder="Search order by email"
+                                            value={searchEmail}
+                                            onChange={(e) => { }}
+                                        />
+                                    </Col>
+
+                                    <Col sm={12} md={6} lg={3}>
+                                        <Label>Search By Tracking ID</Label>
+                                        <Input
+                                            placeholder="Search order by tracking ID"
+                                            value={searchTrackingID}
+                                            onChange={(e) => { }}
+                                        />
+                                    </Col>
+
                                     <Col sm={12} md={6} lg={3}>
                                         <Label>Search By Order Date Range</Label>
                                         <RangePicker
@@ -596,47 +693,9 @@ export default function PaymentManagement() {
                                             }}
                                         />
                                     </Col>
-                                    {activeTab === "3" && (
-                                        <Col sm={12} md={6} lg={3}>
-                                            <Label>Search By Payment Date Range</Label>
-                                            <RangePicker
-                                                style={{ height: 40, width: "100%", borderRadius: 4 }}
-                                                onChange={(selectedDates) => {
-                                                    if (selectedDates) {
-                                                        const formattedDates = selectedDates.map((date) =>
-                                                            date ? date.format("YYYY-MM-DD") : null
-                                                        );
-                                                        debounceHandleSearchPaymentFiltration(
-                                                            searchOrderId,
-                                                            searchCustomerName,
-                                                            searchOrderDateRange,
-                                                            formattedDates,
-                                                            selectedOrderStatus,
-                                                            selectedPaymentStatus,
-                                                            selectedPaymentMethod,
-                                                            1
-                                                        );
-                                                        setSearchPaymentDateRange(formattedDates);
-                                                    } else {
-                                                        setSearchPaymentDateRange("");
-                                                        debounceHandleSearchPaymentFiltration(
-                                                            searchOrderId,
-                                                            searchCustomerName,
-                                                            searchOrderDateRange,
-                                                            "",
-                                                            selectedOrderStatus,
-                                                            selectedPaymentStatus,
-                                                            selectedPaymentMethod,
-                                                            1
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                        </Col>
-                                    )}
 
                                     <Col sm={12} md={6} lg={3}>
-                                        <Label>Search By Payment Method</Label>
+                                        <Label>Search By Payment Status</Label>
                                         <Select
                                             value={
                                                 paymentMethodList.find(
@@ -644,7 +703,7 @@ export default function PaymentManagement() {
                                                 ) || null
                                             }
                                             className="basic-single"
-                                            classNamePrefix="Search order by payment method"
+                                            classNamePrefix="Search order by payment status"
                                             isSearchable={true}
                                             isClearable
                                             onChange={handleChangePaymentMethod}
@@ -652,23 +711,6 @@ export default function PaymentManagement() {
                                         />
                                     </Col>
 
-                                    <Col sm={12} md={6} lg={3}>
-                                        <Label>Search By Tracking ID</Label>
-                                        <Input
-                                            placeholder="Search order by tracking ID"
-                                            value={searchTrackingID}
-                                            onChange={(e) => { }}
-                                        />
-                                    </Col>
-
-                                    <Col sm={12} md={6} lg={3}>
-                                        <Label>Search By Customer Email</Label>
-                                        <Input
-                                            placeholder="Search order by email"
-                                            value={searchEmail}
-                                            onChange={(e) => { }}
-                                        />
-                                    </Col>
                                 </Row>
 
                                 <Row>
@@ -676,7 +718,7 @@ export default function PaymentManagement() {
                                         <Table
                                             className="mx-3 my-4"
                                             pagination={false}
-                                            /* columns={PaymentTableColumns} */
+                                            columns={PaymentTableColumns}
                                             dataSource={paymentList}
                                             scroll={{ x: "fit-content" }}
                                         />
