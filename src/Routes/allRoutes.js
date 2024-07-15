@@ -34,6 +34,7 @@ import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
 import AddProduct from "../pages/ProductManagement/AddProduct";
 import OrderManagement from "../pages/OrderManagement/OrderManagement";
 import OrderDetail from "../pages/OrderManagement/OrderDetail";
+import PaymentManagement from "../pages/PaymentManagement/PaymentManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -71,6 +72,11 @@ const authProtectedRoutes = [
     path: "/order-management",
     exact: true,
     component: <OrderManagement />,
+  },
+  {
+    path: "/Payment",
+    exact: true,
+    component: <PaymentManagement />,
   },
 
   {
