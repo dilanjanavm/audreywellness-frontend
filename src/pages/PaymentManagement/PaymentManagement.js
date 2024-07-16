@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import classnames from "classnames";
+import moment from 'moment';
 import Select from "react-select";
 import { getAllPayments } from "../../service/paymentService";
+import { PaymentTableColumns } from "../../common/tableColumns";
 
 import {
     Card,
@@ -18,6 +20,7 @@ import {
     Label,
     Input,
     Button,
+    Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
 
 import {
@@ -38,10 +41,20 @@ export default function PaymentManagement() {
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
     const [paymentList, setPaymentList] = useState([]);
 
+    const [modal, setModal] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
+
+    const toggleMarkPaymentModal = (record) => {
+        setSelectedRecord(record);
+        setModal(!modal);
+    };
+
+
     const [searchOrderId, setSearchOrderId] = useState("");
     const [searchTrackingID, setSearchTrackingID] = useState("");
     const [searchEmail, setSearchEmail] = useState("");
     const [searchCustomerName, setSearchCustomerName] = useState("");
+
     const [searchOrderDateRange, setSearchOrderDateRange] = useState("");
     const [searchPaymentDateRange, setSearchPaymentDateRange] = useState("");
     const [selectedOrderStatus, setSelectedOrderStatus] = useState("");
@@ -50,72 +63,6 @@ export default function PaymentManagement() {
     const [paymentMethodList, setPaymentMethodList] = useState([]);
     const [selectedOrderPayment, setSelectedOrderPayment] = useState("");
     const [isOpenMrkPaymentModal, setIsOpenMrkPaymentModal] = useState(false);
-
-    const PaymentTableColumns = [
-        {
-            title: 'Order Code',
-            dataIndex: ['order', 'orderCode'],
-            key: 'orderCode',
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-        },
-        {
-            title: 'Payment Status',
-            dataIndex: 'status',
-            key: 'status',
-        },
-        {
-            title: 'Tracking Code',
-            dataIndex: ['order', 'trackingCode'],
-            key: 'trackingCode',
-        },
-        {
-            title: 'Net Total',
-            dataIndex: ['order', 'netTotal'],
-            key: 'netTotal',
-        },
-        {
-            title: 'Order Status',
-            dataIndex: ['order', 'status'],
-            key: 'orderStatus',
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (text, record) => (
-                <Button
-                    color="primary"
-                    outline
-                    onClick={() => toggleMarkPaymentModal(record)}
-                >
-                    View
-                </Button>
-            ),
-        },
-    ];
-
-    /* const paymentList = [
-        {
-            id: '03b0af35-98c1-454e-9ffa-bc1c3517059c',
-            status: 'SUCCESS',
-            createdAt: '2024-07-08T08:59:25.925Z',
-            order: {
-                id: 'ee0c3c7d-b52a-4ec1-b7c9-d38113a5aebd',
-                orderCode: 'ORD-13189712',
-                status: 'PENDING',
-                trackingCode: null,
-                netTotal: 1750,
-                shippingFee: 200,
-                subTotal: 1500,
-                discountAmount: null,
-                createdAt: '2024-07-08T08:59:25.925Z',
-            },
-        },
-    ]; */
-
 
     //-------------------------- pagination --------------------------
 
@@ -137,18 +84,20 @@ export default function PaymentManagement() {
 
             console.log(resp.data.records);
 
-            const temp = resp.data.records.map((record) => ({
-                ...record,
-                action: (
-                    <Button
-                        color="primary"
-                        outline
-                        onClick={() => toggleMarkPaymentModal(record)}
-                    >
-                        View
-                    </Button>
-                ),
-            }));
+            const temp = resp.data.records.map((record) => {
+                return {
+                    ...record,
+                    action: (
+                        <Button
+                            color="primary"
+                            outline
+                            onClick={() => toggleMarkPaymentModal(record)}
+                        >
+                            View
+                        </Button>
+                    ),
+                };
+            });
 
             setPaymentList(temp);
             setCurrentPage(resp?.data?.currentPage)
@@ -167,12 +116,16 @@ export default function PaymentManagement() {
             setSelectedPaymentStatus(type);
             setSearchOrderId("");
             setSearchCustomerName("");
+            setSearchTrackingID("");
+            setSearchEmail("");
             setSearchOrderDateRange("");
             setSearchPaymentDateRange("");
             setSelectedOrderStatus("");
             debounceHandleSearchPaymentFiltration(
                 searchOrderId,
                 searchCustomerName,
+                searchTrackingID,
+                searchEmail,
                 searchOrderDateRange,
                 searchPaymentDateRange,
                 selectedOrderStatus,
@@ -372,6 +325,8 @@ export default function PaymentManagement() {
         debounceHandleSearchPaymentFiltration(
             searchOrderId,
             searchCustomerName,
+            searchTrackingID,
+            searchEmail,
             searchOrderDateRange,
             searchPaymentDateRange,
             status === undefined ? "" : status,
@@ -388,6 +343,8 @@ export default function PaymentManagement() {
         debounceHandleSearchPaymentFiltration(
             searchOrderId,
             searchCustomerName,
+            searchTrackingID,
+            searchEmail,
             searchOrderDateRange,
             searchPaymentDateRange,
             selectedOrderStatus,
@@ -422,6 +379,8 @@ export default function PaymentManagement() {
             debounceHandleSearchPaymentFiltration(
                 searchOrderId,
                 searchCustomerName,
+                searchTrackingID,
+                searchEmail,
                 searchOrderDateRange,
                 searchPaymentDateRange,
                 selectedOrderStatus,
@@ -437,6 +396,8 @@ export default function PaymentManagement() {
         setSelectedPaymentStatus("");
         setSearchOrderId("");
         setSearchCustomerName("");
+        setSearchTrackingID("");
+        setSearchEmail("");
         setSearchOrderDateRange("");
         setSearchPaymentDateRange("");
         setSelectedOrderStatus("");
@@ -536,6 +497,8 @@ export default function PaymentManagement() {
                                                 debounceHandleSearchPaymentFiltration(
                                                     e.target.value,
                                                     searchCustomerName,
+                                                    searchTrackingID,
+                                                    searchEmail,
                                                     searchOrderDateRange,
                                                     searchPaymentDateRange,
                                                     selectedOrderStatus,
@@ -623,7 +586,7 @@ export default function PaymentManagement() {
                                         />
                                     </Col>
 
-                                    <Col sm={12} md={6} lg={3}>
+                                    {/* <Col sm={12} md={6} lg={3}>
                                         <Label>Search By Payment Status</Label>
                                         <Select
                                             value={
@@ -638,7 +601,7 @@ export default function PaymentManagement() {
                                             onChange={handleChangePaymentMethod}
                                             options={paymentMethodList}
                                         />
-                                    </Col>
+                                    </Col> */}
 
                                 </Row>
 
@@ -652,6 +615,69 @@ export default function PaymentManagement() {
                                             scroll={{ x: "fit-content" }}
                                         />
                                     </Col>
+
+                                    <Modal isOpen={modal} toggle={() => toggleMarkPaymentModal(null)}>
+                                        <ModalHeader toggle={() => toggleMarkPaymentModal(null)}>
+                                            Payment Details
+                                        </ModalHeader>
+                                        <ModalBody>
+                                            {selectedRecord ? (
+                                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Order Code</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.orderCode}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Tracking Code</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.trackingCode || ' - '}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Net Total</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.netTotal}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Shipping Fee</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.shippingFee}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Sub Total</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.subTotal}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Discount Amount</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.discountAmount || ' - '}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Order Status</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.order.status}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Payment Status</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{selectedRecord.status}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Order Created At</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{moment(selectedRecord.order.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 'bold' }}>Payment Created At</td>
+                                                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{moment(selectedRecord.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            ) : (
+                                                <p>No record selected</p>
+                                            )}
+                                        </ModalBody>
+
+
+                                        <ModalFooter>
+                                            <Button color="secondary" onClick={() => toggleMarkPaymentModal(null)}>
+                                                Close
+                                            </Button>
+                                        </ModalFooter>
+                                    </Modal>
                                 </Row>
                                 <Row>
                                     <Col
