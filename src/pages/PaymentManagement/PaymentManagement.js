@@ -36,7 +36,7 @@ export default function PaymentManagement() {
 
     const [activeTab, setActiveTab] = useState("1");
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
-    /* const [paymentList, setPaymentList] = useState([]); */
+    const [paymentList, setPaymentList] = useState([]);
 
     const [searchOrderId, setSearchOrderId] = useState("");
     const [searchTrackingID, setSearchTrackingID] = useState("");
@@ -53,14 +53,9 @@ export default function PaymentManagement() {
 
     const PaymentTableColumns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
+            title: 'Order Code',
+            dataIndex: ['order', 'orderCode'],
+            key: 'orderCode',
         },
         {
             title: 'Created At',
@@ -68,19 +63,9 @@ export default function PaymentManagement() {
             key: 'createdAt',
         },
         {
-            title: 'Order ID',
-            dataIndex: ['order', 'id'],
-            key: 'orderId',
-        },
-        {
-            title: 'Order Code',
-            dataIndex: ['order', 'orderCode'],
-            key: 'orderCode',
-        },
-        {
-            title: 'Order Status',
-            dataIndex: ['order', 'status'],
-            key: 'orderStatus',
+            title: 'Payment Status',
+            dataIndex: 'status',
+            key: 'status',
         },
         {
             title: 'Tracking Code',
@@ -93,28 +78,26 @@ export default function PaymentManagement() {
             key: 'netTotal',
         },
         {
-            title: 'Shipping Fee',
-            dataIndex: ['order', 'shippingFee'],
-            key: 'shippingFee',
+            title: 'Order Status',
+            dataIndex: ['order', 'status'],
+            key: 'orderStatus',
         },
         {
-            title: 'Sub Total',
-            dataIndex: ['order', 'subTotal'],
-            key: 'subTotal',
-        },
-        {
-            title: 'Discount Amount',
-            dataIndex: ['order', 'discountAmount'],
-            key: 'discountAmount',
-        },
-        {
-            title: 'Order Created At',
-            dataIndex: ['order', 'createdAt'],
-            key: 'orderCreatedAt',
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+                <Button
+                    color="primary"
+                    outline
+                    onClick={() => toggleMarkPaymentModal(record)}
+                >
+                    View
+                </Button>
+            ),
         },
     ];
 
-    const paymentList = [
+    /* const paymentList = [
         {
             id: '03b0af35-98c1-454e-9ffa-bc1c3517059c',
             status: 'SUCCESS',
@@ -131,21 +114,51 @@ export default function PaymentManagement() {
                 createdAt: '2024-07-08T08:59:25.925Z',
             },
         },
-    ];
+    ]; */
 
 
     //-------------------------- pagination --------------------------
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalRecodes, setTotalRecodes] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
     const { RangePicker } = DatePicker;
 
     useEffect(() => {
         loadAllPayments(currentPage);
-        /* getPaymentsByPage(pageNumber);
-        loadAllOrderStatus(); */
     }, []);
+
+    const loadAllPayments = async (currentPage) => {
+        clearFiltrationFields();
+        popUploader(dispatch, true);
+
+        try {
+            const resp = await getAllPayments(currentPage);
+
+            console.log(resp.data.records);
+
+            const temp = resp.data.records.map((record) => ({
+                ...record,
+                action: (
+                    <Button
+                        color="primary"
+                        outline
+                        onClick={() => toggleMarkPaymentModal(record)}
+                    >
+                        View
+                    </Button>
+                ),
+            }));
+
+            setPaymentList(temp);
+            setCurrentPage(resp?.data?.currentPage)
+            setTotalCount(resp?.data?.totalCount);
+        } catch (err) {
+            handleError(err);
+        } finally {
+            popUploader(dispatch, false);
+        }
+    };
 
     const toggleTab = (tab, type) => {
         if (activeTab !== tab) {
@@ -169,90 +182,6 @@ export default function PaymentManagement() {
             );
         }
     };
-
-    const loadAllPayments = (currentPage) => {
-        let temp = [];
-        clearFiltrationFields();
-        popUploader(dispatch, true);
-        getAllPayments(currentPage)
-            .then((resp) => {
-                console.log(resp.data);
-                resp?.data?.records.map((ord, index) => {
-                    temp.push({
-                        orderId: ord?.orderId,
-                        customerName:
-                            ord?.orderCustomer?.firstName +
-                            " " +
-                            ord?.orderCustomer?.lastName,
-                        orderDate: moment(ord?.createdAt).format("YYYY-MM-DD"),
-                        orderStatus: ord?.orderStatus,
-                        amount: parseFloat(ord?.total).toFixed(2),
-                        paymentDate:
-                            ord?.payment.length > 0
-                                ? moment(ord?.createdAt).format("YYYY-MM-DD")
-                                : "empty",
-                        paymentMethod: ord?.paymentMethod?.code,
-                        paymentStatus:
-                            ord?.payment.length > 0 ? ord?.payment[0].status : "PENDING",
-
-                        action: (
-                            <>
-                                {ord?.paymentMethod?.code === "COD" ? (
-                                    ord?.payment.length === 0 ||
-                                        (ord?.payment.length > 0 &&
-                                            ord?.payment[0].status === "PENDING") ? (
-                                        checkPermission(CREATE_PAYMENTS) && (
-                                            <Button
-                                                color="warning"
-                                                outline
-                                                className="m-2"
-                                                onClick={() => {
-                                                    toggleMarkPaymentModal(ord);
-                                                }}
-                                            >
-                                                Mark Payment
-                                            </Button>
-                                        )
-                                    ) : (
-                                        <Button
-                                            color="primary"
-                                            outline
-                                            className="m-2"
-                                            onClick={() => {
-                                                toggleMarkPaymentModal(ord);
-                                            }}
-                                        >
-                                            View
-                                        </Button>
-                                    )
-                                ) : (
-                                    <Button
-                                        color="primary"
-                                        outline
-                                        className="m-2"
-                                        onClick={() => {
-                                            toggleMarkPaymentModal(ord);
-                                        }}
-                                    >
-                                        View
-                                    </Button>
-                                )}
-                            </>
-                        ),
-                    });
-                });
-                setPaymentList(temp);
-                setCurrentPage(resp?.data?.currentPage);
-                setTotalRecodes(resp?.data?.totalRecords);
-                popUploader(dispatch, false);
-            })
-            .catch((err) => {
-                popUploader(dispatch, false);
-                handleError(err);
-            })
-            .finally();
-    };
-
 
     const loadAllOrderStatus = () => {
         setOrderStatusList([]);
@@ -737,7 +666,7 @@ export default function PaymentManagement() {
                                             current={currentPage}
                                             onChange={onChangePagination}
                                             defaultPageSize={15}
-                                            total={totalRecodes}
+                                            total={totalCount}
                                             showSizeChanger={false}
                                             showTotal={(total) => `Total ${total} items`}
                                         />
