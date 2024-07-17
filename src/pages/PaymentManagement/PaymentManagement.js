@@ -72,15 +72,15 @@ export default function PaymentManagement() {
     const { RangePicker } = DatePicker;
 
     useEffect(() => {
-        loadAllPayments(currentPage);
+        loadAllPayments(currentPage, '');
     }, []);
 
-    const loadAllPayments = async (currentPage) => {
+    const loadAllPayments = async (currentPage, filters) => {
         clearFiltrationFields();
         popUploader(dispatch, true);
 
         try {
-            const resp = await getAllPayments(currentPage);
+            const resp = await getAllPayments(currentPage, filters);
 
             console.log(resp.data.records);
 
@@ -109,7 +109,7 @@ export default function PaymentManagement() {
         }
     };
 
-    const toggleTab = (tab, type) => {
+    /* const toggleTab = (tab, type) => {
         if (activeTab !== tab) {
             setActiveTab(tab);
             history("/payment-management");
@@ -134,7 +134,17 @@ export default function PaymentManagement() {
                 1
             );
         }
+    }; */
+
+    const toggleTab = (tab, status) => {
+        console.log(tab + "+" + status);
+        if (activeTab !== tab) {
+            setActiveTab(tab);
+            loadAllPayments(currentPage, status);
+        }
     };
+
+
 
     const loadAllOrderStatus = () => {
         setOrderStatusList([]);
@@ -186,7 +196,7 @@ export default function PaymentManagement() {
                 paymentMethod === null ||
                 paymentMethod === "")
         ) {
-            loadAllPayments(currentPage);
+            loadAllPayments(currentPage, '');
         } else {
             let orderStartDate = ""; // Default to empty string
             let orderEndDate = ""; // Default to empty string
@@ -374,7 +384,7 @@ export default function PaymentManagement() {
                 selectedPaymentStatus === null ||
                 selectedPaymentStatus === "")
         ) {
-            loadAllPayments(page);
+            loadAllPayments(page, '');
         } else {
             debounceHandleSearchPaymentFiltration(
                 searchOrderId,
@@ -392,7 +402,7 @@ export default function PaymentManagement() {
     };
 
     const clearFiltrationFields = () => {
-        setActiveTab("1");
+        //setActiveTab("1");
         setSelectedPaymentStatus("");
         setSearchOrderId("");
         setSearchCustomerName("");
@@ -440,9 +450,7 @@ export default function PaymentManagement() {
                                     <NavItem>
                                         <NavLink
                                             className={classnames({ active: activeTab === "2" })}
-                                            onClick={() => {
-                                                toggleTab("2", "PENDING");
-                                            }}
+                                            onClick={() => toggleTab("2", "SUCCESS")}
                                             href="#"
                                         >
                                             <i className="ri-checkbox-circle-fill me-1 align-bottom"></i>
@@ -452,9 +460,7 @@ export default function PaymentManagement() {
                                     <NavItem>
                                         <NavLink
                                             className={classnames({ active: activeTab === "3" })}
-                                            onClick={() => {
-                                                toggleTab("3", "PAID");
-                                            }}
+                                            onClick={() => toggleTab("3", "CANCELLED")}
                                             href="#"
                                         >
                                             <i className="ri-close-circle-fill me-1 align-bottom"></i>
@@ -463,10 +469,8 @@ export default function PaymentManagement() {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            className={classnames({ active: activeTab === "3" })}
-                                            onClick={() => {
-                                                toggleTab("3", "PAID");
-                                            }}
+                                            className={classnames({ active: activeTab === "4" })}
+                                            onClick={() => toggleTab("4", "REFUNDED")}
                                             href="#"
                                         >
                                             <i className="ri-refund-fill me-1 align-bottom"></i>
@@ -475,10 +479,8 @@ export default function PaymentManagement() {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            className={classnames({ active: activeTab === "4" })}
-                                            onClick={() => {
-                                                toggleTab("4", "FAIL");
-                                            }}
+                                            className={classnames({ active: activeTab === "5" })}
+                                            onClick={() => toggleTab("5", "FAILED")}
                                             href="#"
                                         >
                                             <i className="ri-error-warning-fill me-1 align-bottom"></i>
