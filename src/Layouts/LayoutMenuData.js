@@ -340,6 +340,19 @@ const Navdata = () => {
       },
       stateVariables: isApps,
     },
+    {
+      id: "apps",
+      label: "Payment",
+      icon: <FeatherIcon icon="dollar-sign" className="icon-dual" />,
+      link: "/payment",
+      click: function (e) {
+        e.preventDefault();
+        setIsApps(!isApps);
+        setIscurrentState("Apps");
+        updateIconSidebar(e);
+      },
+      stateVariables: isApps,
+    },
 
     // {
     // id: "authentication",

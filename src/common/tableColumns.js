@@ -1,4 +1,121 @@
 import { Tag } from "antd";
+import moment from 'moment';
+
+export const PaymentTableColumns = [
+  {
+    title: 'Order Code',
+    dataIndex: ['order', 'orderCode'],
+    key: 'orderCode',
+  },
+  {
+    title: 'Created At',
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    render: (createdAt) => moment(createdAt).format('YYYY-MM-DD HH:mm:ss'),
+  },
+  {
+    title: 'Payment Status',
+    key: 'status',
+    dataIndex: 'status',
+    render: (status) => {
+      let color;
+      let text;
+
+      switch (status) {
+        case "SUCCESS":
+          color = 'green';
+          text = 'SUCCESS';
+          break;
+        case "FAILED":
+          color = 'red';
+          text = 'FAILED';
+          break;
+        case "REFUNDED":
+          color = 'blue';
+          text = 'REFUNDED';
+          break;
+        case "CANCELLED":
+          color = 'orange';
+          text = 'CANCELLED';
+          break;
+        default:
+          color = 'default';
+          text = 'NONE';
+          break;
+      }
+
+      return (
+        <Tag color={color} key={status}>
+          {text}
+        </Tag>
+      );
+    },
+  },
+  {
+    title: 'Tracking Code',
+    dataIndex: ['order', 'trackingCode'],
+    key: 'trackingCode',
+    render: (trackingCode) => (trackingCode ? trackingCode : ' - '),
+  },
+  {
+    title: 'Net Total',
+    dataIndex: ['order', 'netTotal'],
+    key: 'netTotal',
+  },
+  {
+    title: "Order Status",
+    key: "orderStatus",
+    width: "10%",
+    dataIndex: ['order', 'status'],
+    render: (orderStatus) => {
+      let color;
+      let text;
+
+      switch (orderStatus) {
+        case "PENDING":
+          color = 'blue';
+          text = 'PENDING';
+          break;
+        case "PROCESSING":
+          color = 'cyan';
+          text = 'PROCESSING';
+          break;
+        case "SHIPPED":
+          color = 'purple';
+          text = 'SHIPPED';
+          break;
+        case "DELIVERED":
+          color = 'green';
+          text = 'DELIVERED';
+          break;
+        case "CANCELLED":
+          color = 'red';
+          text = 'CANCELLED';
+          break;
+        case "REJECTED":
+          color = 'orange';
+          text = 'REJECTED';
+          break;
+        default:
+          color = 'default';
+          text = 'NONE';
+          break;
+      }
+
+      return (
+        <Tag color={color} key={orderStatus}>
+          {text}
+        </Tag>
+      );
+    },
+  },
+
+  {
+    title: "Action",
+    key: "action",
+    render: (text, record) => <div>{record.action}</div>,
+  },
+];
 
 export const UserTableColumns = [
   {
@@ -37,8 +154,8 @@ export const UserTableColumns = [
           user_status === 1
             ? "success"
             : user_status === 2
-            ? "error"
-            : "default"
+              ? "error"
+              : "default"
         }
         key={user_status}
       >
@@ -93,7 +210,7 @@ export const StaffTableColumns = [
       <Tag
         color={status === 1 ? "success" : status === 2 ? "error" : "default"}
         key={status}
-        // style={{ pointerEvents: "none" }}
+      // style={{ pointerEvents: "none" }}
       >
         {status === 1 ? "Active" : status === 2 ? "Inactive" : "none"}
       </Tag>
@@ -180,8 +297,8 @@ export const RoleTableColumns = [
           role_status === 1
             ? "success"
             : role_status === 2
-            ? "error"
-            : "default"
+              ? "error"
+              : "default"
         }
         key={role_status}
       >
@@ -295,26 +412,26 @@ export const OrderListTableColumns = [
           status === "PENDING"
             ? "warning"
             : status === "SHIPPED"
-            ? "purple"
-            : status === "DELIVERED"
-            ? "success"
-            : status === "CANCELLED"
-            ? "error"
-            : "default"
+              ? "purple"
+              : status === "DELIVERED"
+                ? "success"
+                : status === "CANCELLED"
+                  ? "error"
+                  : "default"
         }
         key={status}
       >
         {status === "PENDING"
           ? "PENDING"
           : status === "PROCESSING"
-          ? "PROCESSING"
-          : status === "SHIPPED"
-          ? "SHIPPED"
-          : status === "DELIVERED"
-          ? "DELIVERED"
-          : status === "CANCELLED"
-          ? "CANCELLED"
-          : "none"}
+            ? "PROCESSING"
+            : status === "SHIPPED"
+              ? "SHIPPED"
+              : status === "DELIVERED"
+                ? "DELIVERED"
+                : status === "CANCELLED"
+                  ? "CANCELLED"
+                  : "none"}
       </Tag>
     ),
   },
