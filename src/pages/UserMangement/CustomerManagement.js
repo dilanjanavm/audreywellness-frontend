@@ -37,13 +37,10 @@ const CustomerManagement = () => {
     popUploader(dispatch, true);
 
     customerService
-      .getAll()
+      .getAllCustomers()
       .then((res) => {
         popUploader(dispatch, false);
-
-        console.log(res, "custromers");
         const formattedData = res.data.map((record) => {
-          // let actionText = record.status === 1 ? "Terminate" : "Activate";
           let actionText =
             record.user.status === 1
               ? "Terminate"
