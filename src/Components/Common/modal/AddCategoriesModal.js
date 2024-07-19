@@ -55,8 +55,12 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   }, [toggle]);
 
   useEffect(() => {
+    getAllCategoriesWithOrWithoutSubCat();
+  }, [isOpen]);
+
+  const getAllCategoriesWithOrWithoutSubCat = () => {
     setCategoryList([]);
-    // popUploader(dispatch, true);
+    popUploader(dispatch, true);
     categoryService
       .getAllCategoriesWithOrWithoutSubCategories(false)
       .then((res) => {
@@ -71,13 +75,13 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
         });
 
         setCategoryList(temp);
-        // popUploader(dispatch, false);
+        popUploader(dispatch, false);
       })
       .catch((c) => {
-        // popUploader(dispatch, false);
-        // handleError(c);
+        popUploader(dispatch, false);
+        handleError(c);
       });
-  }, [isOpen]);
+  };
 
   const handleSubmit = () => {
     categoryName.trim() === ""
@@ -88,7 +92,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   };
 
   const addCategory = () => {
-    // popUploader(dispatch, true);
+    popUploader(dispatch, true);
 
     let temp = "";
     uploadedFile.length === 1
@@ -103,19 +107,19 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
     };
 
     categoryService
-      .create(data)
+      .createCategory(data)
       .then((res) => {
         customToastMsg("New Category added successfully !", 1);
         toggle();
         setCategoryName("");
         setActiveTab("1");
         setUploadedFile([]);
-        // popUploader(dispatch, false);
+        popUploader(dispatch, false);
       })
       .catch((c) => {
         console.log(c);
         handleError(c);
-        // popUploader(dispatch, false);
+        popUploader(dispatch, false);
       });
   };
 
@@ -130,7 +134,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   };
 
   const addSubCategory = () => {
-    // popUploader(dispatch, true);
+     popUploader(dispatch, true);
 
     let temp = "";
     uploadedFile.length === 1
@@ -146,7 +150,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
     };
 
     categoryService
-      .create(data)
+      .createCategory(data)
       .then((res) => {
         customToastMsg("Sub Category Successfully added !", 1);
         toggle();
@@ -158,7 +162,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
       .catch((c) => {
         console.log(c);
         handleError(c);
-        // popUploader(dispatch, false);
+         popUploader(dispatch, false);
       });
   };
 

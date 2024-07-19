@@ -22,11 +22,14 @@ import ReactEditList, * as REL from "react-edit-list";
 import {
   customSweetAlert,
   customToastMsg,
+  handleError,
+  popUploader,
 } from "../../../common/commonFunctions";
 import * as categoryService from "../../../service/categoryService";
 import classnames from "classnames";
 import FileUploadModal from "./FileUploadModal";
 import { Upload } from "react-feather";
+import { useDispatch } from "react-redux";
 
 const UpdateCategory = ({ isOpen, toggle, currentData }) => {
   const [categoryName, setCategoryName] = useState("");
@@ -38,6 +41,8 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
 
   const [allCategories, setAllCategories] = useState([]);
 
+  const dispatch = useDispatch();
+
   const setCurrentData = () => {
     //currentData
 
@@ -47,6 +52,11 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
   };
 
   useEffect(() => {
+    getAllCategoriesWithOrWithoutSubCat();
+  }, [isOpen]);
+
+  const getAllCategoriesWithOrWithoutSubCat = () => {
+    popUploader(dispatch, true);
     setCurrentData();
     console.log(currentData);
     categoryService
@@ -63,13 +73,13 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
         });
 
         setCategoryList(temp);
-        // popUploader(dispatch, false);
+        popUploader(dispatch, false);
       })
       .catch((c) => {
-        // popUploader(dispatch, false);
+        popUploader(dispatch, false);
         handleError(c);
       });
-  }, [isOpen]);
+  };
 
   const openToggle = () => {
     setImageModalOpen(!imageModalOpen);
@@ -99,20 +109,21 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
 
     if (isValidated) {
       customSweetAlert("Are you sure to update this?", 2, () => {
+        popUploader(dispatch, true);
         categoryService
-          .update(currentData.id, data)
+          .updateCategory(currentData.id, data)
           .then((res) => {
             customToastMsg("Category updated successfully !", 1);
             toggle();
             setCategoryName("");
             setSelectedParent("");
             setUploadedFile([]);
+            popUploader(dispatch, false);
           })
           .catch((c) => {
             console.log(c);
-            c.response?.data.message
-              ? customToastMsg(c.response.data.message, 0)
-              : customToastMsg("Sorry! Try again later", 0);
+            popUploader(dispatch, false);
+            handleError(c);
           });
       });
     }

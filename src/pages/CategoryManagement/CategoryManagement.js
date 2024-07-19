@@ -12,16 +12,15 @@ import {
 import { Table, Tag } from "antd";
 import { Plus } from "react-feather";
 import { CategoryTableColumns } from "../../common/tableColumns";
-// import StaffModel from "../../Components/Common/modal/StaffModal";
 import AddCategoryModel from "../../Components/Common/modal/AddCategoriesModal";
-
 import * as categoryService from "../../service/categoryService";
-// import { hideLoader, showLoader } from "../../../slices/loader/loader";
 import { useDispatch } from "react-redux";
+import Select from "react-select";
 import {
   customSweetAlert,
   customToastMsg,
   handleError,
+  popUploader,
 } from "../../common/commonFunctions";
 import UpdateCategory from "../../Components/Common/modal/UpdateCategoryModal";
 const CategoryManagement = () => {
@@ -33,9 +32,17 @@ const CategoryManagement = () => {
     useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [statusList, setStatusList] = useState([]);
+
   let dispatch = useDispatch();
+
   useEffect(() => {
     loadAllCategories();
+    setStatusList([
+      { value: 1, label: "Active" },
+      { value: 2, label: "Inactive" },
+    ]);
   }, []);
 
   const loadAllCategories = () => {
@@ -83,14 +90,13 @@ const CategoryManagement = () => {
                 color="danger"
                 className="m-2"
                 outline
-                onClick={() => deleteStaff(record.id)}
+                onClick={() => deleteCategory(record.id)}
               >
                 <span>Remove</span>
               </Button>
             </>
           ),
         }));
-        console.log(formattedData, "formated data");
         setCategoryTableList(formattedData);
         popUploader(dispatch, false);
       })
@@ -101,26 +107,24 @@ const CategoryManagement = () => {
       });
   };
 
-  const deleteStaff = async (staffId) => {
-    // console.log(staffId);
-    // sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
-    //   popUploader(dispatch, true);
-    //   staffService
-    //     .deleteStaff(staffId)
-    //     .then(async (res) => {
-    //       console.log(res);
-    //       await loadAllCategories();
-    //       popUploader(dispatch, false);
-    //       customToastMsg("Staff has been  deleted", 1);
-    //     })
-    //     .catch(async (err) => {
-    //       await loadAllCategories();
-    //       handleError(err);
-    //       console.log(err);
-    //       popUploader(dispatch, false);
-    //     })
-    //     .finally();
-    // });
+  const deleteCategory = async (catId) => {
+    console.log(catId);
+    customSweetAlert("Are you sure to delete this staff ?", 0, () => {
+      popUploader(dispatch, true);
+      categoryService
+        .deleteCategory(catId)
+        .then(async (res) => {
+          console.log(res);
+          await loadAllCategories();
+          popUploader(dispatch, false);
+          customToastMsg("Category has been  deleted", 1);
+        })
+        .catch(async (err) => {
+          handleError(err);
+          console.log(err);
+          popUploader(dispatch, false);
+        });
+    });
   };
 
   const toggleAddCategoryModal = () => {
@@ -131,13 +135,6 @@ const CategoryManagement = () => {
     setIsUpdateCategoryModalOpen(true);
     setSelectedCategory(category);
   };
-
-  // useEffect(() => {
-  //   const filteredStaff = categoryTableList.filter((staff) =>
-  //     staff.email.toLowerCase().includes(searchEmail.toLowerCase())
-  //   );
-  //   setCategoryTableList(filteredStaff);
-  // }, [searchEmail]);
 
   const closeStaffModal = () => {
     setIsUpdateCategoryModalOpen(false);
@@ -180,32 +177,45 @@ const CategoryManagement = () => {
                   toggleAddCategoryModal();
                 }}
               >
-                <Plus size={24} /> Add New
+                <Plus size={24} /> Add New Category
               </Button>
             </Col>
           </Row>
           <Row className="mx-2">
-            {/* <Col sm={12} md={6} lg={3} xl={3}>
-              <FormGroup>
-                <Label for="username">Search by Name</Label>
-                <Input
-                  id="username"
-                  name="name"
-                  placeholder="Search by name"
-                  type="text"
-                />
-              </FormGroup>
-            </Col> */}
-            <Col sm={12} md={6} lg={3} xl={3}>
+            <Col sm={12} md={6} lg={4} xl={4}>
               <FormGroup>
                 <Label for="email">Search by Name</Label>
                 <Input
                   id="email"
-                  name="email"
+                  name="name"
                   placeholder="Search by name"
                   type="text"
-                  //   value={searchEmail}
-                  //   onChange={handleSearchEmailChange}
+                  value={searchEmail}
+                  onChange={(e) => {
+                    setSearchEmail(e.target.value);
+                  }}
+                />
+              </FormGroup>
+            </Col>
+            <Col sm={6} md={6} lg={4} xl={4}>
+              <FormGroup>
+                <Label for="exampleEmail">Search by Status</Label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix="select"
+                  isSearchable={true}
+                  isClearable
+                  value={
+                    statusList.find(
+                      (option) => option.value === selectedStatus
+                    ) || null
+                  }
+                  onChange={(e) => {
+                    setSelectedStatus(
+                      e?.value === undefined ? "" : e === null ? "" : e.value
+                    );
+                  }}
+                  options={statusList}
                 />
               </FormGroup>
             </Col>
