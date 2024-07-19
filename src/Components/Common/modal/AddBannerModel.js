@@ -71,7 +71,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
 
     if (isValidated) {
       bannerService
-        .create(data)
+        .createBanner(data)
         .then((response) => {
           toggle();
           setPosition("");

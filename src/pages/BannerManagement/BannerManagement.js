@@ -29,7 +29,7 @@ const BannerManagement = () => {
   const getAllBanners = async () => {
     popUploader(dispatch, true);
     try {
-      const res = await bannerService.getAll();
+      const res = await bannerService.getAllBanners();
       console.log(res, "banner response");
       popUploader(dispatch, false);
       setBanners(res.data);
