@@ -1,6 +1,6 @@
 import ApiService from "./apiService";
 
-export async function getAll(currentPage) {
+export async function getAllStores(currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
@@ -10,7 +10,7 @@ export async function getAll(currentPage) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function create(data) {
+export async function createStore(data) {
   const apiObject = {};
   apiObject.method = "POST";
   apiObject.authentication = true;
@@ -21,7 +21,7 @@ export async function create(data) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function update(storeId, data) {
+export async function updateStore(storeId, data) {
   const apiObject = {};
   apiObject.method = "PUT";
   apiObject.authentication = true;

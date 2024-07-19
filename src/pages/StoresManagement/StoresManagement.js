@@ -48,7 +48,7 @@ const StoresManagement = () => {
     setStoresTableList([]);
     popUploader(dispatch, true);
     storeLocaterService
-      .getAll(currentPage)
+      .getAllStores(currentPage)
       .then((res) => {
         const formattedData = res.data.map((record) => ({
           name: record.title,
