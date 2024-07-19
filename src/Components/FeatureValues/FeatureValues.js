@@ -14,7 +14,7 @@ import "../../assets/scss/pages/_featuresManagement.scss";
 import { PenTool, Save, Trash, Trash2, X, XCircle } from "react-feather";
 import UpdateFeatureModel from "../Common/modal/UpadateFeatureModel";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
-import { customSweetAlert, customToastMsg } from "../../common/commonFunctions";
+import { customSweetAlert, customToastMsg, popUploader } from "../../common/commonFunctions";
 import { useDispatch } from "react-redux";
 
 const FeatureValue = ({
@@ -64,18 +64,18 @@ const FeatureValue = ({
   };
   const removeValueFromAttribute = (term) => {
     customSweetAlert("Are you sure to delete this feature?", 0, () => {
-      // popUploader(dispatch, true)
+      popUploader(dispatch, true);
       console.log(term);
-      // attributeService
-      //   .deleteFeature(currentData.id)
-      //   .then((res) => {
-      //     reload();
-      //     // popUploader(dispatch, false)
-      //   })
-      //   .catch((c) => {
-      //     // popUploader(dispatch, false)
-      //     handleChange(c);
-      //   });
+      attributeAndTagService
+        .deleteAttributesWithTags(currentData.id)
+        .then((res) => {
+          reload();
+          popUploader(dispatch, false);
+        })
+        .catch((c) => {
+          popUploader(dispatch, false);
+          handleChange(c);
+        });
     });
   };
 

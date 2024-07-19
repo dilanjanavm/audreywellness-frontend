@@ -49,19 +49,18 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
       ? customToastMsg("Feature name cannot be empty!", 0)
       : currentTerms.length === 0 || currentTerms.length < 0
       ? customToastMsg("At least add one value", 0)
-      : console.log("test");
-    //   : attributeService
-    //       .addAndUpdateAttributes(data)
-    //       .then((res) => {
-    //         customToastMsg("Feature updated successfully !", 1);
-    //         toggle();
-    //       })
-    //       .catch((c) => {
-    //         console.log(c);
-    //         c.response.data.message
-    //           ? customToastMsg(c.response.data.message, 0)
-    //           : customToastMsg("Sorry! Try again later", 0);
-    //       });
+      : attributeAndTagService
+          .updateAttributesWithTags(data)
+          .then((res) => {
+            customToastMsg("Feature updated successfully !", 1);
+            toggle();
+          })
+          .catch((c) => {
+            console.log(c);
+            c.response.data.message
+              ? customToastMsg(c.response.data.message, 0)
+              : customToastMsg("Sorry! Try again later", 0);
+          });
   };
 
   // const schema: REL.Schema = [

@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
+import {
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Container,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+} from "reactstrap";
 import TagsInput from "react-tagsinput";
 import FeatureValue from "../../Components/FeatureValues/FeatureValues";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
@@ -8,36 +18,50 @@ import AddFeatureModel from "../../Components/Common/modal/AddFeatureModel";
 import UpdateFeatureModel from "../../Components/Common/modal/UpadateFeatureModel";
 import { useDispatch } from "react-redux";
 import { Table } from "antd";
+import { handleError, popUploader } from "../../common/commonFunctions";
+import debounce from "lodash.debounce";
 
 const FeatureManagement = () => {
+  document.title = "Feature Management| Address Shop";
+
   const [tags, setTags] = useState([]);
   const [featureValues, setFeatureValues] = useState([]);
   const [currentFeatureValues, setCurrentFeatureValues] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [searchFeatureName, setSearchFeatureName] = useState("");
+
+  //-------------------------- pagination --------------------------
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecodes, setTotalRecodes] = useState(0);
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     getAllAttributes();
   }, []);
 
   const getAllAttributes = async () => {
-    // popUploader(dispatch, true);
+    popUploader(dispatch, true);
     const withTags = true;
     await setCurrentFeatureValues([]);
     attributeAndTagService
       .getAllAttributesWithTags(withTags)
       .then(async (res) => {
-        console.log(res, "reeeeeeeeeeeeeeeeeeS");
         let featureData = [];
         await setCurrentFeatureValues([]);
         res?.data.map(async (feature, index) => {
           featureData.push(feature);
         });
         await setCurrentFeatureValues(featureData);
-        // popUploader(dispatch, false);
+        setCurrentPage(res?.data?.currentPage);
+        setTotalRecodes(res?.data?.totalRecords);
+        popUploader(dispatch, false);
       })
       .catch((c) => {
         console.log(c);
-        // popUploader(dispatch, false);
+        handleError(c);
+        popUploader(dispatch, false);
       });
   };
 
@@ -70,11 +94,29 @@ const FeatureManagement = () => {
                   lg={3}
                   className=" d-flex justify-content-end"
                 >
-                  <Button color="primary" onClick={addFeatureValue}>
+                  <Button color="primary" className="mt-2" onClick={addFeatureValue}>
                     {" "}
                     <Plus size={18} />
                     Add Feature Value
                   </Button>
+                </Col>
+              </Row>
+
+              <Row className="mx-2">
+                <Col sm={12} md={6} lg={4} xl={4}>
+                  <FormGroup>
+                    <Label for="featureName">Search by Feature Name</Label>
+                    <Input
+                      id="featureName"
+                      name="featureName"
+                      placeholder="Search by feature name"
+                      type="text"
+                      value={searchFeatureName}
+                      onChange={(e) => {
+                        setSearchFeatureName(e.target.value);
+                      }}
+                    />
+                  </FormGroup>
                 </Col>
               </Row>
 
@@ -91,7 +133,7 @@ const FeatureManagement = () => {
                   {currentFeatureValues?.map((currentFeatureValue, index) => (
                     <FeatureValue
                       reload={() => {
-                        // popUploader(dispatch, true);
+                        popUploader(dispatch, true);
                         getAllAttributes();
                       }}
                       currentData={currentFeatureValue}

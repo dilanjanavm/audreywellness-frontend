@@ -49,7 +49,7 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
       console.log(data, "created data");
       popUploader(dispatch, true);
       attributeAndTagService
-        .create(data)
+        .createAttributesWithTags(data)
         .then((res) => {
           console.log(res, "created response");
           toggle();
