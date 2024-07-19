@@ -130,7 +130,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const getAllCountries = async () => {
     // setCountryList([]);
     await countryService
-      .getAll((response) => {
+      .getAllCountries((response) => {
         console.log(response.data, "---------------ddddd-----------------");
         // let temp = [];
         // countries.map((country, index) => {
