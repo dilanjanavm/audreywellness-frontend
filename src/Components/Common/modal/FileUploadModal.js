@@ -122,12 +122,12 @@ export default function FileUploadModal({
   }, []);
 
   const getAll = async () => {
-    // popUploader(dispatch, true);
+    popUploader(dispatch, true);
 
     await fileService
       .getAll()
       .then(async (res) => {
-        // popUploader(dispatch, false);
+         popUploader(dispatch, false);
 
         const imagesArray = await res.data.records; // Assuming records is an array of images
         setImages(imagesArray);

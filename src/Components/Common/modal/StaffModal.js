@@ -118,12 +118,12 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
         });
         //     console.log(temp, "000000");
         setRoleList(temp);
-        //     dispatch(hideLoader(false));
+        popUploader(dispatch, false);
       })
       .catch((err) => {
         console.log(err);
         handleError(err);
-        // dispatch(hideLoader(false));
+        popUploader(dispatch, false);
       });
   };
 
@@ -141,7 +141,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       .catch((err) => {
         console.log(err, "errr in countruy funtion");
       });
-
   };
 
   const onChangeUserImage = ({ fileList: newFileList }) => {
@@ -217,7 +216,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
         })
         .catch((err) => {
           popUploader(dispatch, false);
-
           console.log(err);
           handleError(err);
         });

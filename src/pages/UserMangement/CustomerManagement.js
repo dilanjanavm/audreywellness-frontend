@@ -13,7 +13,6 @@ import { Table, Tag } from "antd";
 import { Plus } from "react-feather";
 import { CustomerTableColumns } from "../../common/tableColumns";
 import * as customerService from "../../service/customerService";
-// import { hideLoader, showLoader } from "../../slices/loader/loader";
 import { useDispatch } from "react-redux";
 import {
   sweetAlertConformation,
@@ -65,7 +64,7 @@ const CustomerManagement = () => {
                 <Button
                   style={{ width: "100px" }}
                   color={record.user.status === 1 ? "danger" : "success"}
-                  className=""
+                  className="m-2"
                   outline
                   onClick={(e) => {
                     if (record.user.status === 1) {
@@ -99,18 +98,18 @@ const CustomerManagement = () => {
     //   },
     // };
     // sweetAlertConformation("Are you sure to activate this member ?", 3, () => {
-    //   dispatch(showLoader(true));
+    //  popUploader(dispatch, true);
     //   memberService
     //     .update(data.id, updatedData)
     //     .then(async (res) => {
     //       console.log(res);
     //       await loadAllMembers();
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //       customToastMsg("member has been activate", 1);
     //     })
     //     .catch(async (err) => {
     //       await loadAllMembers();
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //       handleError(err);
     //       console.log(err);
     //     })
@@ -128,18 +127,18 @@ const CustomerManagement = () => {
     //   },
     // };
     // sweetAlertConformation("Are you sure to terminate this member ?", 0, () => {
-    //   dispatch(showLoader(true));
+    //  popUploader(dispatch, true);
     //   memberService
     //     .update(data.id, updatedData)
     //     .then(async (res) => {
     //       console.log(res);
     //       await loadAllMembers();
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //       customToastMsg("member has been terminated", 1);
     //     })
     //     .catch(async (err) => {
     //       await loadAllMembers();
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //       handleError(err);
     //       console.log(err);
     //     })
@@ -220,9 +219,10 @@ const CustomerManagement = () => {
             <Col sm={12} md={12} lg={12} xl={12}>
               <Table
                 className="mx-3 my-4"
-                pagination={true}
+                pagination={false}
                 columns={CustomerTableColumns}
                 dataSource={memberTableList}
+                scroll={{ x: "fit-content" }}
               />
             </Col>
           </Row>

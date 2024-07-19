@@ -39,93 +39,88 @@ const CategoryManagement = () => {
   }, []);
 
   const loadAllCategories = () => {
-    // dispatch(showLoader(true));
-    categoryService.getAllCategories().then((res) => {
-      //     dispatch(hideLoader(true));
-      const formattedData = res.data.map((record) => ({
-        name: record.name,
-        hierarchy: record.hierarchy,
-        status: record.status,
-        file: (
-          <div>
-            {record?.file ? (
-              <img
-                className="w-100 h-100 object-fit-cover"
-                src={record?.file?.originalPath}
-                alt="categoryImg"
-                onError={(e) =>
-                  (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                }
-              />
-            ) : (
-              <img
-                src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
-                alt="placeholder"
-                className="w-100 h-100 object-fit-cover"
-              />
-            )}
-          </div>
-        ),
-        action: (
-          <>
-            <Button
-              color="warning"
-              className="mx-2"
-              outline
-              onClick={(e) => {
-                toggleUpdateCategoryModal(record);
-              }}
-            >
-              <span>Update</span>
-            </Button>
-            <Button
-              color="danger"
-              className=""
-              outline
-              onClick={() => deleteStaff(record.id)}
-            >
-              <span>Remove</span>
-            </Button>
-          </>
-        ),
-      }));
-      console.log(formattedData, "formated data");
-      setCategoryTableList(formattedData);
-    });
-    //   .catch((err) => {
-    //     console.log(err);
-    //     handleError(err);
-    //   });
+    popUploader(dispatch, true);
+    categoryService
+      .getAllCategories()
+      .then((res) => {
+        const formattedData = res.data.map((record) => ({
+          name: record.name,
+          hierarchy: record.hierarchy,
+          status: record.status,
+          file: (
+            <div>
+              {record?.file ? (
+                <img
+                  className="w-100 h-100 object-fit-cover"
+                  src={record?.file?.originalPath}
+                  alt="categoryImg"
+                  onError={(e) =>
+                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                  }
+                />
+              ) : (
+                <img
+                  src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
+                  alt="placeholder"
+                  className="w-100 h-100 object-fit-cover"
+                />
+              )}
+            </div>
+          ),
+          action: (
+            <>
+              <Button
+                color="warning"
+                className="m-2"
+                outline
+                onClick={(e) => {
+                  toggleUpdateCategoryModal(record);
+                }}
+              >
+                <span>Update</span>
+              </Button>
+              <Button
+                color="danger"
+                className="m-2"
+                outline
+                onClick={() => deleteStaff(record.id)}
+              >
+                <span>Remove</span>
+              </Button>
+            </>
+          ),
+        }));
+        console.log(formattedData, "formated data");
+        setCategoryTableList(formattedData);
+        popUploader(dispatch, false);
+      })
+      .catch((err) => {
+        console.log(err);
+        popUploader(dispatch, false);
+        handleError(err);
+      });
   };
 
   const deleteStaff = async (staffId) => {
-    //     console.log(staffId);
-    //     sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
-    //       dispatch(showLoader(true));
-    //       staffService
-    //         .deleteStaff(staffId)
-    //         .then(async (res) => {
-    //           console.log(res);
-    //           await loadAllCategories();
-    //           dispatch(hideLoader(false));
-    //           customToastMsg("Staff has been  deleted", 1);
-    //         })
-    //         .catch(async (err) => {
-    //           await loadAllCategories();
-    //           handleError(err);
-    //           console.log(err);
-    //           dispatch(hideLoader(false));
-    //         })
-    //         .finally();
-    //     });
-    //   };
-    //   const handleSearchEmailChange = (e) => {
-    //     const { value } = e.target; // Extract value from event target
-    //     setSearchEmail(value);
-    //     if (value === "") {
-    //       // If search input is empty, load all staff records
-    //       loadAllCategories();
-    //     }
+    // console.log(staffId);
+    // sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
+    //   popUploader(dispatch, true);
+    //   staffService
+    //     .deleteStaff(staffId)
+    //     .then(async (res) => {
+    //       console.log(res);
+    //       await loadAllCategories();
+    //       popUploader(dispatch, false);
+    //       customToastMsg("Staff has been  deleted", 1);
+    //     })
+    //     .catch(async (err) => {
+    //       await loadAllCategories();
+    //       handleError(err);
+    //       console.log(err);
+    //       popUploader(dispatch, false);
+    //     })
+    //     .finally();
+    // });
   };
 
   const toggleAddCategoryModal = () => {
@@ -219,9 +214,10 @@ const CategoryManagement = () => {
             <Col sm={12} md={12} lg={12} xl={12}>
               <Table
                 className="mx-3 my-4"
-                pagination={true}
+                pagination={false}
                 columns={CategoryTableColumns}
                 dataSource={categoryTableList}
+                scroll={{ x: "fit-content" }}
               />
             </Col>
           </Row>

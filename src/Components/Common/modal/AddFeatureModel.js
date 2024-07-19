@@ -47,18 +47,18 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
 
     if (isValid) {
       console.log(data, "created data");
-      //   popUploader(dispatch, true);
+      popUploader(dispatch, true);
       attributeAndTagService
         .create(data)
         .then((res) => {
           console.log(res, "created response");
           toggle();
-          // popUploader(dispatch, false);
+          popUploader(dispatch, false);
           customToastMsg("New feature added successfully !", 1);
         })
         .catch((c) => {
           console.log(c);
-          // popUploader(dispatch, false);
+          popUploader(dispatch, false);
           c.response.data.message
             ? customToastMsg(c.response.data.message[0], 0)
             : customToastMsg("Sorry! Try again later", 0);

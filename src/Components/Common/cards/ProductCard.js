@@ -39,7 +39,7 @@ const ProductCard = ({ productData, reload }) => {
     console.log(productId);
 
     customSweetAlert("Are you sure to delete this product?", 0, () => {
-      // dispatch(showLoader(true));
+      popUploader(dispatch, true);
 
       deleteProduct(productId)
         .then((res) => {
@@ -47,10 +47,10 @@ const ProductCard = ({ productData, reload }) => {
           reload();
           let temp = isDeleted;
           setIsDeleted(++temp);
-          // dispatch(hideLoader(false));
+          popUploader(dispatch, false);
         })
         .catch((c) => {
-          // dispatch(hideLoader(false));
+          popUploader(dispatch, false);
           handleError(c);
         });
     });
@@ -64,11 +64,11 @@ const ProductCard = ({ productData, reload }) => {
         : "Do you want to activate this product?",
       2,
       () => {
-        // dispatch(showLoader(true));
+        popUploader(dispatch, true);
         productService
           .activeInactiveProduct(productData.id, newStatus)
           .then((res) => {
-            // dispatch(hideLoader(false));
+            popUploader(dispatch, false);
             customToastMsg(
               `Product ${1 ? "deactivated" : "activated"} successfully`,
               1
@@ -76,7 +76,7 @@ const ProductCard = ({ productData, reload }) => {
             reload();
           })
           .catch((c) => {
-            // dispatch(hideLoader(false));
+            popUploader(dispatch, false);
             handleError(c);
           });
       },

@@ -353,169 +353,19 @@ const Navdata = () => {
       },
       stateVariables: isApps,
     },
-
-    // {
-    // id: "authentication",
-    // label: "Authentication",
-    // icon: <FeatherIcon icon="users" className="icon-dual" />,
-    // link: "/pages-coming-soon",
-    // click: function (e) {
-    //   e.preventDefault();
-    //   setIsAuth(!isAuth);
-    //   setIscurrentState("Auth");
-    //   updateIconSidebar(e);
-    // },
-    // stateVariables: isAuth,
-    // subItems: [
-    //     {
-    //         id: "signIn",
-    //         label: "Sign In",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsSignIn(!isSignIn);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isSignIn,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "signUp",
-    //         label: "Sign Up",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsSignUp(!isSignUp);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isSignUp,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "passwordReset",
-    //         label: "Password Reset",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsPasswordReset(!isPasswordReset);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isPasswordReset,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "passwordCreate",
-    //         label: "Password Create",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsPasswordCreate(!isPasswordCreate);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isPasswordCreate,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "lockScreen",
-    //         label: "Lock Screen",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsLockScreen(!isLockScreen);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isLockScreen,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "logout",
-    //         label: "Logout",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsLogout(!isLogout);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isLogout,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "successMessage",
-    //         label: "Success Message",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsSuccessMessage(!isSuccessMessage);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isSuccessMessage,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "twoStepVerification",
-    //         label: "Two Step Verification",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsVerification(!isVerification);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isVerification,
-    //         childItems: [
-    //             { id: 1, label: "Basic", link: "#" },
-    //             { id: 2, label: "Cover", link: "#" },
-    //         ]
-    //     },
-    //     {
-    //         id: "errors",
-    //         label: "Errors",
-    //         link: "/#",
-    //         isChildItem: true,
-    //         click: function (e) {
-    //             e.preventDefault();
-    //             setIsError(!isError);
-    //         },
-    //         parentId: "authentication",
-    //         stateVariables: isError,
-    //         childItems: [
-    //             { id: 1, label: "404 Basic", link: "#" },
-    //             { id: 2, label: "404 Cover", link: "#" },
-    //             { id: 3, label: "404 Alt", link: "#" },
-    //             { id: 4, label: "500", link: "#" },
-    //             { id: 5, label: "Offline Page", link: "#" },
-    //         ]
-    //     },
-    // ],
-    // },
+    {
+      id: "apps",
+      label: "Stores",
+      icon: <FeatherIcon icon="shopping-bag" className="icon-dual" />,
+      link: "/stores",
+      click: function (e) {
+        e.preventDefault();
+        setIsApps(!isApps);
+        setIscurrentState("Apps");
+        updateIconSidebar(e);
+      },
+      stateVariables: isApps,
+    },
   ];
   return <React.Fragment>{menuItems}</React.Fragment>;
 };

@@ -281,7 +281,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
 
                   <div className="d-flex justify-content-end">
                     <Button
-                      className="mx-2"
+                      className="m-2"
                       outline
                       color="secondary"
                       onClick={() => {
@@ -374,7 +374,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                   </FormGroup>
                   <div className="d-flex justify-content-end">
                     <Button
-                      className="mx-2"
+                      className="m-2"
                       outline
                       color="secondary"
                       onClick={() => {

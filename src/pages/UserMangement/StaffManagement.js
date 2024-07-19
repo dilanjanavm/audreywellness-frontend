@@ -32,10 +32,10 @@ const StaffManagement = () => {
   const [searchEmail, setSearchEmail] = useState("");
   let dispatch = useDispatch();
   useEffect(() => {
-    loadAllStaffs();
+    loadAllStaff();
   }, []);
 
-  const loadAllStaffs = () => {
+  const loadAllStaff = () => {
     popUploader(dispatch, true);
 
     staffService
@@ -58,7 +58,7 @@ const StaffManagement = () => {
             <>
               <Button
                 color="warning"
-                className="mx-2"
+                className="m-2"
                 outline
                 onClick={(e) => {
                   toggleModal(record);
@@ -68,7 +68,7 @@ const StaffManagement = () => {
               </Button>
               <Button
                 color="danger"
-                className=""
+                className="m-2"
                 outline
                 onClick={() => deleteStaff(record.id)}
               >
@@ -87,33 +87,24 @@ const StaffManagement = () => {
   };
 
   const deleteStaff = async (staffId) => {
-    //     console.log(staffId);
-    //     sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
-    //       dispatch(showLoader(true));
-    //       staffService
-    //         .deleteStaff(staffId)
-    //         .then(async (res) => {
-    //           console.log(res);
-    //           await loadAllStaffs();
-    //           dispatch(hideLoader(false));
-    //           customToastMsg("Staff has been  deleted", 1);
-    //         })
-    //         .catch(async (err) => {
-    //           await loadAllStaffs();
-    //           handleError(err);
-    //           console.log(err);
-    //           dispatch(hideLoader(false));
-    //         })
-    //         .finally();
-    //     });
-    //   };
-    //   const handleSearchEmailChange = (e) => {
-    //     const { value } = e.target; // Extract value from event target
-    //     setSearchEmail(value);
-    //     if (value === "") {
-    //       // If search input is empty, load all staff records
-    //       loadAllStaffs();
-    //     }
+    console.log(staffId);
+    sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
+      popUploader(dispatch, true);
+      staffService
+        .deleteStaff(staffId)
+        .then(async (res) => {
+          console.log(res);
+          await loadAllStaff();
+          popUploader(dispatch, false);
+          customToastMsg("Staff has been  deleted", 1);
+        })
+        .catch(async (err) => {
+          handleError(err);
+          console.log(err);
+          popUploader(dispatch, false);
+        })
+        .finally();
+    });
   };
 
   const toggleModal = (val) => {
@@ -122,10 +113,10 @@ const StaffManagement = () => {
       setIsAddStaffModalOpen(true);
       setIsUpdateStaffModalOpen(true);
       setSelectedStaff(val);
-      loadAllStaffs();
+      loadAllStaff();
     } else {
       setIsAddStaffModalOpen(true);
-      loadAllStaffs();
+      loadAllStaff();
     }
   };
 
@@ -140,7 +131,7 @@ const StaffManagement = () => {
     setIsAddStaffModalOpen(false);
     setIsUpdateStaffModalOpen(false);
     setSelectedStaff([]);
-    loadAllStaffs();
+    loadAllStaff();
   };
 
   return (
@@ -150,7 +141,7 @@ const StaffManagement = () => {
         updateValue={selectedStaff}
         isOpen={isAddStaffModalOpen}
         toggle={(e) => {
-          loadAllStaffs();
+          loadAllStaff();
           closeStaffModal();
         }}
       />
@@ -207,9 +198,10 @@ const StaffManagement = () => {
             <Col sm={12} md={12} lg={12} xl={12}>
               <Table
                 className="mx-3 my-4"
-                pagination={true}
+                pagination={false}
                 columns={StaffTableColumns}
                 dataSource={staffTableList}
+                scroll={{ x: "fit-content" }}
               />
             </Col>
           </Row>

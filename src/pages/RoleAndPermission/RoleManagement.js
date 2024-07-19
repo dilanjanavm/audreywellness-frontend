@@ -21,7 +21,6 @@ import { RoleTableColumns } from "../../common/tableColumns";
 import debounce from "lodash/debounce";
 import { useDispatch } from "react-redux";
 import * as roleAndPermssionService from "../../service/rolePermissionService";
-// import { hideLoader, showLoader } from "../../slices/loader/loader";
 
 const RoleManagement = () => {
   document.title = "Role | Address Shop";
@@ -89,7 +88,7 @@ const RoleManagement = () => {
               <>
                 <Button
                   color="warning"
-                  className="mx-2"
+                  className="m-2"
                   onClick={(e) => openUpdateRoleModal(role)}
                   disabled={role?.isDefault}
                   style={{
@@ -101,6 +100,7 @@ const RoleManagement = () => {
                 </Button>
                 <Button
                   color="danger"
+                  className="m-2"
                   onClick={(e) => handleDeleteRole(role?.id)}
                   disabled={role?.isDefault}
                   style={{
@@ -115,13 +115,11 @@ const RoleManagement = () => {
           });
         });
         setRoleList(temp);
-        // dispatch(hideLoader(false));
+        popUploader(dispatch, false);
       })
       .catch((c) => {
         popUploader(dispatch, false);
         handleError(c);
-
-        // dispatch(hideLoader(false));
       })
       .finally();
   };
@@ -147,19 +145,19 @@ const RoleManagement = () => {
 
   const handleDeleteRole = (roleId) => {
     // customToastMsg("Are you sure to delete this role ?", 0, () => {
-    //   dispatch(showLoader(true));
+    //   popUploader(dispatch, true);
     //   roleAndPermssionService
     //     .deleteRole(roleId)
     //     .then(async (res) => {
     //       await loadAllRoles();
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //       customToastMsg("Role deleted successfully", 1);
     //     })
     //     .catch(async (err) => {
     //       await loadAllRoles();
     //       handleError(err);
     //       console.log(err);
-    //       dispatch(hideLoader(false));
+    //       popUploader(dispatch, false);
     //     })
     //     .finally();
     // });
@@ -232,9 +230,10 @@ const RoleManagement = () => {
         <Col sm={12} md={12} lg={12} xl={12}>
           <Table
             className="mx-3 my-4"
-            pagination={true}
+            pagination={false}
             columns={RoleTableColumns}
             dataSource={roleList}
+            scroll={{ x: "fit-content" }}
           />
         </Col>
       </Row>
