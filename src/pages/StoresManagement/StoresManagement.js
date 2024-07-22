@@ -178,7 +178,6 @@ const StoresManagement = () => {
         .catch((err) => {
           popUploader(dispatch, false);
           handleError(err);
-          console.log(err);
         })
         .finally();
     });

@@ -42,8 +42,6 @@ const StaffManagement = () => {
       .getAllStaff()
       .then((res) => {
         popUploader(dispatch, false);
-
-        console.log(res, ":::::");
         const formattedData = res.data.map((record) => ({
           name: record.user.firstName + " " + record.user.lastName,
           email: record.user.email,
@@ -77,7 +75,7 @@ const StaffManagement = () => {
             </>
           ),
         }));
-        console.log(formattedData, "formated data");
+
         setStaffTableList(formattedData);
       })
       .catch((err) => {
@@ -169,7 +167,7 @@ const StaffManagement = () => {
             </Col>
           </Row>
           <Row className="mx-2">
-            {/* <Col sm={12} md={6} lg={3} xl={3}>
+            <Col sm={12} md={6} lg={3} xl={3}>
               <FormGroup>
                 <Label for="username">Search by Name</Label>
                 <Input
@@ -179,7 +177,7 @@ const StaffManagement = () => {
                   type="text"
                 />
               </FormGroup>
-            </Col> */}
+            </Col>
             <Col sm={12} md={6} lg={3} xl={3}>
               <FormGroup>
                 <Label for="email">Search by Email</Label>

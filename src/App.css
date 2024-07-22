@@ -2,6 +2,15 @@
   text-align: center;
 }
 
+.ant-modal-root {
+  position: absolute;
+  z-index: 99999;
+}
+
+:where(.ant-modal .ant-modal-content) {
+  z-index: 999 !important;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

@@ -12,7 +12,7 @@ import {
   ModalHeader,
 } from "reactstrap";
 import Select from "react-select";
-import { Upload } from "antd";
+import { Switch, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import moment from "moment/moment";
 import {
@@ -23,10 +23,8 @@ import {
 import * as staffService from "../../../service/staffService";
 import * as rolePermissionService from "../../../service/rolePermissionService";
 import * as fileService from "../../../service/fileService";
-import * as countryService from "../../../service/countryService";
 import { useDispatch } from "react-redux";
-// import { PhoneInput } from "react-international-phone";
-// import "react-international-phone/style.css";
+import { getAllCountries } from "../../../service/countryService";
 
 const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const [firstName, setFirstName] = useState("");
@@ -44,11 +42,13 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const [staffMemberStatus, setStaffMemberStatus] = useState("");
+
   const dispatch = useDispatch();
 
   useEffect(() => {
+    loadAllCountries();
     loadAllRoles();
-    getAllCountries();
     console.log(updateValue, "---------------------");
     if (updateValue != undefined || updateValue != []) {
       setDataToInputs();
@@ -62,6 +62,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     setContactNo(updateValue?.user?.staff?.contactNo);
     setSelectedRole(updateValue?.user?.role?.id);
     setSelectedCountry(updateValue?.user?.country?.dialCode);
+    setStaffMemberStatus(updateValue?.user?.status);
     if (updateValue?.user?.file) {
       setFileList([
         {
@@ -125,19 +126,20 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       });
   };
 
-  const getAllCountries = async () => {
-    // setCountryList([]);
-    await countryService
-      .getAllCountries((response) => {
-        console.log(response.data, "---------------ddddd-----------------");
-        // let temp = [];
-        // countries.map((country, index) => {
-        //   temp.push({ value: country.dial_code, label: country.country_name });
-        // });
-        // setCountryList(temp);
+  const loadAllCountries = () => {
+    setCountryList([]);
+    console.log("method called");
+    getAllCountries()
+      .then((res) => {
+        let temp = [];
+        res?.data.map((country, index) => {
+          temp.push({ value: country.dialCode, label: country.countryName });
+        });
+        setCountryList(temp);
       })
       .catch((err) => {
-        console.log(err, "errr in countruy funtion");
+        console.log(err);
+        handleError(err);
       });
   };
 
@@ -182,9 +184,9 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       ? customToastMsg("Email cannot be empty")
       : selectedRole === ""
       ? customToastMsg("Select role")
-      : // : selectedCountry === ""
-      // ? customToastMsg("Country cannot be empty")
-      contactNo === ""
+      : selectedCountry === ""
+      ? customToastMsg("Country cannot be empty")
+      : contactNo === ""
       ? customToastMsg("Contact number cannot be empty")
       : (isValidated = true);
 
@@ -193,7 +195,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       lastName: lastName,
       email: email,
       contactNo: contactNo,
-      // country: selectedCountry,
+      country: selectedCountry,
       roleId: `${selectedRole}`,
       fileId: userImage?.id,
     };
@@ -204,13 +206,11 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
       staffService
         .createStaff(data)
-        .then(async (res) => {
-          console.log(res, "creatd response");
+        .then((res) => {
           popUploader(dispatch, false);
-
           clearInputs();
-          await toggle();
-          await customToastMsg("Staff successfully created", 1);
+          toggle();
+          customToastMsg("Staff successfully created", 1);
         })
         .catch((err) => {
           popUploader(dispatch, false);
@@ -227,10 +227,12 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       ? customToastMsg("First name cannot be empty")
       : lastName === ""
       ? customToastMsg("Last name cannot be empty")
-      : selectedRole === ""
-      ? customToastMsg("Select role")
       : email === ""
       ? customToastMsg("Email cannot be empty")
+      : selectedRole === ""
+      ? customToastMsg("Select role")
+      : selectedCountry === ""
+      ? customToastMsg("Country cannot be empty")
       : contactNo === ""
       ? customToastMsg("Contact number cannot be empty")
       : (isValidated = true);
@@ -242,6 +244,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
         lastName: lastName,
         email: email,
         country: selectedCountry,
+        status: staffMemberStatus,
         role: {
           id: `${selectedRole}`,
         },
@@ -254,13 +257,12 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
       staffService
         .updateStaff(updateValue?.user?.staff?.id, data)
-        .then(async (res) => {
+        .then((res) => {
           console.log(res);
-          // setIsSuccess(true);
           popUploader(dispatch, false);
           clearInputs();
-          await toggle();
-          await customToastMsg("Staff successfully updated", 1);
+          toggle();
+          customToastMsg("Staff successfully updated", 1);
         })
         .catch((err) => {
           console.log(err);
@@ -300,10 +302,39 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
       <ModalBody>
         <Form>
+          {isUpdate && (
+            <FormGroup>
+              <Label for="staffmemberStatus">User Status</Label>
+              <Switch
+                className="ms-4"
+                checked={
+                  staffMemberStatus === 1
+                    ? true
+                    : staffMemberStatus === 2
+                    ? false
+                    : false
+                }
+                onChange={(e) => {
+                  changeStatusProduct();
+                }}
+                handleBg={staffMemberStatus === 1 ? "#60b24c" : "#bababa"}
+                checkedChildren="Active"
+                unCheckedChildren="Inactive"
+                style={{
+                  backgroundColor:
+                    staffMemberStatus === 1 ? "#60b24c" : "#bababa",
+                }}
+              />
+            </FormGroup>
+          )}
+
           <FormGroup className="d-flex flex-column align-items-center">
             {" "}
             <Label>User Profile Image</Label>
-            {/* <ImgCrop rotationSlider> */}
+            {/* <ImgCrop
+              rotationSlider
+              style={{ position: "absolute !important", zIndex: "9999999999 !important" }}
+            > */}
             <Upload
               className="d-flex justify-content-center"
               customRequest={customRequest}
