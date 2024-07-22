@@ -51,3 +51,4 @@ export async function staffFiltration(data, currentPage) {
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
+
