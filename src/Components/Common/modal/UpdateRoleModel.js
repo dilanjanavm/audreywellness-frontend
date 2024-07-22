@@ -46,7 +46,7 @@ const UpdateRoleModal = ({ isOpen, currentData, onClose }) => {
     if (isValidated) {
       popUploader(dispatch, true);
       roleService
-        .update(currentData.id, data)
+        .updateRole(currentData.id, data)
         .then((response) => {
           // popUploader(dispatch, false);
           onClose();

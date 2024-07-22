@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Row, Col, Button, Label, FormGroup } from "reactstrap";
 import Select from "react-select";
 import { Check } from "react-feather";
-import * as roleAndPermssionService from "../../service/rolePermissionService";
+import * as roleAndPermissionService from "../../service/rolePermissionService";
 import {
   customSweetAlert,
   customToastMsg,
@@ -49,7 +49,7 @@ const Permission = () => {
 
     const status = 1;
     try {
-      const res = await roleAndPermssionService.getAllRoles(status);
+      const res = await roleAndPermissionService.getAllRoles(status);
       popUploader(dispatch, false);
 
       const temp = res?.data.map((role) => ({
@@ -78,7 +78,7 @@ const Permission = () => {
     const withPermissions = true;
     try {
       const res =
-        await roleAndPermssionService.getRoleByIdWithOrWithoutPermission(
+        await roleAndPermissionService.getRoleByIdWithOrWithoutPermission(
           roleId,
           withPermissions
         );
@@ -94,7 +94,7 @@ const Permission = () => {
     }
   };
 
-  const assigneRolePermissoin = async () => {
+  const assignPermissionToRole = async () => {
     if (!selectedRole.id) {
       return;
     }
@@ -107,8 +107,8 @@ const Permission = () => {
       try {
         popUploader(dispatch, true);
 
-        await roleAndPermssionService
-          .assigneRolePermission(data)
+        await roleAndPermissionService
+          .assignRolePermission(data)
           .then(async (res) => {
             popUploader(dispatch, false);
             customToastMsg("Permissions are successfully updated ", 1);
@@ -191,7 +191,7 @@ const Permission = () => {
           <Button
             color="primary"
             className="w-auto"
-            onClick={assigneRolePermissoin}
+            onClick={assignPermissionToRole}
           >
             <Check size={20} /> Save
           </Button>

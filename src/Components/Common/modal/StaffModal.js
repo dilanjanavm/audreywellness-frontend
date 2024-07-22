@@ -21,7 +21,7 @@ import {
   popUploader,
 } from "../../../common/commonFunctions";
 import * as staffService from "../../../service/staffService";
-import * as rolePermssionService from "../../../service/rolePermissionService";
+import * as rolePermissionService from "../../../service/rolePermissionService";
 import * as fileService from "../../../service/fileService";
 import * as countryService from "../../../service/countryService";
 import { useDispatch } from "react-redux";
@@ -107,7 +107,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const getAllRoles = async () => {
     setRoleList([]);
     const withPermission = false;
-    await rolePermssionService
+    await rolePermissionService
       .getAllRoles(withPermission)
       .then((res) => {
         let temp = [];

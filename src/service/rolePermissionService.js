@@ -1,46 +1,30 @@
 import ApiService from "./apiService";
 
+export async function getAllRoles(status) {
+  const apiObject = {};
+  apiObject.method = "GET";
+  apiObject.authentication = true;
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/role/find-all?status=${status}`;
+  apiObject.body = null;
+  return await ApiService.callApi(apiObject);
+}
+
 export async function createRole(data) {
   const apiObject = {};
   apiObject.method = "POST";
-  apiObject.authentication = false;
+  apiObject.authentication = true;
   apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = "api/role/create";
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }
-export async function getAllRoles(status) {
-  const apiObject = {};
-  apiObject.method = "GET";
-  apiObject.authentication = true;
-  apiObject.endpoint = `api/role/find-all?status=${status}`;
-  const result = await ApiService.callApi(apiObject);
-  return result;
-}
 
-export async function getRoleByIdWithOrWithoutPermission(id, withPermissions) {
-  const apiObject = {};
-  apiObject.method = "GET";
-  apiObject.authentication = true;
-  apiObject.endpoint = `api/role/find-by-id/${id}?withPermission=${withPermissions}`;
-  const result = await ApiService.callApi(apiObject);
-  return result;
-}
-
-export async function deleteRole(roleId) {
-  // const apiObject = {};
-  // apiObject.method = "GET";
-  // apiObject.authentication = true;
-  // apiObject.endpoint = `api/role/find-all?withPermission=${withPermission}`;
-  // const result = await ApiService.callApi(apiObject);
-  // return result;
-}
-
-export async function update(roleId, data) {
+export async function updateRole(roleId, data) {
   const apiObject = {};
   apiObject.method = "PUT";
-  apiObject.authentication = false;
+  apiObject.authentication = true;
   apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = `api/role/update/${roleId}`;
@@ -48,10 +32,30 @@ export async function update(roleId, data) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function assigneRolePermission(data) {
+export async function deleteRole(roleId) {
+  const apiObject = {};
+  apiObject.method = "DELETE",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = ``;
+  apiObject.body = null;
+  return await ApiService.callApi(apiObject);
+}
+
+export async function getRoleByIdWithOrWithoutPermission(id, withPermissions) {
+  const apiObject = {};
+  apiObject.method = "GET";
+  apiObject.authentication = true;
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/role/find-by-id/${id}?withPermission=${withPermissions}`;
+  apiObject.body = null;
+  return await ApiService.callApi(apiObject);
+}
+
+export async function assignRolePermission(data) {
   const apiObject = {};
   apiObject.method = "POST";
-  apiObject.authentication = false;
+  apiObject.authentication = true;
   apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = "api/role-permission/assigne";
@@ -59,4 +63,3 @@ export async function assigneRolePermission(data) {
   return await ApiService.callApi(apiObject);
 }
 
-// export async function getAllPermissions() {}

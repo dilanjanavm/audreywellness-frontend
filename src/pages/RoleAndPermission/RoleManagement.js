@@ -20,7 +20,7 @@ import { Table } from "antd";
 import { RoleTableColumns } from "../../common/tableColumns";
 import debounce from "lodash/debounce";
 import { useDispatch } from "react-redux";
-import * as roleAndPermssionService from "../../service/rolePermissionService";
+import * as roleAndPermissionService from "../../service/rolePermissionService";
 
 const RoleManagement = () => {
   document.title = "Role | Address Shop";
@@ -63,7 +63,7 @@ const RoleManagement = () => {
     popUploader(dispatch, true);
 
     const withPermission = "";
-    roleAndPermssionService
+    roleAndPermissionService
       .getAllRoles(withPermission)
       .then((res) => {
         console.log(res);
@@ -146,7 +146,7 @@ const RoleManagement = () => {
   const handleDeleteRole = (roleId) => {
     // customToastMsg("Are you sure to delete this role ?", 0, () => {
     //   popUploader(dispatch, true);
-    //   roleAndPermssionService
+    //   roleAndPermissionService
     //     .deleteRole(roleId)
     //     .then(async (res) => {
     //       await loadAllRoles();
