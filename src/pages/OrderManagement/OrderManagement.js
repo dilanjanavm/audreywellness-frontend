@@ -34,7 +34,7 @@ import { useNavigate } from "react-router-dom";
 import debounce from "lodash/debounce";
 import { Redirect } from "react-router-dom";
 import * as orderService from "../../service/orderService";
-import { getAll } from "../../service/orderStatusService";
+import { getAllOrderStatus } from "../../service/orderStatusService";
 
 const OrderManagement = () => {
   document.title = "Orders | Address";
@@ -92,10 +92,9 @@ const OrderManagement = () => {
     setStatusList([]);
     let temp = [];
     popUploader(dispatch, true);
-    getAll()
+    getAllOrderStatus()
       .then((resp) => {
         let temp = [];
-        // console.log(resp);
         resp.data.map((status, index) => {
           temp.push({ value: status?.id, label: status?.name });
         });

@@ -100,7 +100,7 @@ const OrderDetail = (props) => {
     let temp = [];
     popUploader(dispatch, true);
     orderStatusService
-      .getAll()
+      .getAllOrderStatus()
       .then((resp) => {
         let temp = [];
         resp.data.map((status, index) => {
