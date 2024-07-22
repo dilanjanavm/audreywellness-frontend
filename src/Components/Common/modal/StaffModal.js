@@ -25,7 +25,6 @@ import * as rolePermissionService from "../../../service/rolePermissionService";
 import * as fileService from "../../../service/fileService";
 import * as countryService from "../../../service/countryService";
 import { useDispatch } from "react-redux";
-// import { hideLoader, showLoader } from "../../../slices/loader/loader";
 // import { PhoneInput } from "react-international-phone";
 // import "react-international-phone/style.css";
 
@@ -48,7 +47,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getAllRoles();
+    loadAllRoles();
     getAllCountries();
     console.log(updateValue, "---------------------");
     if (updateValue != undefined || updateValue != []) {
@@ -104,11 +103,11 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     imgWindow?.document.write(image.outerHTML);
   };
 
-  const getAllRoles = async () => {
+  const loadAllRoles = async () => {
     setRoleList([]);
     const withPermission = false;
     await rolePermissionService
-      .getAllRoles(withPermission)
+      .getAllRolesWithStatus(withPermission)
       .then((res) => {
         let temp = [];
         res?.data.map((role, index) => {
@@ -116,7 +115,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
             temp.push({ value: role.id, label: role.name });
           }
         });
-        //     console.log(temp, "000000");
         setRoleList(temp);
         popUploader(dispatch, false);
       })
@@ -205,7 +203,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       popUploader(dispatch, true);
 
       staffService
-        .create(data)
+        .createStaff(data)
         .then(async (res) => {
           console.log(res, "creatd response");
           popUploader(dispatch, false);
@@ -255,7 +253,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       popUploader(dispatch, true);
 
       staffService
-        .update(updateValue?.user?.staff?.id, data)
+        .updateStaff(updateValue?.user?.staff?.id, data)
         .then(async (res) => {
           console.log(res);
           // setIsSuccess(true);

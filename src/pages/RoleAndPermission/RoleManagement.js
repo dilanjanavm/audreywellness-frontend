@@ -61,10 +61,8 @@ const RoleManagement = () => {
 
   const loadAllRoles = async () => {
     popUploader(dispatch, true);
-
-    const withPermission = "";
     roleAndPermissionService
-      .getAllRoles(withPermission)
+      .getAllRoles()
       .then((res) => {
         console.log(res);
         popUploader(dispatch, false);

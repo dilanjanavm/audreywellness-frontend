@@ -6,11 +6,12 @@ import {
   customSweetAlert,
   customToastMsg,
   handleError,
+  popUploader,
 } from "../../../common/commonFunctions";
 import { useNavigate } from "react-router-dom";
 import { Button, Popover, Switch, Tag, Tooltip } from "antd";
 import { useDispatch } from "react-redux";
-import * as productService from "../../../service/productVariantService";
+import * as productService from "../../../service/productService";
 
 const ProductCard = ({ productData, reload }) => {
   const history = useNavigate();

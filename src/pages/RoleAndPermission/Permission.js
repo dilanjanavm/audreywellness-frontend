@@ -49,7 +49,7 @@ const Permission = () => {
 
     const status = 1;
     try {
-      const res = await roleAndPermissionService.getAllRoles(status);
+      const res = await roleAndPermissionService.getAllRolesWithStatus(status);
       popUploader(dispatch, false);
 
       const temp = res?.data.map((role) => ({

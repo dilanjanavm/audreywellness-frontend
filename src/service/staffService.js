@@ -1,16 +1,16 @@
 import ApiService from "./apiService";
 
-export async function getAll() {
+export async function getAllStaff(currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = "api/staff/find-all";
+  apiObject.endpoint = `api/staff/find-all?perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
 
-export async function create(data) {
+export async function createStaff(data) {
   const apiObject = {};
   apiObject.method = "POST";
   apiObject.authentication = true;
@@ -21,7 +21,7 @@ export async function create(data) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function update(staffId, data) {
+export async function updateStaff(staffId, data) {
   const apiObject = {};
   apiObject.method = "PUT";
   apiObject.authentication = true;
@@ -42,12 +42,12 @@ export async function deleteStaff(staffId) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function getAllStaffFiltration(data, currentPage) {
+export async function staffFiltration(data, currentPage) {
   const apiObject = {};
   apiObject.method = "GET",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
+  apiObject.endpoint = `api/staff/find-all?name=${data?.name}&email=${data?.name}&roleId=${data?.roleId}&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

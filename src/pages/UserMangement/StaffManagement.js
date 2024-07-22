@@ -39,7 +39,7 @@ const StaffManagement = () => {
     popUploader(dispatch, true);
 
     staffService
-      .getAll()
+      .getAllStaff()
       .then((res) => {
         popUploader(dispatch, false);
 
