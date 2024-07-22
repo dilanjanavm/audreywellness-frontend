@@ -474,7 +474,7 @@ const OrderManagement = () => {
                   />
                 </Col>
                 <Col sm={12} md={6} lg={3}>
-                  <Label>Search By Customer First Name</Label>
+                  <Label>Search By Customer Name</Label>
                   <Input
                     placeholder="first name"
                     value={searchCustomerName}
