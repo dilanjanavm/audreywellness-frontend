@@ -27,7 +27,7 @@ export async function updateStore(storeId, data) {
   apiObject.authentication = true;
   apiObject.urlencoded = false;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
+  apiObject.endpoint = `api/store-locator/update/${storeId}`;
   apiObject.body = data;
   return await ApiService.callApi(apiObject);
 }
@@ -37,7 +37,7 @@ export async function deleteStore(storeId) {
   apiObject.method = "DELETE",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
+  apiObject.endpoint = `api/store-locator/delete/${storeId}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
@@ -47,7 +47,7 @@ export async function getAllStoreFiltration(data, currentPage) {
   apiObject.method = "GET",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/store-locator/find-all?postalCode=${data.postalCode}&city=${data.city}&address=${data.address}&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/store-locator/find-all?postalCode=${data.postalCode}&city=${data.city}&addressLine=${data.address}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

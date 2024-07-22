@@ -238,20 +238,16 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       : (isValidated = true);
 
     const data = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
       contactNo: contactNo,
-      user: {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        country: selectedCountry,
-        status: staffMemberStatus,
-        role: {
-          id: `${selectedRole}`,
-        },
-
-        file: userImage,
-      },
+      country: selectedCountry,
+      status: staffMemberStatus,
+      roleId: `${selectedRole}`,
+      fileId: userImage?.id,
     };
+
     if (isValidated) {
       popUploader(dispatch, true);
 
@@ -271,6 +267,12 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
         });
     }
   };
+
+  const changeStatusProduct = () => {
+    const newStatus = staffMemberStatus === 1 ? 2 : 1;
+    setStaffMemberStatus(newStatus);
+  };
+  
   return (
     <Modal
       size="lg"

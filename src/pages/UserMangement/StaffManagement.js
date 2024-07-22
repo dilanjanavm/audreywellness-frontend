@@ -86,17 +86,17 @@ const StaffManagement = () => {
 
   const deleteStaff = async (staffId) => {
     console.log(staffId);
-    sweetAlertConformation("Are you sure to delete this staff ?", 0, () => {
+    customSweetAlert("Are you sure to delete this staff ?", 0, () => {
       popUploader(dispatch, true);
       staffService
         .deleteStaff(staffId)
-        .then(async (res) => {
+        .then((res) => {
           console.log(res);
-          await loadAllStaff();
+          loadAllStaff();
           popUploader(dispatch, false);
           customToastMsg("Staff has been  deleted", 1);
         })
-        .catch(async (err) => {
+        .catch((err) => {
           handleError(err);
           console.log(err);
           popUploader(dispatch, false);

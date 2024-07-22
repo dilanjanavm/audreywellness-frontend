@@ -21,6 +21,7 @@ import {
   popUploader,
 } from "../../common/commonFunctions";
 import debounce from "lodash.debounce";
+import StoreLocaterModal from "../../Components/Common/modal/StoreLocaterModal";
 
 const StoresManagement = () => {
   document.title = "Store Management| Address Shop";
@@ -50,10 +51,10 @@ const StoresManagement = () => {
     storeLocaterService
       .getAllStores(currentPage)
       .then((res) => {
-        const formattedData = res.data.map((record) => ({
-          name: record.title,
-          address: record.addressLine,
-          city: record.city,
+        const formattedData = res?.data?.records.map((record) => ({
+          name: record?.title,
+          address: record?.addressLine,
+          city: record?.city,
           country: record?.country,
           postalCode: record?.postalCode,
           url: (
@@ -86,7 +87,7 @@ const StoresManagement = () => {
         }));
         setStoresTableList(formattedData);
         setCurrentPage(res?.data?.currentPage);
-        setTotalRecodes(res?.data?.totalRecords);
+        setTotalRecodes(res?.data?.totalCount);
         popUploader(dispatch, false);
       })
       .catch((err) => {
@@ -115,10 +116,10 @@ const StoresManagement = () => {
       storeLocaterService
         .getAllStoreFiltration(data, currentPage)
         .then((res) => {
-          const formattedData = res.data.map((record) => ({
-            name: record.title,
-            address: record.addressLine,
-            city: record.city,
+          const formattedData = res?.data?.records.map((record) => ({
+            name: record?.title,
+            address: record?.addressLine,
+            city: record?.city,
             country: record?.country,
             postalCode: record?.postalCode,
             url: (
@@ -150,11 +151,14 @@ const StoresManagement = () => {
             ),
           }));
           setStoresTableList(formattedData);
+          setCurrentPage(res?.data?.currentPage);
+          setTotalRecodes(res?.data?.totalCount);
           popUploader(dispatch, false);
         })
         .catch((err) => {
           popUploader(dispatch, false);
           handleError(err);
+          console.log(err);
         });
     }
   };
@@ -219,7 +223,7 @@ const StoresManagement = () => {
 
   return (
     <div className="page-content">
-      {/* <StaffModel
+      <StoreLocaterModal
         isUpdate={isUpdateStoreModalOpen}
         updateValue={selectedStore}
         isOpen={isAddStoreModalOpen}
@@ -227,7 +231,7 @@ const StoresManagement = () => {
           loadAllStoreLocaters(currentPage);
           closeStoreModal();
         }}
-      /> */}
+      />
       <Container fluid>
         <div className="row mt-3">
           <h4>Stores Management</h4>
