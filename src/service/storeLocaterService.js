@@ -34,9 +34,9 @@ export async function updateStore(storeId, data) {
 
 export async function deleteStore(storeId) {
   const apiObject = {};
-  (apiObject.method = "DELETE"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
+  apiObject.method = "DELETE",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
   apiObject.endpoint = ``;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
@@ -44,14 +44,10 @@ export async function deleteStore(storeId) {
 
 export async function getAllStoreFiltration(data, currentPage) {
   const apiObject = {};
-  (apiObject.method = "GET"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
-  apiObject.endpoint = `api/store-locator/find-all?postalCode=${
-    data.postalCode
-  }&city=${data.city}&address=${
-    data.address
-  }&perPage=${15}&page=${currentPage}`;
+  apiObject.method = "GET",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/store-locator/find-all?postalCode=${data.postalCode}&city=${data.city}&address=${data.address}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
