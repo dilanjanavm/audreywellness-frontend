@@ -125,7 +125,7 @@ export default function FileUploadModal({
     popUploader(dispatch, true);
 
     await fileService
-      .getAll()
+      .getAllFiles()
       .then(async (res) => {
          popUploader(dispatch, false);
 
