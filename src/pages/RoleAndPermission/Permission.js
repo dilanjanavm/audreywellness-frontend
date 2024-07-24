@@ -52,10 +52,16 @@ const Permission = () => {
       const res = await roleAndPermissionService.getAllRolesWithStatus(status);
       popUploader(dispatch, false);
 
-      const temp = res?.data.map((role) => ({
-        value: role?.id,
-        label: role?.name,
-      }));
+      let temp = [];
+
+      res?.data.map((role) => {
+        if (role?.name != "CUSTOMER" && role?.name != "SUPER_ADMIN") {
+          temp.push({
+            value: role?.id,
+            label: role?.name,
+          });
+        }
+      });
       setRoleList(temp);
 
       // Find the SUPER_ADMIN role

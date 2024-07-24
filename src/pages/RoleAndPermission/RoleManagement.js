@@ -76,15 +76,8 @@ const RoleManagement = () => {
         popUploader(dispatch, false);
 
         let temp = [];
-        const sortedRoles = res?.data.sort((a, b) => {
-          if (a.isDefault && !b.isDefault) return -1;
-          if (!a.isDefault && b.isDefault) return 1;
-          if (a.status === 2 && b.status !== 2) return 1;
-          if (a.status !== 2 && b.status === 2) return -1;
-          return 0;
-        });
 
-        sortedRoles.map((role, index) => {
+        res?.data.map((role, index) => {
           temp.push({
             id: role?.id,
             name: role?.name,
@@ -152,15 +145,8 @@ const RoleManagement = () => {
           popUploader(dispatch, false);
 
           let temp = [];
-          const sortedRoles = res?.data.sort((a, b) => {
-            if (a.isDefault && !b.isDefault) return -1;
-            if (!a.isDefault && b.isDefault) return 1;
-            if (a.status === 2 && b.status !== 2) return 1;
-            if (a.status !== 2 && b.status === 2) return -1;
-            return 0;
-          });
 
-          sortedRoles.map((role, index) => {
+          res?.data.map((role, index) => {
             temp.push({
               id: role?.id,
               name: role?.name,

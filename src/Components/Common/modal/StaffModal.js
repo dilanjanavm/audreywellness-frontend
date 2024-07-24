@@ -112,7 +112,11 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       .then((res) => {
         let temp = [];
         res?.data.map((role, index) => {
-          if (role.status === 1 && ![4].includes(role.id)) {
+          if (
+            role.status === 1 &&
+            role?.name != "CUSTOMER" &&
+            role?.name != "SUPER_ADMIN"
+          ) {
             temp.push({ value: role.id, label: role.name });
           }
         });
@@ -272,7 +276,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     const newStatus = staffMemberStatus === 1 ? 2 : 1;
     setStaffMemberStatus(newStatus);
   };
-  
+
   return (
     <Modal
       size="lg"
