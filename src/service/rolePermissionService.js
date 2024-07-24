@@ -5,7 +5,7 @@ export async function getAllRoles(currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/role/find-all&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/role/find-all?perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

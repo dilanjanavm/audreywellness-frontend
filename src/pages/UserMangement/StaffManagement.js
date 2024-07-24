@@ -14,7 +14,6 @@ import { Plus } from "react-feather";
 import { StaffTableColumns } from "../../common/tableColumns";
 import StaffModel from "../../Components/Common/modal/StaffModal";
 import * as staffService from "../../service/staffService";
-// import { hideLoader, showLoader } from "../../../slices/loader/loader";
 import { useDispatch } from "react-redux";
 import {
   customSweetAlert,
@@ -42,7 +41,7 @@ const StaffManagement = () => {
       .getAllStaff()
       .then((res) => {
         popUploader(dispatch, false);
-        const formattedData = res.data.map((record) => ({
+        const formattedData = res.data.records.map((record) => ({
           name: record.user.firstName + " " + record.user.lastName,
           email: record.user.email,
           status: record.user.status,
@@ -118,12 +117,6 @@ const StaffManagement = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const filteredStaff = staffTableList.filter((staff) =>
-  //     staff.email.toLowerCase().includes(searchEmail.toLowerCase())
-  //   );
-  //   setStaffTableList(filteredStaff);
-  // }, [searchEmail]);
 
   const closeStaffModal = () => {
     setIsAddStaffModalOpen(false);

@@ -15,9 +15,9 @@ export async function customerFiltration(data, currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/customer/find-all?name=${data?.name}&contactNo=${
+  apiObject.endpoint = `api/customer/find-all?email=${data?.email}&contactNo=${
     data?.contactNo
-  }&perPage=${15}&page=${currentPage}`;
+  }&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
