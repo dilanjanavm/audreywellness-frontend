@@ -15,8 +15,10 @@ import {
   handleError,
   customToastMsg,
   popUploader,
+  customSweetAlert,
 } from "../../common/commonFunctions";
-import { Table } from "antd";
+import Select from "react-select";
+import { Pagination, Table } from "antd";
 import { RoleTableColumns } from "../../common/tableColumns";
 import debounce from "lodash/debounce";
 import { useDispatch } from "react-redux";
@@ -31,22 +33,27 @@ const RoleManagement = () => {
   const [roleId, setRoleId] = useState("");
   const [roleName, setRoleName] = useState("");
   const [roleList, setRoleList] = useState([]);
-  //   const [selectedStatus, setSelectedStatus] = useState([]);
-  //   const [statusList, setStatusList] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [statusList, setStatusList] = useState([]);
+
+  //-------------------------- pagination --------------------------
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecodes, setTotalRecodes] = useState(0);
 
   let dispatch = useDispatch();
 
   useEffect(() => {
-    loadAllRoles();
-    // setStatusList([
-    //   { value: 1, label: "Active" },
-    //   { value: 2, label: "Inactive" },
-    // ]);
+    loadAllRoles(currentPage);
+    setStatusList([
+      { value: 1, label: "Active" },
+      { value: 2, label: "Inactive" },
+    ]);
   }, []);
 
   const toggleAddRoleModal = () => {
     setIsAddRoleModal(!isAddRoleModal);
-    loadAllRoles();
+    loadAllRoles(currentPage);
   };
 
   const openUpdateRoleModal = (selectRole) => {
@@ -56,13 +63,14 @@ const RoleManagement = () => {
 
   const closeUpdateModal = () => {
     setIsUpdateRoleModal(false);
-    loadAllRoles();
+    loadAllRoles(currentPage);
   };
 
-  const loadAllRoles = async () => {
+  const loadAllRoles = async (currentPage) => {
+    setRoleList([]);
     popUploader(dispatch, true);
     roleAndPermissionService
-      .getAllRoles()
+      .getAllRoles(currentPage)
       .then((res) => {
         console.log(res);
         popUploader(dispatch, false);
@@ -99,7 +107,7 @@ const RoleManagement = () => {
                 <Button
                   color="danger"
                   className="m-2"
-                  onClick={(e) => handleDeleteRole(role?.id)}
+                  onClick={(e) => handleDeleteRole(role)}
                   disabled={role?.isDefault}
                   style={{
                     opacity: role?.isDefault ? 0.5 : 1,
@@ -113,52 +121,131 @@ const RoleManagement = () => {
           });
         });
         setRoleList(temp);
+        setTotalRecodes(res?.data?.totalCount);
+        setCurrentPage(res?.data?.currentPage);
         popUploader(dispatch, false);
       })
       .catch((c) => {
         popUploader(dispatch, false);
         handleError(c);
-      })
-      .finally();
+      });
   };
 
-  const handleSearchRoleName = (e) => {
-    const value = e.target.value;
-    setRoleName(value); // Update the state with the input value
-    if (value === "") {
-      loadAllRoles(); // Load all roles if the search input is empty
+  const searchRoleFiltration = (name, status, currentPage) => {
+    popUploader(dispatch, true);
+    let temp = [];
+    if (name === "" && status === "") {
+      loadAllRoles(currentPage);
     } else {
-      // Filter the role list based on the input value
-      const filteredRoles = roleList.filter((role) =>
-        role.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setRoleList(filteredRoles); // Update the role list state with filtered roles
+      setRoleList([]);
+      popUploader(dispatch, true);
+
+      let data = {
+        name: name,
+        status: status,
+      };
+
+      roleAndPermissionService
+        .rolesFiltration(data, currentPage)
+        .then((res) => {
+          console.log(res);
+          popUploader(dispatch, false);
+
+          let temp = [];
+          const sortedRoles = res?.data.sort((a, b) => {
+            if (a.isDefault && !b.isDefault) return -1;
+            if (!a.isDefault && b.isDefault) return 1;
+            if (a.status === 2 && b.status !== 2) return 1;
+            if (a.status !== 2 && b.status === 2) return -1;
+            return 0;
+          });
+
+          sortedRoles.map((role, index) => {
+            temp.push({
+              id: role?.id,
+              name: role?.name,
+              role_status: role?.status,
+              isDefault: role?.isDefault,
+              action: (
+                <>
+                  <Button
+                    color="warning"
+                    className="m-2"
+                    onClick={(e) => openUpdateRoleModal(role)}
+                    disabled={role?.isDefault}
+                    style={{
+                      opacity: role?.isDefault ? 0.5 : 1,
+                      cursor: role?.isDefault ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <span>Update</span>
+                  </Button>
+                  <Button
+                    color="danger"
+                    className="m-2"
+                    onClick={(e) => handleDeleteRole(role)}
+                    disabled={role?.isDefault}
+                    style={{
+                      opacity: role?.isDefault ? 0.5 : 1,
+                      cursor: role?.isDefault ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <span>Delete</span>
+                  </Button>
+                </>
+              ),
+            });
+          });
+          setRoleList(temp);
+          setTotalRecodes(res?.data?.totalCount);
+          setCurrentPage(res?.data?.currentPage);
+          popUploader(dispatch, false);
+        })
+        .catch((c) => {
+          popUploader(dispatch, false);
+          handleError(c);
+        });
     }
   };
 
-  // const debounceSearchRoleFiltration = React.useCallback(
-  //   // debounce(searchRoleFiltration, 400),
-  //   []
-  // );
+  const debounceSearchRoleFiltration = React.useCallback(
+    debounce(searchRoleFiltration, 400),
+    []
+  );
 
-  const handleDeleteRole = (roleId) => {
-    // customToastMsg("Are you sure to delete this role ?", 0, () => {
-    //   popUploader(dispatch, true);
-    //   roleAndPermissionService
-    //     .deleteRole(roleId)
-    //     .then(async (res) => {
-    //       await loadAllRoles();
-    //       popUploader(dispatch, false);
-    //       customToastMsg("Role deleted successfully", 1);
-    //     })
-    //     .catch(async (err) => {
-    //       await loadAllRoles();
-    //       handleError(err);
-    //       console.log(err);
-    //       popUploader(dispatch, false);
-    //     })
-    //     .finally();
-    // });
+  const handleDeleteRole = (role) => {
+    console.log(role);
+    customSweetAlert("Are you sure to delete this role ?", 0, () => {
+      popUploader(dispatch, true);
+      const data = {
+        name: role?.name,
+        status: 0,
+      };
+
+      roleAndPermissionService
+        .deleteRole(role?.id, data)
+        .then(async (res) => {
+          await loadAllRoles(currentPage);
+          popUploader(dispatch, false);
+          customToastMsg("Role deleted successfully", 1);
+        })
+        .catch(async (err) => {
+          await loadAllRoles(currentPage);
+          handleError(err);
+          console.log(err);
+          popUploader(dispatch, false);
+        })
+        .finally();
+    });
+  };
+
+  const onChangePagination = (page) => {
+    setCurrentPage(page);
+    if (roleName === "" && selectedStatus === "") {
+      loadAllRoles(page);
+    } else {
+      debounceSearchRoleFiltration(roleName, selectedStatus, page);
+    }
   };
 
   return (
@@ -198,11 +285,14 @@ const RoleManagement = () => {
               value={roleName}
               placeholder="Search by role name"
               type="text"
-              onChange={handleSearchRoleName}
+              onChange={(e) => {
+                setRoleName(e.target.value);
+                debounceSearchRoleFiltration(e.target.value, selectedRole, 1);
+              }}
             />
           </FormGroup>
         </Col>
-        {/* <Col sm={12} md={4} lg={3} xl={3}>
+        <Col sm={12} md={4} lg={3} xl={3}>
           <FormGroup className="ms-3">
             <Label for="exampleEmail">Search by status</Label>
             <Select
@@ -216,13 +306,14 @@ const RoleManagement = () => {
                 );
                 debounceSearchRoleFiltration(
                   roleName,
-                  e?.value === undefined ? "" : e === null ? "" : e.value
+                  e?.value === undefined ? "" : e === null ? "" : e.value,
+                  1
                 );
               }}
               options={statusList}
             />
           </FormGroup>
-        </Col> */}
+        </Col>
       </Row>
       <Row>
         <Col sm={12} md={12} lg={12} xl={12}>
@@ -232,6 +323,24 @@ const RoleManagement = () => {
             columns={RoleTableColumns}
             dataSource={roleList}
             scroll={{ x: "fit-content" }}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col
+          className=" d-flex justify-content-end"
+          sm={12}
+          md={12}
+          lg={12}
+          xl={12}
+        >
+          <Pagination
+            className="m-3"
+            current={currentPage}
+            onChange={onChangePagination}
+            defaultPageSize={15}
+            total={totalRecodes}
+            showTotal={(total) => `Total ${total} items`}
           />
         </Col>
       </Row>
