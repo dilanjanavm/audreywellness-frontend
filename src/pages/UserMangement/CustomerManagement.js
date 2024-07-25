@@ -149,7 +149,7 @@ const CustomerManagement = () => {
                   id="email"
                   name="email"
                   placeholder="Search by email"
-                  type="text"
+                  type="email"
                   value={searchEmail}
                   onChange={(e) => {
                     setSearchEmail(e.target.value);

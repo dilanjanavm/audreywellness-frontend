@@ -273,7 +273,7 @@ const RoleManagement = () => {
               type="text"
               onChange={(e) => {
                 setRoleName(e.target.value);
-                debounceSearchRoleFiltration(e.target.value, selectedRole, 1);
+                debounceSearchRoleFiltration(e.target.value, selectedStatus, 1);
               }}
             />
           </FormGroup>

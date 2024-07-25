@@ -45,37 +45,35 @@ const Permission = () => {
   };
 
   const loadAllRoles = async () => {
+    setRoleList([]);
     popUploader(dispatch, true);
-
     const status = 1;
-    try {
-      const res = await roleAndPermissionService.getAllRolesWithStatus(status);
-      popUploader(dispatch, false);
-
-      let temp = [];
-
-      res?.data.map((role) => {
-        if (role?.name != "CUSTOMER" && role?.name != "SUPER_ADMIN") {
-          temp.push({
-            value: role?.id,
-            label: role?.name,
-          });
+    roleAndPermissionService
+      .getAllRolesWithStatus(status)
+      .then((res) => {
+        let temp = [];
+        res?.data.map((role) => {
+          if (role?.name != "CUSTOMER" && role?.name != "SUPER_ADMIN") {
+            temp.push({
+              value: role?.id,
+              label: role?.name,
+            });
+          }
+        });
+        setRoleList(temp);
+        // Find the SUPER_ADMIN role
+        const superAdminRole = res.data.find((role) => role.name === "ADMIN");
+        if (superAdminRole) {
+          setSelectedRole({ id: superAdminRole.id, name: superAdminRole.name });
+          searchPermissionsByRole(superAdminRole.id);
         }
+        popUploader(dispatch, false);
+      })
+      .catch((error) => {
+        console.log(error);
+        popUploader(dispatch, false);
+        handleError(error);
       });
-      setRoleList(temp);
-
-      // Find the SUPER_ADMIN role
-      const superAdminRole = res.data.find((role) => role.name === "ADMIN");
-      if (superAdminRole) {
-        setSelectedRole({ id: superAdminRole.id, name: superAdminRole.name });
-        searchPermissionsByRole(superAdminRole.id);
-      }
-    } catch (error) {
-      console.log(error);
-      popUploader(dispatch, false);
-
-      handleError(error);
-    }
   };
 
   const searchPermissionsByRole = async (roleId) => {

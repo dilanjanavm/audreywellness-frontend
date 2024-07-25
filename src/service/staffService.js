@@ -47,7 +47,7 @@ export async function staffFiltration(data, currentPage) {
   apiObject.method = "GET",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/staff/find-all?name=${data?.name}&email=${data?.name}&roleId=${data?.roleId}&status=${data?.status}&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/staff/find-all?name=${data?.name}&email=${data?.email}&roleId=${data?.role}&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
