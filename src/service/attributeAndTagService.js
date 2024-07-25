@@ -1,6 +1,6 @@
 import ApiService from "./apiService";
 
-export async function getAllAttributesWithTags(currentPage) {
+export async function getAllAttributesWithTags(withTag, currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
@@ -34,20 +34,20 @@ export async function updateAttributesWithTags(data, attId) {
 
 export async function deleteAttributesWithTags(attId) {
   const apiObject = {};
-  (apiObject.method = "DELETE"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
+  apiObject.method = "DELETE",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
   apiObject.endpoint = ``;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
 
-export async function attributesWithTagsFiltration(withTag, name) {
+export async function attributesWithTagsFiltration(withTag, name, currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/attributes/find-all?withTag=true&name=${name}&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/attributes/find-all?withTag=${withTag}&name=${name}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

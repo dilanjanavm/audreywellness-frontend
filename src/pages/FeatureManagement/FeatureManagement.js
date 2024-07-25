@@ -17,7 +17,7 @@ import { Plus } from "react-feather";
 import AddFeatureModel from "../../Components/Common/modal/AddFeatureModel";
 import UpdateFeatureModel from "../../Components/Common/modal/UpadateFeatureModel";
 import { useDispatch } from "react-redux";
-import { Table } from "antd";
+import { Pagination, Table } from "antd";
 import { handleError, popUploader } from "../../common/commonFunctions";
 import debounce from "lodash.debounce";
 
@@ -38,22 +38,22 @@ const FeatureManagement = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getAllAttributes();
+    loadAllAttributes(currentPage);
   }, []);
 
-  const getAllAttributes = async () => {
+  const loadAllAttributes = async (currentPage) => {
     popUploader(dispatch, true);
     const withTags = true;
-    await setCurrentFeatureValues([]);
+    setCurrentFeatureValues([]);
     attributeAndTagService
-      .getAllAttributesWithTags(withTags)
+      .getAllAttributesWithTags(withTags, currentPage)
       .then(async (res) => {
         let featureData = [];
-        await setCurrentFeatureValues([]);
+        setCurrentFeatureValues([]);
         res?.data.map(async (feature, index) => {
           featureData.push(feature);
         });
-        await setCurrentFeatureValues(featureData);
+        setCurrentFeatureValues(featureData);
         setCurrentPage(res?.data?.currentPage);
         setTotalRecodes(res?.data?.totalRecords);
         popUploader(dispatch, false);
@@ -71,7 +71,50 @@ const FeatureManagement = () => {
 
   const toggleModal = () => {
     setModalOpen(!isModalOpen);
-    getAllAttributes();
+    loadAllAttributes(currentPage);
+  };
+
+  const searchAttributesFiltration = (name, currentPage) => {
+    popUploader(dispatch, true);
+    let temp = [];
+    if (name === "") {
+      loadAllAttributes(currentPage);
+    } else {
+      popUploader(dispatch, true);
+      const withTags = true;
+      setCurrentFeatureValues([]);
+      attributeAndTagService
+        .attributesWithTagsFiltration(withTags, name, currentPage)
+        .then(async (res) => {
+          let featureData = [];
+          setCurrentFeatureValues([]);
+          res?.data.map(async (feature, index) => {
+            featureData.push(feature);
+          });
+          setCurrentFeatureValues(featureData);
+          setCurrentPage(res?.data?.currentPage);
+          setTotalRecodes(res?.data?.totalRecords);
+          popUploader(dispatch, false);
+        })
+        .catch((c) => {
+          handleError(c);
+          popUploader(dispatch, false);
+        });
+    }
+  };
+
+  const debounceSearchAttributesFiltration = React.useCallback(
+    debounce(searchAttributesFiltration, 500),
+    []
+  );
+
+  const onChangePagination = (page) => {
+    setCurrentPage(page);
+    if (searchFeatureName === "") {
+      loadAllAttributes(page);
+    } else {
+      debounceSearchAttributesFiltration(searchFeatureName, page);
+    }
   };
 
   return (
@@ -94,7 +137,11 @@ const FeatureManagement = () => {
                   lg={3}
                   className=" d-flex justify-content-end"
                 >
-                  <Button color="primary" className="mt-2" onClick={addFeatureValue}>
+                  <Button
+                    color="primary"
+                    className="mt-2"
+                    onClick={addFeatureValue}
+                  >
                     {" "}
                     <Plus size={18} />
                     Add Feature Value
@@ -114,6 +161,7 @@ const FeatureManagement = () => {
                       value={searchFeatureName}
                       onChange={(e) => {
                         setSearchFeatureName(e.target.value);
+                        debounceSearchAttributesFiltration(e.target.value, 1);
                       }}
                     />
                   </FormGroup>
@@ -134,7 +182,7 @@ const FeatureManagement = () => {
                     <FeatureValue
                       reload={() => {
                         popUploader(dispatch, true);
-                        getAllAttributes();
+                        loadAllAttributes(currentPage);
                       }}
                       currentData={currentFeatureValue}
                       removeDetails={(e) => {}}
@@ -143,6 +191,24 @@ const FeatureManagement = () => {
                   ))}
                 </CardBody>
               )}
+              <Row>
+                <Col
+                  className=" d-flex justify-content-end"
+                  sm={12}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                >
+                  <Pagination
+                    className="m-3"
+                    current={currentPage}
+                    onChange={onChangePagination}
+                    defaultPageSize={15}
+                    total={totalRecodes}
+                    showTotal={(total) => `Total ${total} items`}
+                  />
+                </Col>
+              </Row>
             </Card>
           </div>
         </Container>
