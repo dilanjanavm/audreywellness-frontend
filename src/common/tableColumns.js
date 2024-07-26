@@ -390,7 +390,7 @@ export const OrderListTableColumns = [
     key: "contactNo",
   },
   {
-    title: "created date",
+    title: "Order Date",
     dataIndex: "orderDate",
     key: "orderDate",
   },
@@ -411,12 +411,16 @@ export const OrderListTableColumns = [
         color={
           status === "PENDING"
             ? "warning"
+            : status === "PROCESSING"
+            ? "processing"
             : status === "SHIPPED"
             ? "purple"
             : status === "DELIVERED"
             ? "success"
             : status === "CANCELLED"
             ? "error"
+            : status === "REJECTED"
+            ? "magenta"
             : "default"
         }
         key={status}
@@ -431,6 +435,8 @@ export const OrderListTableColumns = [
           ? "DELIVERED"
           : status === "CANCELLED"
           ? "CANCELLED"
+          : status === "REJECTED"
+          ? "REJECTED"
           : "none"}
       </Tag>
     ),

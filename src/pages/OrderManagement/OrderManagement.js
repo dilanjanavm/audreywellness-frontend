@@ -44,15 +44,13 @@ const OrderManagement = () => {
 
   const [activeTab, setActiveTab] = useState("1");
   const [orderList, setOrderList] = useState([]);
-  // const [orderStatus, setorderStatus] = useState("all");
   const [searchOrderId, setSearchOrderId] = useState("");
   const [searchCustomerName, setSearchCustomerName] = useState("");
   const [searchCustomerContactNo, setSearchCustomerContactNo] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [statusList, setStatusList] = useState([]);
-  const [selectedDeliverySlot, setSelectedDeliverySlot] = useState("");
-  const [deliverySlotList, setDeliverySlotList] = useState([]);
+  const [searchTrackingCode, setSearchTrackingCode] = useState("");
 
   //-------------------------- pagination --------------------------
 
@@ -63,54 +61,32 @@ const OrderManagement = () => {
 
   useEffect(() => {
     loadAllOrders(currentPage);
-    // loadAllDeliverySlots();
-    loadAllOrderStatus();
+    // loadAllOrderStatus();
   }, []);
 
-  //   const loadAllDeliverySlots = () => {
-  //     setDeliverySlotList([]);
-  //     let temp = [];
-  //     popUploader(dispatch, true);
-  //     getAllDeliverySlotsToDropdown()
-  //       .then((resp) => {
-  //         console.log(resp, "166565");
-  //         let temp = [];
-  //         resp?.data?.records.map((time, index) => {
-  //           temp.push({ value: time?.id, label: time?.name });
-  //         });
-  //         setDeliverySlotList(temp);
-  //         popUploader(dispatch, false);
-  //       })
-  //       .catch((err) => {
-  //         popUploader(dispatch, false);
-  //         handleError(err);
-  //       })
-  //       .finally();
-  //   };
-
-  const loadAllOrderStatus = () => {
-    setStatusList([]);
-    let temp = [];
-    popUploader(dispatch, true);
-    getAllOrderStatus()
-      .then((resp) => {
-        let temp = [];
-        resp.data.map((status, index) => {
-          temp.push({ value: status?.id, label: status?.name });
-        });
-        setStatusList(temp);
-        popUploader(dispatch, false);
-      })
-      .catch((err) => {
-        popUploader(dispatch, false);
-        handleError(err);
-      })
-      .finally();
-  };
+  // const loadAllOrderStatus = () => {
+  //   setStatusList([]);
+  //   let temp = [];
+  //   popUploader(dispatch, true);
+  //   getAllOrderStatus()
+  //     .then((resp) => {
+  //       let temp = [];
+  //       resp.data.map((status, index) => {
+  //         temp.push({ value: status?.id, label: status?.name });
+  //       });
+  //       setStatusList(temp);
+  //       popUploader(dispatch, false);
+  //     })
+  //     .catch((err) => {
+  //       popUploader(dispatch, false);
+  //       handleError(err);
+  //     })
+  //     .finally();
+  // };
 
   const loadAllOrders = async (currentPage) => {
     let temp = [];
-    // clearFiltrationFields();
+    clearFiltrationFields();
     popUploader(dispatch, true);
     await orderService
       .getAllOrders(currentPage)
@@ -134,7 +110,6 @@ const OrderManagement = () => {
               <>
                 <Button
                   onClick={() =>
-                    // history("/order-details", { state: { orderData: ord } })
                     history("/order-detail", {
                       state: { orderData: ord?.id },
                     })
@@ -172,136 +147,145 @@ const OrderManagement = () => {
       setActiveTab(tab);
       history("/order-management");
       setSelectedStatus(type);
-      //   debounceHandleSearchOrderFiltration("", "", "", "", "", type, 1);
+      debounceHandleSearchOrderFiltration(
+        searchOrderId,
+        searchCustomerName,
+        searchCustomerContactNo,
+        searchDateRange,
+        searchTrackingCode,
+        type,
+        1
+      );
     }
   };
 
-  const handleChange = (e) => {
-    let status = e?.label;
-    console.log(status);
+  // const handleChange = (e) => {
+  //   let status = e?.label;
+  //   console.log(status);
 
-    // searchByOrderstatus(status === undefined ? "" : status);
-    // debounceHandleSearchOrderFiltration(
-    //   searchOrderId,
-    //   searchCustomerName,
-    //   searchCustomerContactNo,
-    //   searchDateRange,
-    //   selectedDeliverySlot,
-    //   status === undefined ? "" : status,
-    //   1
-    // );
-    setSelectedStatus(status);
+  //   debounceHandleSearchOrderFiltration(
+  //     searchOrderId,
+  //     searchCustomerName,
+  //     searchCustomerContactNo,
+  //     searchDateRange,
+  //     searchTrackingCode,
+  //     status === undefined ? "" : status,
+  //     1
+  //   );
+  //   setSelectedStatus(status);
 
-    status === undefined
-      ? toggleTab("1", "")
-      : status === "Delivered"
-      ? toggleTab("2", "Delivered")
-      : status === "Delivering"
-      ? toggleTab("3", "Delivering")
-      : status === "Processing"
-      ? toggleTab("4", "Processing")
-      : status === "Pending"
-      ? toggleTab("5", "Pending")
-      : status === "Cancel"
-      ? toggleTab("6", "Cancel")
-      : toggleTab("1", "All");
+  //   status === undefined
+  //     ? toggleTab("1", "")
+  //     : status === "Delivered"
+  //     ? toggleTab("2", "Delivered")
+  //     : status === "Delivering"
+  //     ? toggleTab("3", "Delivering")
+  //     : status === "Processing"
+  //     ? toggleTab("4", "Processing")
+  //     : status === "Pending"
+  //     ? toggleTab("5", "Pending")
+  //     : status === "Cancel"
+  //     ? toggleTab("6", "Cancel")
+  //     : toggleTab("1", "All");
+  // };
+
+  const handleSearchOrderFiltration = (
+    orderId,
+    CusName,
+    Contact,
+    dateRange,
+    trackingCode,
+    Status,
+    currentPage
+  ) => {
+    if (
+      !orderId &&
+      !CusName &&
+      !Contact &&
+      (dateRange === undefined || dateRange === null || dateRange === "") &&
+      trackingCode === "" &&
+      (Status === undefined || Status === null || Status === "")
+    ) {
+      loadAllOrders(currentPage);
+    } else {
+      let startDate = "";
+      let endDate = "";
+
+      if (dateRange && dateRange.length === 2) {
+        startDate = moment(dateRange[0]).format("YYYY-MM-DD");
+        endDate = moment(dateRange[1]).format("YYYY-MM-DD");
+      }
+
+      setOrderList([]);
+      let data = {
+        orderId: orderId,
+        cusName: CusName,
+        contact: Contact,
+        startDate: startDate,
+        endDate: endDate,
+        trackingCode: trackingCode,
+        status: Status === undefined ? "" : Status === null ? "" : Status,
+      };
+
+      let temp = [];
+      popUploader(dispatch, true);
+      orderService
+        .ordersFiltration(data, currentPage)
+        .then((resp) => {
+          console.log(resp);
+          resp?.data?.map((ord, index) => {
+            temp.push({
+              orderCode: ord?.orderCode,
+              trackingCode: ord?.trackingCode,
+              customerName:
+                ord?.billingDetail[0]?.firstName +
+                " " +
+                ord?.billingDetail[0]?.lastName,
+              contactNo: ord?.billingDetail[0]?.contactNo,
+              orderDate: moment(ord?.billingDetail[0]?.createdAt).format(
+                "YYYY-MM-DD"
+              ),
+              total: parseFloat(ord?.netTotal).toFixed(2),
+              status: ord?.status,
+              action: (
+                <>
+                  <Button
+                    onClick={() =>
+                      history("/order-detail", {
+                        state: { orderData: ord?.id },
+                      })
+                    }
+                    color="primary"
+                    outline
+                    className="m-2"
+                  >
+                    View
+                  </Button>
+                  {/* {checkPermission(UPDATE_ORDER) && (
+                    <Button color="warning" outline className="m-2">
+                      Update
+                    </Button>
+                  )} */}
+                </>
+              ),
+            });
+          });
+          setOrderList(temp);
+          setCurrentPage(resp?.data?.currentPage);
+          setTotalRecodes(resp?.data?.totalRecords);
+          popUploader(dispatch, false);
+        })
+        .catch((err) => {
+          handleError(err);
+          popUploader(dispatch, false);
+        });
+    }
   };
 
-  //   const handleSearchOrderFiltration = (
-  //     orderId,
-  //     CusName,
-  //     Contact,
-  //     dateRange,
-  //     deliverySlot,
-  //     Status,
-  //     currentPage
-  //   ) => {
-  //     console.log(dateRange, "00555555555555");
-  //     if (
-  //       !orderId &&
-  //       !CusName &&
-  //       !Contact &&
-  //       (dateRange === undefined || dateRange === null || dateRange === "") &&
-  //       deliverySlot === "" &&
-  //       (Status === undefined || Status === null || Status === "")
-  //     ) {
-  //       loadAllOrders(currentPage);
-  //     } else {
-  //       let startDate = ""; // Default to empty string
-  //       let endDate = ""; // Default to empty string
-
-  //       if (dateRange && dateRange.length === 2) {
-  //         // Check if dateRange is not null and has two elements
-  //         startDate = moment(dateRange[0]).format("YYYY-MM-DD");
-  //         endDate = moment(dateRange[1]).format("YYYY-MM-DD");
-  //       }
-
-  //       setOrderList([]);
-  //       let data = {
-  //         orderId: orderId,
-  //         cusName: CusName,
-  //         contact: Contact,
-  //         startDate: startDate,
-  //         endDate: endDate,
-  //         deliverySlot: deliverySlot,
-  //         status: Status === undefined ? "" : Status === null ? "" : Status,
-  //       };
-
-  //       let temp = [];
-  //       popUploader(dispatch, true);
-  //       searchOrderFiltration(data, currentPage)
-  //         .then((resp) => {
-  //           resp?.data?.records.map((ord, index) => {
-  //             temp.push({
-  //               order_id: ord?.orderId,
-  //               customer:
-  //                 ord?.orderCustomer?.firstName +
-  //                 " " +
-  //                 ord?.orderCustomer?.lastName,
-  //               contactNo: ord?.orderCustomer?.contactNo,
-  //               order_date: moment(ord?.createdAt).format("YYYY-MM-DD"),
-  //               amount: parseFloat(ord?.total).toFixed(2),
-  //               delivery_status: ord?.orderStatus,
-  //               action: (
-  //                 <>
-  //                   <Button
-  //                     onClick={() =>
-  //                       history("/order-detail", {
-  //                         state: { orderData: ord?.id },
-  //                       })
-  //                     }
-  //                     color="primary"
-  //                     outline
-  //                     className="m-2"
-  //                   >
-  //                     View
-  //                   </Button>
-  //                   {/* {checkPermission(UPDATE_ORDER) && (
-  //                     <Button color="warning" outline className="m-2">
-  //                       Update
-  //                     </Button>
-  //                   )} */}
-  //                 </>
-  //               ),
-  //             });
-  //           });
-  //           setOrderList(temp);
-  //           setCurrentPage(resp?.data?.currentPage);
-  //           setTotalRecodes(resp?.data?.totalRecords);
-  //           popUploader(dispatch, false);
-  //         })
-  //         .catch((err) => {
-  //           handleError(err);
-  //           popUploader(dispatch, false);
-  //         })
-  //         .finally();
-  //     }
-  //   };
-
-  //   const debounceHandleSearchOrderFiltration = React.useCallback(
-  //     debounce(handleSearchOrderFiltration, 500),
-  //     []
-  //   );
+  const debounceHandleSearchOrderFiltration = React.useCallback(
+    debounce(handleSearchOrderFiltration, 500),
+    []
+  );
 
   const onChangePagination = (page) => {
     console.log(page);
@@ -317,28 +301,28 @@ const OrderManagement = () => {
         selectedStatus === null ||
         selectedStatus === "")
     ) {
-      //   loadAllOrders(page);
+      loadAllOrders(page);
     } else {
-      //   debounceHandleSearchOrderFiltration(
-      //     searchOrderId,
-      //     searchCustomerName,
-      //     searchCustomerContactNo,
-      //     searchDateRange,
-      //     selectedDeliverySlot,
-      //     selectedStatus,
-      //     page
-      //   );
+      debounceHandleSearchOrderFiltration(
+        searchOrderId,
+        searchCustomerName,
+        searchCustomerContactNo,
+        searchDateRange,
+        searchTrackingCode,
+        selectedStatus,
+        page
+      );
     }
   };
 
-  //   const clearFiltrationFields = () => {
-  //     setActiveTab("1");
-  //     setSearchOrderId("");
-  //     setSearchCustomerName("");
-  //     setSearchDateRange("");
-  //     setSelectedStatus("");
-  //     setSelectedDeliverySlot("");
-  //   };
+  const clearFiltrationFields = () => {
+    setActiveTab("1");
+    setSearchOrderId("");
+    setSearchCustomerName("");
+    setSearchDateRange("");
+    setSelectedStatus("");
+    setSearchTrackingCode("");
+  };
 
   return (
     <div className="page-content">
@@ -347,22 +331,6 @@ const OrderManagement = () => {
           <h4>Order Management</h4>
         </div>
         <Card id="orderList">
-          <Row className="d-flex mt-4 mb-1 mx-1 justify-content-end">
-            {" "}
-            {/* {checkPermission(MANUAL_ORDER) && (
-              <Col sm={12} md={3} lg={3} xl={2}>
-                <Button
-                  color="primary"
-                  className="w-100"
-                  onClick={() => {
-                    handleCreateManualOrder();
-                  }}
-                >
-                  Create Manual Order
-                </Button>
-              </Col>
-            )} */}
-          </Row>
           <CardHeader className="card-header border-0">
             <Row className="align-items-center gy-3">
               <div className="col-sm">
@@ -389,48 +357,11 @@ const OrderManagement = () => {
                     Orders
                   </NavLink>
                 </NavItem>
-                {/* <NavItem>
+                <NavItem>
                   <NavLink
                     className={classnames({ active: activeTab === "2" })}
                     onClick={() => {
-                      toggleTab("2", "Delivered");
-                    }}
-                    href="#"
-                  >
-                    <i className="ri-checkbox-circle-line me-1 align-bottom"></i>{" "}
-                    Delivered
-                  </NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink
-                    className={classnames({ active: activeTab === "3" })}
-                    onClick={() => {
-                      toggleTab("3", "Delivering");
-                    }}
-                    href="#"
-                  >
-                    <i className="ri-truck-line me-1 align-bottom"></i>{" "}
-                    Delivering
-                  </NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink
-                    className={classnames({ active: activeTab === "4" })}
-                    onClick={() => {
-                      toggleTab("4", "Processing");
-                    }}
-                    href="#"
-                  >
-                    <i className="ri-luggage-cart-line me-1 align-bottom"></i>{" "}
-                    Processing
-                   
-                  </NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink
-                    className={classnames({ active: activeTab === "5" })}
-                    onClick={() => {
-                      toggleTab("5", "Pending");
+                      toggleTab("2", "PENDING");
                     }}
                     href="#"
                   >
@@ -440,31 +371,80 @@ const OrderManagement = () => {
                 </NavItem>
                 <NavItem>
                   <NavLink
-                    className={classnames({ active: activeTab === "6" })}
+                    className={classnames({ active: activeTab === "3" })}
                     onClick={() => {
-                      toggleTab("6", "Cancel");
+                      toggleTab("3", "PROCESSING");
                     }}
                     href="#"
                   >
-                    <i className="ri-close-circle-line me-1 align-bottom"></i>{" "}
-                    Cancelled
+                    <i className="ri-luggage-cart-line me-1 align-bottom"></i>{" "}
+                    Processing
                   </NavLink>
-                </NavItem> */}
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: activeTab === "4" })}
+                    onClick={() => {
+                      toggleTab("4", "SHIPPED");
+                    }}
+                    href="#"
+                  >
+                    <i className="ri-truck-fill me-1 align-bottom"></i>
+                    Shipped
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: activeTab === "5" })}
+                    onClick={() => {
+                      toggleTab("5", "DELIVERED");
+                    }}
+                    href="#"
+                  >
+                    <i className="ri-checkbox-circle-fill me-1 align-bottom"></i>{" "}
+                    Delivered
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: activeTab === "6" })}
+                    onClick={() => {
+                      toggleTab("6", "CANCELLED");
+                    }}
+                    href="#"
+                  >
+                    <i className="ri-close-circle-fill me-1 align-bottom"></i>{" "}
+                    Canceled
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: activeTab === "7" })}
+                    onClick={() => {
+                      toggleTab("7", "REJECTED");
+                    }}
+                    href="#"
+                  >
+                    <i className="ri-error-warning-fill me-1 align-bottom"></i>{" "}
+                    Rejected
+                  </NavLink>
+                </NavItem>
               </Nav>
 
               <Row className="mt-3">
-                <Col sm={12} md={6} lg={2}>
+                <Col sm={12} md={6} lg={3} xl={3} xxl={2}>
                   <Label>Search By Order Id</Label>
                   <Input
                     placeholder="ORD-000000"
                     value={searchOrderId}
+                    className="mb-3"
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
                         e.target.value,
                         searchCustomerName,
                         searchCustomerContactNo,
                         searchDateRange,
-                        selectedDeliverySlot,
+                        searchTrackingCode,
                         selectedStatus,
                         1
                       );
@@ -472,10 +452,29 @@ const OrderManagement = () => {
                     }}
                   />
                 </Col>
-                <Col sm={12} md={6} lg={3}>
+                <Col sm={12} md={6} lg={3} xl={3} xxl={2}>
+                  <Label>Search By Tracking Code</Label>
+                  <Input
+                    placeholder="Enter tracking code"
+                    value={searchTrackingCode}
+                    onChange={(e) => {
+                      debounceHandleSearchOrderFiltration(
+                        e.target.value,
+                        searchCustomerName,
+                        searchCustomerContactNo,
+                        searchDateRange,
+                        searchTrackingCode,
+                        selectedStatus,
+                        1
+                      );
+                      setSearchTrackingCode(e.target.value);
+                    }}
+                  />
+                </Col>
+                <Col sm={12} md={6} lg={3} xl={3} xxl={3}>
                   <Label>Search By Customer Name</Label>
                   <Input
-                    placeholder="first name"
+                    placeholder="Enter customer name"
                     value={searchCustomerName}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -483,7 +482,7 @@ const OrderManagement = () => {
                         e.target.value,
                         searchCustomerContactNo,
                         searchDateRange,
-                        selectedDeliverySlot,
+                        searchTrackingCode,
                         selectedStatus,
                         1
                       );
@@ -491,10 +490,11 @@ const OrderManagement = () => {
                     }}
                   />
                 </Col>
-                <Col sm={12} md={6} lg={3}>
+                <Col sm={12} md={6} lg={3} xl={3} xxl={2}>
                   <Label>Search By Contact No</Label>
                   <Input
-                    placeholder="contact no"
+                    placeholder="Enter contact no"
+                    type="number"
                     value={searchCustomerContactNo}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -502,7 +502,7 @@ const OrderManagement = () => {
                         searchCustomerName,
                         e.target.value,
                         searchDateRange,
-                        selectedDeliverySlot,
+                        searchTrackingCode,
                         selectedStatus,
                         1
                       );
@@ -510,7 +510,7 @@ const OrderManagement = () => {
                     }}
                   />
                 </Col>
-                <Col sm={12} md={6} lg={4}>
+                <Col sm={12} md={12} lg={4} xl={4} xxl={3}>
                   <Label>Search By Date Range</Label>
                   <RangePicker
                     style={{ height: 40, width: "100%", borderRadius: 4 }}
@@ -524,7 +524,7 @@ const OrderManagement = () => {
                           searchCustomerName,
                           searchCustomerContactNo,
                           formattedDates,
-                          selectedDeliverySlot,
+                          searchTrackingCode,
                           selectedStatus,
                           1
                         );
@@ -536,7 +536,7 @@ const OrderManagement = () => {
                           searchCustomerName,
                           searchCustomerContactNo,
                           "",
-                          selectedDeliverySlot,
+                          searchTrackingCode,
                           selectedStatus,
                           1
                         );
@@ -546,32 +546,6 @@ const OrderManagement = () => {
                 </Col>
 
                 {/* <Col sm={12} md={6} lg={3}>
-                  <Label for="exampleEmail">Search by Delivery Slot</Label>
-                  <Select
-                    className="basic-single"
-                    classNamePrefix="select"
-                    isSearchable={true}
-                    isClearable
-                    onChange={(e) => {
-                      console.log(e);
-                      setSelectedDeliverySlot(
-                        e?.value === undefined ? "" : e === null ? "" : e.value
-                      );
-                      debounceHandleSearchOrderFiltration(
-                        searchOrderId,
-                        searchCustomerName,
-                        searchCustomerContactNo,
-                        searchDateRange,
-                        e?.value === undefined ? "" : e === null ? "" : e.value,
-                        selectedStatus,
-                        1
-                      );
-                    }}
-                    options={deliverySlotList}
-                  />
-                </Col> */}
-
-                <Col sm={12} md={6} lg={3}>
                   <Label>Search By Order Status</Label>
                   <Select
                     value={
@@ -586,7 +560,7 @@ const OrderManagement = () => {
                     onChange={handleChange}
                     options={statusList}
                   />
-                </Col>
+                </Col> */}
               </Row>
 
               <Row>
