@@ -376,6 +376,7 @@ export const OrderListTableColumns = [
     title: "Tracking Code",
     dataIndex: "trackingCode",
     key: "trackingCode",
+    editable: true,
   },
 
   {

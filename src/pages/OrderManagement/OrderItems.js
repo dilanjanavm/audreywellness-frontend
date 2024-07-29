@@ -55,7 +55,7 @@ const OrderItems = ({ data }) => {
                       "No Discount"
                     )}
                   </p>
-                  <h6
+                  {/* <h6
                     className="text-primary mt-3 cursor-pointer text-decoration-underline"
                     // onClick={() => {
                     //   setIsToggleModal(!isToggleModal);
@@ -63,7 +63,7 @@ const OrderItems = ({ data }) => {
                     // }}
                   >
                     View Item Details
-                  </h6>
+                  </h6> */}
                 </div>
               </div>
             </td>

@@ -8,6 +8,7 @@ import {
   CardHeader,
   Collapse,
   Button,
+  Input,
 } from "reactstrap";
 
 import classnames from "classnames";
@@ -17,6 +18,7 @@ import { Link } from "react-router-dom";
 // import avatar3 from "../../../assets/images/users/avatar-3.jpg";
 import { useLocation } from "react-router-dom";
 import {
+  customSweetAlert,
   customToastMsg,
   handleError,
   popUploader,
@@ -44,27 +46,23 @@ const OrderDetail = (props) => {
   const history = useNavigate();
 
   const [col1, setcol1] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [col3, setcol3] = useState(true);
-  const [orderDetails, setOrderDetails] = useState([]);
-  const [statusList, setStatusList] = useState([]);
+  // const [selectedStatus, setSelectedStatus] = useState("");
 
-  const [isBtnDisable, setIsBtnDisable] = useState(true);
+  const [orderDetails, setOrderDetails] = useState([]);
+  // const [statusList, setStatusList] = useState([]);
+
+  // const [isBtnDisable, setIsBtnDisable] = useState(true);
   //   const [orderDetails, setorderDetails] = useState();
 
-  const [toggleUpdateAddressModal, setToggleUpdateAddressModal] =
-    useState(false);
-  const [modalName, setModalName] = useState("");
-  const [addressObj, setAddressObj] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [trackingCode, setTrackingCode] = useState("");
 
   useEffect(() => {
     const { state } = location;
     const { orderData } = state;
-    loadAllOrderStatus();
+    // loadAllOrderStatus();
     // console.log(orderData);
     // setOrderDetails(orderData);
-    // setSelectedStatus(orderDetails?.order_status);
   }, [orderDetails]);
 
   useEffect(() => {
@@ -85,7 +83,7 @@ const OrderDetail = (props) => {
         console.log(res);
         let response = res?.data;
         setOrderDetails(response);
-        setSelectedStatus({ value: "", label: response?.status });
+        // setSelectedStatus({ value: "", label: response?.status });
         popUploader(dispatch, false);
       })
       .catch((err) => {
@@ -95,59 +93,81 @@ const OrderDetail = (props) => {
       });
   };
 
-  const loadAllOrderStatus = () => {
-    setStatusList([]);
-    let temp = [];
-    popUploader(dispatch, true);
-    orderStatusService
-      .getAllOrderStatus()
-      .then((resp) => {
-        let temp = [];
-        resp.data.map((status, index) => {
-          temp.push({ value: status?.id, label: status?.name });
-        });
-        setStatusList(temp);
-        popUploader(dispatch, false);
-      })
-      .catch((err) => {
-        popUploader(dispatch, false);
-        handleError(err);
-      })
-      .finally();
-  };
+  // const loadAllOrderStatus = () => {
+  //   setStatusList([]);
+  //   let temp = [];
+  //   popUploader(dispatch, true);
+  //   orderStatusService
+  //     .getAllOrderStatus()
+  //     .then((resp) => {
+  //       let temp = [];
+  //       resp.data.map((status, index) => {
+  //         temp.push({ value: status?.id, label: status?.name });
+  //       });
+  //       setStatusList(temp);
+  //       popUploader(dispatch, false);
+  //     })
+  //     .catch((err) => {
+  //       popUploader(dispatch, false);
+  //       handleError(err);
+  //     })
+  //     .finally();
+  // };
 
   const updateStatusOfOrder = () => {
-    let data = {
+    let selectedStatus = "";
+    {
+      orderDetails?.status === "PENDING"
+        ? (selectedStatus = "PROCESSING")
+        : orderDetails?.status === "PROCESSING"
+        ? (selectedStatus = "SHIPPED")
+        : orderDetails?.status === "SHIPPED"
+        ? (selectedStatus = "DELIVERED")
+        : "";
+    }
+    let temp = {
       status: selectedStatus,
     };
-    console.log(data);
-    console.log(orderDetails?.id);
-    // popUploader(dispatch, true);
-    updateOrdersStatus(orderDetails?.id, data)
-      .then((res) => {
-        // console.log(res);
-        // return;
-        popUploader(dispatch, false);
-        customToastMsg("Order status updated successfully", 1);
-         getOrderDetails(orderId);
-      })
-      .catch((c) => {
-        popUploader(dispatch, false);
-        handleError(c);
-      });
+
+    customSweetAlert(
+      `Do you want to update this order status ${orderDetails?.status} to  ${
+        orderDetails?.status === "PENDING"
+          ? "PROCESSING"
+          : orderDetails?.status === "PROCESSING"
+          ? "SHIPPED"
+          : orderDetails?.status === "SHIPPED"
+          ? "DELIVERED"
+          : ""
+      } status?`,
+
+      2,
+      () => {
+        popUploader(dispatch, true);
+        updateOrdersStatus(orderDetails?.id, temp)
+          .then((res) => {
+            popUploader(dispatch, false);
+            customToastMsg("Order status updated successfully", 1);
+            getOrderDetails(orderId);
+          })
+          .catch((c) => {
+            popUploader(dispatch, false);
+            handleError(c);
+          });
+      }
+    );
   };
 
   function togglecol1() {
     setcol1(!col1);
   }
 
-  const handleChange = (e) => {
-    console.log(e);
-    let status = e?.label;
-    console.log(status);
-    setSelectedStatus(e);
-    setIsBtnDisable(false);
-  };
+  // const handleChange = (e) => {
+  //   console.log(e);
+  //   let status = e?.label;
+  //   console.log(status);
+  //   setSelectedStatus(e);
+  //   setIsBtnDisable(false);
+  // };
 
   // const toggleAddressModal = (modalName) => {
   //   setModalName(modalName);
@@ -184,27 +204,52 @@ const OrderDetail = (props) => {
             history("/order-management");
           }}
         />{" "}
-        <h4 className="mx-2">{orderDetails.orderId}</h4>
+        <h4 className="mx-2">{orderDetails.orderCode}</h4>
       </Container>
       <Container fluid>
         <Row>
           <Col xl={9}>
             <Card>
               <CardHeader>
-                <div className="d-flex align-items-center">
-                  <h5 className="card-title flex-grow-1 mb-0">
+                <div className="d-flex align-items-center justify-content-between">
+                  <h5 className="card-title  mb-0">
                     Order Number : {orderDetails.orderCode}
                   </h5>
-                  <div className="flex-shrink-0">
-                    {/*<Button*/}
-                    {/*    color='primary'*/}
-                    {/*    // to="/apps-invoices-details"*/}
-                    {/*    className="btn btn-primary "*/}
-                    {/*>*/}
-                    {/*    <i className="ri-download-2-fill align-middle me-1"></i>{" "}*/}
-                    {/*    Invoice*/}
-                    {/*</Button>*/}
-                  </div>
+                  <h5 className="card-title  mb-0">
+                    Order Status :{" "}
+                    <Tag
+                      color={
+                        orderDetails?.status === "PENDING"
+                          ? "warning"
+                          : orderDetails?.status === "PROCESSING"
+                          ? "processing"
+                          : orderDetails?.status === "SHIPPED"
+                          ? "purple"
+                          : orderDetails?.status === "DELIVERED"
+                          ? "success"
+                          : orderDetails?.status === "CANCELLED"
+                          ? "error"
+                          : orderDetails?.status === "REJECTED"
+                          ? "magenta"
+                          : "default"
+                      }
+                      key={orderDetails?.status}
+                    >
+                      {orderDetails?.status === "PENDING"
+                        ? "PENDING"
+                        : orderDetails?.status === "PROCESSING"
+                        ? "PROCESSING"
+                        : orderDetails?.status === "SHIPPED"
+                        ? "SHIPPED"
+                        : orderDetails?.status === "DELIVERED"
+                        ? "DELIVERED"
+                        : orderDetails?.status === "CANCELLED"
+                        ? "CANCELLED"
+                        : orderDetails?.status === "REJECTED"
+                        ? "REJECTED"
+                        : "none"}
+                    </Tag>
+                  </h5>
                 </div>
               </CardHeader>
 
@@ -284,33 +329,25 @@ const OrderDetail = (props) => {
               <CardHeader>
                 <div className="d-sm-flex align-items-center">
                   <h5 className="card-title flex-grow-1 mb-0">Order Status</h5>
-
-                  <>
-                    <div className={"mx-2"}>
-                      <Select
-                        value={
-                          statusList.find(
-                            (option) => option.label === selectedStatus.label
-                          ) || null
-                        }
-                        className="basic-single"
-                        classNamePrefix="Search order by order status"
-                        isSearchable={true}
-                        onChange={handleChange}
-                        options={statusList}
-                      />
-                    </div>
-
-                    <Button
-                      disabled={isBtnDisable}
-                      color={"primary"}
-                      onClick={() => {
-                        updateStatusOfOrder();
-                      }}
-                    >
-                      Update Order Status
-                    </Button>
-                  </>
+                  {orderDetails?.status != "DELIVERED" &&
+                    orderDetails?.status != "CANCELLED" &&
+                    orderDetails?.status != "REJECTED" && (
+                      <Button
+                        color={"primary"}
+                        onClick={() => {
+                          updateStatusOfOrder();
+                        }}
+                      >
+                        Update Order Status{" "}
+                        {orderDetails?.status === "PENDING"
+                          ? "To Processing"
+                          : orderDetails?.status === "PROCESSING"
+                          ? "To Shipped"
+                          : orderDetails?.status === "SHIPPED"
+                          ? "To Delivered"
+                          : ""}
+                      </Button>
+                    )}
 
                   {/* <div className="flex-shrink-0 mt-2 mt-sm-0">*/}
                   {/*        <span*/}
@@ -405,7 +442,7 @@ const OrderDetail = (props) => {
               </CardHeader>
               <CardBody>
                 <div>
-                  <p className=" mb-0">
+                  <p className=" mb-2">
                     Order Id :{" "}
                     <span className="fw-semibold">
                       {orderDetails?.orderCode}
@@ -424,28 +461,21 @@ const OrderDetail = (props) => {
                       )}
                     </span>
                   </p>
-                  {/* <p className="mb-2">
-                    Order Date :{" "}
-                    <span className="fw-semibold">
-                      {moment(orderDetails?.orderDate).format(
-                        "ddd, DD MMM YYYY - h:mmA"
-                      )}
-                    </span>
-                  </p> */}
                   {/* <p className="mb-2">Delivery Option : timeslot </p> */}
                   {/* <p className="mb-2">
                     Order Type :{" "}
                     <Tag color="blue">{orderDetails?.deliveryType?.type}</Tag>
                   </p> */}
-                  {/* <p className="mb-2">
-                    Specific Des : {orderDetails?.paymentMethod?.type}
-                  </p> */}
-                  {/* <p className="mb-2">
-                    Payment : LKR{" "}
+                  <p className="mb-2">
+                    Shipping Fee :{" "}
                     <span className="fw-semibold">
-                      {parseFloat(orderDetails?.payment?.amount).toFixed(2)}
+                      {" "}
+                      LKR {parseFloat(orderDetails?.shippingFee).toFixed(
+                        2
+                      )}{" "}
                     </span>
-                  </p> */}
+                  </p>
+
                   <p className="mb-2">
                     Payment Status :{" "}
                     <Tag color="blue">{orderDetails?.payment?.status}</Tag>
@@ -461,73 +491,32 @@ const OrderDetail = (props) => {
             <Card>
               <CardHeader>
                 <div className="d-flex">
-                  <h5 className="card-title flex-grow-1 mb-0">
-                    Customer Details
-                  </h5>
+                  <h5 className="card-title flex-grow-1 mb-0">Tracking Code</h5>
                 </div>
               </CardHeader>
               <CardBody>
                 <ul className="list-unstyled mb-0 vstack gap-3">
                   <li>
                     <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0">
-                        {/* {orderDetails?.orderCustomer?.photo ? (
-                          <img
-                            src={orderDetails?.orderCustomer?.photo?.path}
-                            alt="customer"
-                            className="avatar-sm rounded"
-                          />
-                        ) : (
-                          <img
-                            src={""}
-                            alt="customer"
-                            className="avatar-sm rounded"
-                          />
-                        )} */}
-                      </div>
-                      <div className="flex-grow-1 ms-3">
-                        {/* <p className="text-muted mb-0">Customer</p> */}
-                        <h6 className="fs-14 mb-1">
-                          {" "}
-                          {orderDetails?.orderCustomer?.firstName}{" "}
-                          {orderDetails?.orderCustomer?.lastName}
-                        </h6>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="d-flex align-items-center">
-                      <div className="flex-grow-1 ms-3">
-                        <p className="text-muted mb-0">Email</p>
-                        <h6 className="fs-14 mb-1">
-                          {" "}
-                          {orderDetails?.orderCustomer?.email}
-                        </h6>
-                      </div>
+                      <Input
+                        placeholder="Enter tracking code"
+                        value={trackingCode}
+                        className="mx-2"
+                        onChange={(e) => {
+                          setTrackingCode(e.target.value);
+                        }}
+                      />
+                      <Button
+                        color={"primary"}
+                        className="mx-2"
+                        // onClick={() => {
+                        //   updateStatusOfOrder();
+                        // }}
+                      >
+                        Save
+                      </Button>
                     </div>
                   </li>{" "}
-                  {/* <li>
-                    <div className="d-flex align-items-center">
-                      <div className="flex-grow-1 ms-3">
-                        <p className="text-muted mb-0">Address</p>
-                        <h6 className="fs-14 mb-1">
-                          {" "}
-                          {orderDetails?.orderCustomer?.address}
-                        </h6>
-                      </div>
-                    </div>
-                  </li> */}
-                  <li>
-                    <div className="d-flex align-items-center">
-                      <div className="flex-grow-1 ms-3">
-                        <p className="text-muted mb-0">Contact</p>
-                        <h6 className="fs-14 mb-1">
-                          {" "}
-                          {orderDetails?.orderCustomer?.contactNo}
-                        </h6>
-                      </div>
-                    </div>
-                  </li>
                 </ul>
               </CardBody>
             </Card>
@@ -539,15 +528,6 @@ const OrderDetail = (props) => {
                     <i className="ri-map-pin-line align-middle me-1 text-muted"></i>{" "}
                     Billing Details
                   </h5>
-
-                  {/* <Button
-                      color="primary"
-                      onClick={() => {
-                        toggleAddressModal("Billing Address");
-                      }}
-                    >
-                      Update
-                    </Button> */}
                 </div>
               </CardHeader>
               <CardBody>
@@ -556,17 +536,28 @@ const OrderDetail = (props) => {
                     {orderDetails?.billingDetail?.firstName}{" "}
                     {orderDetails?.billingDetail?.lastName}
                   </li>
-                  <li>{orderDetails?.billingDetail?.contactNo}</li>
-                  <li>{orderDetails?.billingDetail?.email}</li>
-                  <li>{orderDetails?.billingDetail?.postalCode}</li>
-                  <li>{orderDetails?.billingDetail?.country}</li>
-                  <li>{orderDetails?.billingDetail?.province}</li>
-                  <li>{orderDetails?.billingDetail?.state}</li>
-                  <li>{orderDetails?.billingDetail?.city}</li>
+                  <li>
+                    <span className="text-muted mb-0">Contact No :</span>
+                    {orderDetails?.billingDetail?.contactNo}
+                  </li>
+                  <li>
+                    {" "}
+                    <span className="text-muted mb-0">Email :</span>
+                    {orderDetails?.billingDetail?.email}
+                  </li>
+                  <li>
+                    {" "}
+                    <span className="text-muted mb-0">Address :</span>
+                  </li>
                   <li>{orderDetails?.billingDetail?.addressLine1}</li>
                   <li>{orderDetails?.billingDetail?.addressLine2}</li>
+                  <li>{orderDetails?.billingDetail?.city}</li>
+                  <li>{orderDetails?.billingDetail?.state}</li>
+                  <li>{orderDetails?.billingDetail?.province}</li>
+                  <li>{orderDetails?.billingDetail?.country}</li>
                   <li>
-                    Postal code :{orderDetails?.billingDetail?.postalCode}
+                    <span className="text-muted mb-0">Postal code :</span>
+                    {orderDetails?.billingDetail?.postalCode}
                   </li>
                 </ul>
               </CardBody>
@@ -579,37 +570,37 @@ const OrderDetail = (props) => {
                     <i className="ri-map-pin-line align-middle me-1 text-muted"></i>{" "}
                     Shipping Details
                   </h5>
-
-                  {/* <Button
-                      color="primary"
-                      onClick={() => {
-                        toggleAddressModal("Shipping Address");
-                      }}
-                    >
-                      Update
-                    </Button> */}
                 </div>
               </CardHeader>
               <CardBody>
                 <ul className="list-unstyled vstack gap-2 fs-13 mb-0">
-                  <ul className="list-unstyled vstack gap-2 fs-13 mb-0">
-                    <li className="fw-medium fs-14">
-                      {orderDetails?.shippingDetail?.firstName}{" "}
-                      {orderDetails?.shippingDetail?.lastName}
-                    </li>
-                    <li>{orderDetails?.shippingDetail?.contactNo}</li>
-                    <li>{orderDetails?.shippingDetail?.email}</li>
-                    <li>{orderDetails?.shippingDetail?.postalCode}</li>
-                    <li>{orderDetails?.shippingDetail?.country}</li>
-                    <li>{orderDetails?.shippingDetail?.province}</li>
-                    <li>{orderDetails?.shippingDetail?.state}</li>
-                    <li>{orderDetails?.shippingDetail?.city}</li>
-                    <li>{orderDetails?.shippingDetail?.addressLine1}</li>
-                    <li>{orderDetails?.shippingDetail?.addressLine2}</li>
-                    <li>
-                      Postal code :{orderDetails?.shippingDetail?.postalCode}
-                    </li>
-                  </ul>
+                  <li className="fw-medium fs-14">
+                    {orderDetails?.billingDetail?.firstName}{" "}
+                    {orderDetails?.billingDetail?.lastName}
+                  </li>
+                  <li>
+                    <span className="text-muted mb-0">Contact No :</span>
+                    {orderDetails?.billingDetail?.contactNo}
+                  </li>
+                  <li>
+                    {" "}
+                    <span className="text-muted mb-0">Email :</span>
+                    {orderDetails?.billingDetail?.email}
+                  </li>
+                  <li>
+                    {" "}
+                    <span className="text-muted mb-0">Address :</span>
+                  </li>
+                  <li>{orderDetails?.billingDetail?.addressLine1}</li>
+                  <li>{orderDetails?.billingDetail?.addressLine2}</li>
+                  <li>{orderDetails?.billingDetail?.city}</li>
+                  <li>{orderDetails?.billingDetail?.state}</li>
+                  <li>{orderDetails?.billingDetail?.province}</li>
+                  <li>{orderDetails?.billingDetail?.country}</li>
+                  <li>
+                    <span className="text-muted mb-0">Postal code :</span>
+                    {orderDetails?.billingDetail?.postalCode}
+                  </li>
                 </ul>
               </CardBody>
             </Card>
