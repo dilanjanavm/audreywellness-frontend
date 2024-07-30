@@ -31,6 +31,7 @@ import {
   getAllOrderStatus,
   getOrderByOrderId,
   updateOrdersStatus,
+  updateTrackingCode,
 } from "../../service/orderService";
 import * as orderStatusService from "../../service/orderStatusService";
 import { useNavigate } from "react-router-dom";
@@ -157,6 +158,57 @@ const OrderDetail = (props) => {
     );
   };
 
+  const updateStatusOfOrderToReject = () => {
+    let selectedStatus = "REJECTED";
+
+    let temp = {
+      status: selectedStatus,
+    };
+
+    customSweetAlert(`Do you want to reject this order?`, 0, () => {
+      popUploader(dispatch, true);
+      updateOrdersStatus(orderDetails?.id, temp)
+        .then((res) => {
+          popUploader(dispatch, false);
+          customToastMsg("Order rejected successfully", 1);
+          getOrderDetails(orderId);
+        })
+        .catch((c) => {
+          popUploader(dispatch, false);
+          handleError(c);
+        });
+    });
+  };
+
+  const assignTrackingCode = () => {
+    let temp = {
+      trackingCode: trackingCode,
+    };
+
+    customSweetAlert(
+      orderDetails?.trackingCode === null
+        ? `Do you want to add tracking code?`
+        : `Do you want to update tracking code?`,
+      2,
+      () => {
+        popUploader(dispatch, true);
+        updateTrackingCode(orderDetails?.id, temp)
+          .then((res) => {
+            popUploader(dispatch, false);
+            orderDetails?.trackingCode === null
+              ? customToastMsg("Tracking Code added successfully", 1)
+              : customToastMsg("Tracking Code updated successfully", 1);
+            getOrderDetails(orderId);
+          })
+          .catch((c) => {
+            console.log(c);
+            popUploader(dispatch, false);
+            handleError(c);
+          });
+      }
+    );
+  };
+
   function togglecol1() {
     setcol1(!col1);
   }
@@ -169,33 +221,9 @@ const OrderDetail = (props) => {
   //   setIsBtnDisable(false);
   // };
 
-  // const toggleAddressModal = (modalName) => {
-  //   setModalName(modalName);
-  //   setToggleUpdateAddressModal(!toggleUpdateAddressModal);
-  //   getOrderDetails(orderId);
-
-  //   modalName === "Billing Address"
-  //     ? setAddressObj({
-  //         orderId: orderDetails?.id,
-  //         address: orderDetails?.billingAddress,
-  //       })
-  //     : modalName === "Shipping Address"
-  //     ? setAddressObj({
-  //         orderId: orderDetails?.id,
-  //         address: orderDetails?.shippingAddress,
-  //       })
-  //     : "";
-  // };
-
   document.title = "Order Details | Easy Kitchen";
   return (
     <div className="page-content">
-      {/* <OrderAddressUpdateModal
-        isOpen={toggleUpdateAddressModal}
-        toggle={toggleAddressModal}
-        modalName={modalName}
-        orderDetails={addressObj}
-      /> */}
       <Container fluid className="d-flex flex-row align-baseline mt-4">
         <ArrowLeft
           style={{ cursor: "pointer" }}
@@ -425,19 +453,27 @@ const OrderDetail = (props) => {
           <Col xl={3}>
             <Card>
               <CardHeader>
-                <div className="d-flex">
-                  <h5 className="card-title flex-grow-1 mb-0">
+                <div className="d-flex justify-content-between align-items-center">
+                  <h5 className="card-title  mb-0">
                     <i className="mdi mdi-truck-fast-outline align-middle me-1 text-muted"></i>
                     Order Details
                   </h5>
-                  {/* <div className="flex-shrink-0">
-                    <Link
-                      to="#"
-                      className="badge bg-primary-subtle text-primary fs-11"
-                    >
-                      Track Order
-                    </Link>
-                  </div> */}
+
+                  {/* {checkPermission(UPDATE_ORDER_STATUS) && ( */}
+                  <>
+                    {orderDetails?.status !== "REJECTED" && (
+                      <Button
+                        className=""
+                        color="danger"
+                        onClick={() => {
+                          updateStatusOfOrderToReject();
+                        }}
+                      >
+                        Reject Order
+                      </Button>
+                    )}
+                  </>
+                  {/* )} */}
                 </div>
               </CardHeader>
               <CardBody>
@@ -509,9 +545,9 @@ const OrderDetail = (props) => {
                       <Button
                         color={"primary"}
                         className="mx-2"
-                        // onClick={() => {
-                        //   updateStatusOfOrder();
-                        // }}
+                        onClick={() => {
+                          assignTrackingCode();
+                        }}
                       >
                         Save
                       </Button>

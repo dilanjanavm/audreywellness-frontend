@@ -30,6 +30,16 @@ export async function updateOrdersStatus(orderId, data) {
   return await ApiService.callApi(apiObject);
 }
 
+export async function updateTrackingCode(orderId, data) {
+  const apiObject = {};
+  apiObject.method = "PUT",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = ``;
+  apiObject.body = data;
+  return await ApiService.callApi(apiObject);
+}
+
 export async function ordersFiltration(data,currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
