@@ -134,7 +134,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
   };
 
   const addSubCategory = () => {
-     popUploader(dispatch, true);
+    popUploader(dispatch, true);
 
     let temp = "";
     uploadedFile.length === 1
@@ -162,7 +162,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
       .catch((c) => {
         console.log(c);
         handleError(c);
-         popUploader(dispatch, false);
+        popUploader(dispatch, false);
       });
   };
 
@@ -285,8 +285,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
 
                   <div className="d-flex justify-content-end">
                     <Button
-                      className="m-2"
-                      outline
+                      className="mx-2"
                       color="secondary"
                       onClick={() => {
                         toggle();
@@ -378,8 +377,7 @@ const AddCategoryModel = ({ isOpen, toggle }) => {
                   </FormGroup>
                   <div className="d-flex justify-content-end">
                     <Button
-                      className="m-2"
-                      outline
+                      className="mx-2"
                       color="secondary"
                       onClick={() => {
                         toggle();

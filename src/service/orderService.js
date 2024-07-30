@@ -30,13 +30,13 @@ export async function updateOrdersStatus(orderId, status) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function updateTrackingCode(orderId, data) {
+export async function updateTrackingCode(orderId, trackingCode) {
   const apiObject = {};
   apiObject.method = "PATCH",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
-  apiObject.body = data;
+  apiObject.endpoint = `api/order/update-trackingCode/${orderId}?trackingCode=${trackingCode}`;
+  apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
 

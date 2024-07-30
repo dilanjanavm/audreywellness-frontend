@@ -9,13 +9,14 @@ import {
   FormGroup,
   Button,
 } from "reactstrap";
-import { Table, Tag } from "antd";
+import { Pagination, Table, Tag } from "antd";
 import { Plus } from "react-feather";
 import { CategoryTableColumns } from "../../common/tableColumns";
 import AddCategoryModel from "../../Components/Common/modal/AddCategoriesModal";
 import * as categoryService from "../../service/categoryService";
 import { useDispatch } from "react-redux";
 import Select from "react-select";
+import debounce from "lodash.debounce";
 import {
   customSweetAlert,
   customToastMsg,
@@ -31,24 +32,53 @@ const CategoryManagement = () => {
   const [isUpdateCategoryModalOpen, setIsUpdateCategoryModalOpen] =
     useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
+  const [searchCategoryName, setSearchCategoryName] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [statusList, setStatusList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
+  //-------------------------- pagination --------------------------
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecodes, setTotalRecodes] = useState(0);
 
   let dispatch = useDispatch();
 
   useEffect(() => {
-    loadAllCategories();
+    loadAllCategories(currentPage);
+    getAllCategoriesWithOrWithoutSubCat();
     setStatusList([
       { value: 1, label: "Active" },
       { value: 2, label: "Inactive" },
     ]);
   }, []);
 
-  const loadAllCategories = () => {
+  const getAllCategoriesWithOrWithoutSubCat = () => {
+    setCategoryList([]);
     popUploader(dispatch, true);
     categoryService
-      .getAllCategories()
+      .getAllCategoriesWithOrWithoutSubCategories(false)
+      .then((res) => {
+        console.log(res.data);
+        let temp = [];
+        res.data.map((cat, index) => {
+          temp.push({ value: cat?.id, label: cat?.name });
+        });
+
+        setCategoryList(temp);
+        popUploader(dispatch, false);
+      })
+      .catch((c) => {
+        popUploader(dispatch, false);
+        handleError(c);
+      });
+  };
+
+  const loadAllCategories = (currentPage) => {
+    popUploader(dispatch, true);
+    categoryService
+      .getAllCategories(currentPage)
       .then((res) => {
         const formattedData = res.data.map((record) => ({
           name: record.name,
@@ -98,6 +128,8 @@ const CategoryManagement = () => {
           ),
         }));
         setCategoryTableList(formattedData);
+        setCurrentPage(res?.data?.currentPage);
+        setTotalRecodes(res?.data?.totalRecords);
         popUploader(dispatch, false);
       })
       .catch((err) => {
@@ -107,19 +139,19 @@ const CategoryManagement = () => {
       });
   };
 
-  const deleteCategory = async (catId) => {
+  const deleteCategory = (catId) => {
     console.log(catId);
-    customSweetAlert("Are you sure to delete this staff ?", 0, () => {
+    customSweetAlert("Are you sure to delete this category ?", 0, () => {
       popUploader(dispatch, true);
       categoryService
         .deleteCategory(catId)
-        .then(async (res) => {
+        .then((res) => {
           console.log(res);
-          await loadAllCategories();
+          loadAllCategories(currentPage);
           popUploader(dispatch, false);
           customToastMsg("Category has been  deleted", 1);
         })
-        .catch(async (err) => {
+        .catch((err) => {
           handleError(err);
           console.log(err);
           popUploader(dispatch, false);
@@ -136,9 +168,103 @@ const CategoryManagement = () => {
     setSelectedCategory(category);
   };
 
-  const closeStaffModal = () => {
+  const closeCategoryModal = () => {
     setIsUpdateCategoryModalOpen(false);
     setSelectedCategory("");
+  };
+
+  const searchCategoryFiltration = (name, categoryId, status, currentPage) => {
+    popUploader(dispatch, true);
+    let temp = [];
+    if (name === "" && categoryId === "" && status === "") {
+      loadAllCategories(currentPage);
+    } else {
+      popUploader(dispatch, true);
+      const data = {
+        name: name,
+        categoryId: categoryId,
+        status: status,
+      };
+      categoryService
+        .categoryFiltration(data, currentPage)
+        .then((res) => {
+          const formattedData = res.data.map((record) => ({
+            name: record.name,
+            hierarchy: record.hierarchy,
+            status: record.status,
+            file: (
+              <div>
+                {record?.file ? (
+                  <img
+                    className="w-100 h-100 object-fit-cover"
+                    src={record?.file?.originalPath}
+                    alt="categoryImg"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
+                    }
+                  />
+                ) : (
+                  <img
+                    src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
+                    alt="placeholder"
+                    className="w-100 h-100 object-fit-cover"
+                  />
+                )}
+              </div>
+            ),
+            action: (
+              <>
+                <Button
+                  color="warning"
+                  className="m-2"
+                  outline
+                  onClick={(e) => {
+                    toggleUpdateCategoryModal(record);
+                  }}
+                >
+                  <span>Update</span>
+                </Button>
+                <Button
+                  color="danger"
+                  className="m-2"
+                  outline
+                  onClick={() => deleteCategory(record.id)}
+                >
+                  <span>Remove</span>
+                </Button>
+              </>
+            ),
+          }));
+          setCategoryTableList(formattedData);
+          setCurrentPage(res?.data?.currentPage);
+          setTotalRecodes(res?.data?.totalRecords);
+          popUploader(dispatch, false);
+        })
+        .catch((err) => {
+          console.log(err);
+          popUploader(dispatch, false);
+          handleError(err);
+        });
+    }
+  };
+
+  const debounceSearchCategoryFiltration = React.useCallback(
+    debounce(searchCategoryFiltration, 500),
+    []
+  );
+
+  const onChangePagination = (page) => {
+    setCurrentPage(page);
+    if (searchCategoryName === "" && selectedStatus === "") {
+      loadAllCategories(page);
+    } else {
+      debounceSearchCategoryFiltration(
+        searchCategoryName,
+        selectedStatus,
+        page
+      );
+    }
   };
 
   return (
@@ -147,15 +273,15 @@ const CategoryManagement = () => {
         isOpen={isAddCategoryModalOpen}
         toggle={(e) => {
           toggleAddCategoryModal();
-          loadAllCategories();
+          loadAllCategories(currentPage);
         }}
       />
       <UpdateCategory
         currentData={selectedCategory}
         isOpen={isUpdateCategoryModalOpen}
         toggle={(e) => {
-          closeStaffModal();
-          loadAllCategories();
+          closeCategoryModal();
+          loadAllCategories(currentPage);
         }}
       />
       <Container fluid>
@@ -172,6 +298,7 @@ const CategoryManagement = () => {
               className="d-flex justify-content-end"
             >
               <Button
+                className="mb-2"
                 color="primary"
                 onClick={() => {
                   toggleAddCategoryModal();
@@ -182,22 +309,56 @@ const CategoryManagement = () => {
             </Col>
           </Row>
           <Row className="mx-2">
-            <Col sm={12} md={6} lg={4} xl={4}>
+            <Col sm={12} md={4} lg={4} xl={4}>
               <FormGroup>
-                <Label for="email">Search by Name</Label>
+                <Label for="name">Search by Name</Label>
                 <Input
-                  id="email"
+                  id="name"
                   name="name"
                   placeholder="Search by name"
                   type="text"
-                  value={searchEmail}
+                  value={searchCategoryName}
                   onChange={(e) => {
-                    setSearchEmail(e.target.value);
+                    setSearchCategoryName(e.target.value);
+                    debounceSearchCategoryFiltration(
+                      e.target.value,
+                      selectedCategoryId,
+                      selectedStatus,
+                      1
+                    );
                   }}
                 />
               </FormGroup>
             </Col>
-            <Col sm={6} md={6} lg={4} xl={4}>
+            <Col sm={12} md={4} lg={4} xl={4}>
+              <FormGroup>
+                <Label for="categoryName">Select Main Category </Label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix="select"
+                  isSearchable={true}
+                  isClearable
+                  value={
+                    categoryList.find(
+                      (option) => option.value === selectedCategoryId
+                    ) || null
+                  }
+                  onChange={(e) => {
+                    setSelectedCategoryId(
+                      e?.value === undefined ? "" : e.value
+                    );
+                    debounceSearchCategoryFiltration(
+                      searchCategoryName,
+                      e?.value === undefined ? "" : e === null ? "" : e.value,
+                      selectedStatus,
+                      1
+                    );
+                  }}
+                  options={categoryList}
+                />
+              </FormGroup>
+            </Col>
+            <Col sm={12} md={4} lg={4} xl={4}>
               <FormGroup>
                 <Label for="exampleEmail">Search by Status</Label>
                 <Select
@@ -214,6 +375,12 @@ const CategoryManagement = () => {
                     setSelectedStatus(
                       e?.value === undefined ? "" : e === null ? "" : e.value
                     );
+                    debounceSearchCategoryFiltration(
+                      searchCategoryName,
+                      selectedCategoryId,
+                      e?.value === undefined ? "" : e === null ? "" : e.value,
+                      1
+                    );
                   }}
                   options={statusList}
                 />
@@ -228,6 +395,24 @@ const CategoryManagement = () => {
                 columns={CategoryTableColumns}
                 dataSource={categoryTableList}
                 scroll={{ x: "fit-content" }}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col
+              className=" d-flex justify-content-end"
+              sm={12}
+              md={12}
+              lg={12}
+              xl={12}
+            >
+              <Pagination
+                className="m-3"
+                current={currentPage}
+                onChange={onChangePagination}
+                defaultPageSize={15}
+                total={totalRecodes}
+                showTotal={(total) => `Total ${total} items`}
               />
             </Col>
           </Row>

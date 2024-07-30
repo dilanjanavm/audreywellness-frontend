@@ -24,6 +24,7 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
 
   useEffect(() => {
     setFeatureName(currentData.name);
+    setFeatureStatus(currentData.status);
     let data = [];
     currentData?.tags?.map((val, index) => {
       data.push({ id: val.id, Values: val.name });
@@ -159,12 +160,12 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={handleSubmit}>
-          Save Changes
-        </Button>{" "}
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>
+        <Button color="primary" onClick={handleSubmit}>
+          Save Changes
+        </Button>{" "}
       </ModalFooter>
     </Modal>
   );

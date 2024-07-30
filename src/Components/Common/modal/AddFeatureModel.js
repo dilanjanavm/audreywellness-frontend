@@ -160,12 +160,12 @@ const AddFeatureModel = ({ isOpen, toggle, currentData }) => {
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={handleSubmit}>
-          Add New Feature
-        </Button>{" "}
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>
+        <Button color="primary" onClick={handleSubmit}>
+          Add New Feature
+        </Button>{" "}
       </ModalFooter>
     </Modal>
   );

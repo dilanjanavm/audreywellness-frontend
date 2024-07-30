@@ -174,10 +174,6 @@ const OrderDetail = (props) => {
   };
 
   const assignTrackingCode = () => {
-    let temp = {
-      trackingCode: trackingCode,
-    };
-
     customSweetAlert(
       orderDetails?.trackingCode === null
         ? `Do you want to add tracking code?`
@@ -185,7 +181,7 @@ const OrderDetail = (props) => {
       2,
       () => {
         popUploader(dispatch, true);
-        updateTrackingCode(orderDetails?.id, temp)
+        updateTrackingCode(orderDetails?.id, trackingCode)
           .then((res) => {
             popUploader(dispatch, false);
             orderDetails?.trackingCode === null

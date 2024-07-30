@@ -30,11 +30,13 @@ import classnames from "classnames";
 import FileUploadModal from "./FileUploadModal";
 import { Upload } from "react-feather";
 import { useDispatch } from "react-redux";
+import { Switch } from "antd";
 
 const UpdateCategory = ({ isOpen, toggle, currentData }) => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [selectedParent, setSelectedParent] = useState("");
+  const [categoryStatus, setCategoryStatus] = useState("");
   const [activeTab, setActiveTab] = useState("2");
   const [uploadedFile, setUploadedFile] = useState({});
   const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -46,9 +48,10 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
   const setCurrentData = () => {
     //currentData
 
-    setCategoryName(currentData.name);
-    setSelectedParent(currentData.parent_id);
-    // setUploadedFile(currentData?.file);
+    setCategoryName(currentData?.name);
+    setSelectedParent(currentData?.parent_id);
+    setCategoryStatus(currentData?.status);
+    // setUploadedFile(currentData?.file?.originalPath);
   };
 
   useEffect(() => {
@@ -104,6 +107,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
     let data = {
       name: categoryName,
       parent_id: selectedParent,
+      status: categoryStatus,
       fileId: Object.keys(uploadedFile).length === 0 ? currentData?.file : temp,
     };
 
@@ -127,6 +131,11 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
           });
       });
     }
+  };
+
+  const changeStatusProduct = () => {
+    const newStatus = categoryStatus === 1 ? 2 : 1;
+    setCategoryStatus(newStatus);
   };
 
   return (
@@ -167,30 +176,29 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
               <Row>
                 <Col sm="12">
                   <Form className="mt-2">
-                    {/* {currentData?.parentId != null ? (
-                      <FormGroup>
-                        <Label for="categoryName">
-                          Update main category name{" "}
-                        </Label>
-                        <Input
-                          className={"form-control"}
-                          id="exampleSelect"
-                          name="text"
-                          type="select"
-                          value={selectedParent}
-                          placeholder="Update category name"
-                          onChange={(e) => {
-                            console.log(e.target.value);
-                            setSelectedParent(e.target.value);
-                          }}
-                        >
-                          {categoryList}
-                        </Input>
-                      </FormGroup>
-                    ) : (
-                      ""
-                    )} */}
-
+                    <FormGroup>
+                      <Label for="categoryStatus">Category Status</Label>
+                      <Switch
+                        className="ms-4"
+                        checked={
+                          categoryStatus === 1
+                            ? true
+                            : categoryStatus === 2
+                            ? false
+                            : false
+                        }
+                        onChange={(e) => {
+                          changeStatusProduct();
+                        }}
+                        handleBg={categoryStatus === 1 ? "#60b24c" : "#bababa"}
+                        checkedChildren="Active"
+                        unCheckedChildren="Inactive"
+                        style={{
+                          backgroundColor:
+                            categoryStatus === 1 ? "#60b24c" : "#bababa",
+                        }}
+                      />
+                    </FormGroup>
                     <FormGroup>
                       {currentData?.parentId != null ? (
                         <Label for="categoryName">
@@ -229,7 +237,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
                           Object.keys(uploadedFile).length === 0 && (
                             <div className="d-flex my-2 flex-wrap">
                               <img
-                                src={currentData?.file.originalPath}
+                                src={currentData?.file?.originalPath}
                                 alt="productImage"
                                 className="mx-2"
                                 style={{
@@ -284,7 +292,6 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
                     <div className="d-flex justify-content-end">
                       <Button
                         className="mx-2"
-                        outline
                         color="secondary"
                         onClick={() => {
                           toggle();

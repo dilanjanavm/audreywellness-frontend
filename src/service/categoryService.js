@@ -57,9 +57,9 @@ export async function updateCategory(id, data) {
 
 export async function deleteCategory(catId) {
   const apiObject = {};
-  (apiObject.method = "DELETE"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
+  apiObject.method = "DELETE",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
   apiObject.endpoint = ``;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
@@ -70,9 +70,9 @@ export async function categoryFiltration(data, currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/category/find-all?name=${data?.name}&status=${
-    data?.status
-  }&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/category/find-all?name=${data?.name}&category=${
+    data?.categoryId
+  }&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
