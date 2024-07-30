@@ -45,8 +45,8 @@ const authProtectedRoutes = [
   //Pages
   // { path: "/pages-starter", component: <Starter /> },
 
-  //User Profile
-  // { path: "/profile", component: <UserProfile /> },
+  // User Profile
+  { path: "/profile", component: <UserProfile /> },
 
   {
     path: "/",

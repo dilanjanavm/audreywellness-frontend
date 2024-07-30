@@ -3,20 +3,8 @@ import { Badge } from "reactstrap";
 import { Avatar, Tag } from "antd";
 
 const OrderItems = ({ data }) => {
-  const [isToggleModal, setIsToggleModal] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState("");
-
-  const toggleModal = () => {
-    setIsToggleModal(!isToggleModal);
-  };
-
   return (
     <React.Fragment>
-      {/* <ViewPackageModal
-        isOpen={isToggleModal}
-        currentData={selectedPackage}
-        toggle={toggleModal}
-      /> */}
       {data?.map((orderItem, index) => (
         <>
           {console.log("Order Item:", orderItem)}

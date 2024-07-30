@@ -61,28 +61,7 @@ const OrderManagement = () => {
 
   useEffect(() => {
     loadAllOrders(currentPage);
-    // loadAllOrderStatus();
   }, []);
-
-  // const loadAllOrderStatus = () => {
-  //   setStatusList([]);
-  //   let temp = [];
-  //   popUploader(dispatch, true);
-  //   getAllOrderStatus()
-  //     .then((resp) => {
-  //       let temp = [];
-  //       resp.data.map((status, index) => {
-  //         temp.push({ value: status?.id, label: status?.name });
-  //       });
-  //       setStatusList(temp);
-  //       popUploader(dispatch, false);
-  //     })
-  //     .catch((err) => {
-  //       popUploader(dispatch, false);
-  //       handleError(err);
-  //     })
-  //     .finally();
-  // };
 
   const loadAllOrders = async (currentPage) => {
     let temp = [];
@@ -158,36 +137,6 @@ const OrderManagement = () => {
       );
     }
   };
-
-  // const handleChange = (e) => {
-  //   let status = e?.label;
-  //   console.log(status);
-
-  //   debounceHandleSearchOrderFiltration(
-  //     searchOrderId,
-  //     searchCustomerName,
-  //     searchCustomerContactNo,
-  //     searchDateRange,
-  //     searchTrackingCode,
-  //     status === undefined ? "" : status,
-  //     1
-  //   );
-  //   setSelectedStatus(status);
-
-  //   status === undefined
-  //     ? toggleTab("1", "")
-  //     : status === "Delivered"
-  //     ? toggleTab("2", "Delivered")
-  //     : status === "Delivering"
-  //     ? toggleTab("3", "Delivering")
-  //     : status === "Processing"
-  //     ? toggleTab("4", "Processing")
-  //     : status === "Pending"
-  //     ? toggleTab("5", "Pending")
-  //     : status === "Cancel"
-  //     ? toggleTab("6", "Cancel")
-  //     : toggleTab("1", "All");
-  // };
 
   const handleSearchOrderFiltration = (
     orderId,
@@ -544,23 +493,6 @@ const OrderManagement = () => {
                     }}
                   />
                 </Col>
-
-                {/* <Col sm={12} md={6} lg={3}>
-                  <Label>Search By Order Status</Label>
-                  <Select
-                    value={
-                      statusList.find(
-                        (option) => option.label === selectedStatus
-                      ) || null
-                    }
-                    className="basic-single"
-                    classNamePrefix="Search order by order status"
-                    isSearchable={true}
-                    isClearable
-                    onChange={handleChange}
-                    options={statusList}
-                  />
-                </Col> */}
               </Row>
 
               <Row>

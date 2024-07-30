@@ -49,14 +49,14 @@ const UserProfile = () => {
       const obj = JSON.parse(sessionStorage.getItem("authUser"));
 
       if (!isEmpty(user)) {
-        obj.data.first_name = user.first_name;
+        obj.user.first_name = user.first_name;
         sessionStorage.removeItem("authUser");
         sessionStorage.setItem("authUser", JSON.stringify(obj));
       }
 
-      setUserName(obj.data.first_name);
-      setemail(obj.data.email);
-      setidx(obj.data._id || "1");
+      setUserName(obj.user.first_name);
+      setemail(obj.user.email);
+      setidx(obj.user._id || "1");
 
       setTimeout(() => {
         dispatch(resetProfileFlag());
