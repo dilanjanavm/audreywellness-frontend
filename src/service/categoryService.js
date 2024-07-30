@@ -70,7 +70,7 @@ export async function categoryFiltration(data, currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/category/find-all?name=${data?.name}&category=${
+  apiObject.endpoint = `api/category/find-all?name=${data?.name}&parentCategoryId=${
     data?.categoryId
   }&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;

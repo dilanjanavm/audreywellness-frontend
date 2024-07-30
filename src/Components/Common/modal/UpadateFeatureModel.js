@@ -87,6 +87,7 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
           <FormGroup>
             <Label for="featureStatus">Feature Status</Label>
             <Switch
+              disabled={currentData?.isDefault}
               className="ms-4"
               checked={
                 featureStatus === 1 ? true : featureStatus === 2 ? false : false

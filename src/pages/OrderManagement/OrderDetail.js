@@ -84,6 +84,7 @@ const OrderDetail = (props) => {
         console.log(res);
         let response = res?.data;
         setOrderDetails(response);
+        setTrackingCode(response?.trackingCode);
         // setSelectedStatus({ value: "", label: response?.status });
         popUploader(dispatch, false);
       })
@@ -516,7 +517,12 @@ const OrderDetail = (props) => {
             <Card>
               <CardHeader>
                 <div className="d-flex">
-                  <h5 className="card-title flex-grow-1 mb-0">Tracking Code</h5>
+                  <h5 className="card-title flex-grow-1 mb-0">
+                    Tracking Code{" "}
+                    {orderDetails?.trackingCode != null
+                      ? " : " + orderDetails?.trackingCode
+                      : ""}
+                  </h5>
                 </div>
               </CardHeader>
               <CardBody>
@@ -538,7 +544,7 @@ const OrderDetail = (props) => {
                           assignTrackingCode();
                         }}
                       >
-                        Save
+                        {orderDetails?.trackingCode != null ? "Update" : "Save"}
                       </Button>
                     </div>
                   </li>{" "}
