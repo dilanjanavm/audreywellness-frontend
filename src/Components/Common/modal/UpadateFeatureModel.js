@@ -14,11 +14,13 @@ import {
 import ReactEditList, * as REL from "react-edit-list";
 import { customToastMsg } from "../../../common/commonFunctions";
 import * as attributeAndTagService from "../../../service/attributeAndTagService";
+import { Switch } from "antd";
 
 const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
   const [featureName, setFeatureName] = useState("");
   const [currentTerms, setCurrentTerms] = useState("");
   const [terms, setTerms] = useState([]);
+  const [featureStatus, setFeatureStatus] = useState("");
 
   useEffect(() => {
     setFeatureName(currentData.name);
@@ -71,6 +73,10 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
     { name: "id", type: "id" },
     { name: "Values", type: "string" },
   ];
+  const changeStatusProduct = () => {
+    const newStatus = featureStatus === 1 ? 2 : 1;
+    setFeatureStatus(newStatus);
+  };
 
   return (
     <Modal size="md" isOpen={isOpen} toggle={toggle}>
@@ -78,8 +84,27 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
       <ModalBody>
         <Form>
           <FormGroup>
+            <Label for="featureStatus">Feature Status</Label>
+            <Switch
+              className="ms-4"
+              checked={
+                featureStatus === 1 ? true : featureStatus === 2 ? false : false
+              }
+              onChange={(e) => {
+                changeStatusProduct();
+              }}
+              handleBg={featureStatus === 1 ? "#60b24c" : "#bababa"}
+              checkedChildren="Active"
+              unCheckedChildren="Inactive"
+              style={{
+                backgroundColor: featureStatus === 1 ? "#60b24c" : "#bababa",
+              }}
+            />
+          </FormGroup>
+          <FormGroup>
             <Label for="featureName">Update Feature Name</Label>
             <Input
+              disabled={currentData?.isDefault}
               type="text"
               name="featureName"
               placeholder="Update feature name"

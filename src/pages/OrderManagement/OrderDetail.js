@@ -126,9 +126,6 @@ const OrderDetail = (props) => {
         ? (selectedStatus = "DELIVERED")
         : "";
     }
-    let temp = {
-      status: selectedStatus,
-    };
 
     customSweetAlert(
       `Do you want to update this order status ${orderDetails?.status} to  ${
@@ -144,7 +141,7 @@ const OrderDetail = (props) => {
       2,
       () => {
         popUploader(dispatch, true);
-        updateOrdersStatus(orderDetails?.id, temp)
+        updateOrdersStatus(orderDetails?.id, selectedStatus)
           .then((res) => {
             popUploader(dispatch, false);
             customToastMsg("Order status updated successfully", 1);
@@ -161,13 +158,9 @@ const OrderDetail = (props) => {
   const updateStatusOfOrderToReject = () => {
     let selectedStatus = "REJECTED";
 
-    let temp = {
-      status: selectedStatus,
-    };
-
     customSweetAlert(`Do you want to reject this order?`, 0, () => {
       popUploader(dispatch, true);
-      updateOrdersStatus(orderDetails?.id, temp)
+      updateOrdersStatus(orderDetails?.id, selectedStatus)
         .then((res) => {
           popUploader(dispatch, false);
           customToastMsg("Order rejected successfully", 1);

@@ -14,8 +14,13 @@ import "../../assets/scss/pages/_featuresManagement.scss";
 import { PenTool, Save, Trash, Trash2, X, XCircle } from "react-feather";
 import UpdateFeatureModel from "../Common/modal/UpadateFeatureModel";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
-import { customSweetAlert, customToastMsg, popUploader } from "../../common/commonFunctions";
+import {
+  customSweetAlert,
+  customToastMsg,
+  popUploader,
+} from "../../common/commonFunctions";
 import { useDispatch } from "react-redux";
+import { Tag } from "antd";
 
 const FeatureValue = ({
   indexOfComponent,
@@ -94,11 +99,29 @@ const FeatureValue = ({
       <Card className={``}>
         <CardBody>
           <Row className="my-3">
+            <Col sm={12} md={12} lg={12} className="d-flex justify-content-end">
+              <Tag
+                color={
+                  currentData?.status === 1
+                    ? "success"
+                    : currentData?.status === 2
+                    ? "error"
+                    : "default"
+                }
+                key={currentData?.status}
+              >
+                {currentData?.status === 1
+                  ? "Active"
+                  : currentData?.status === 2
+                  ? "Inactive"
+                  : "none"}
+              </Tag>
+            </Col>
             <Col sm={6} md={4} lg={3} className="featureValue">
               <FormGroup className="w-100 ">
                 <Label>Feature Name</Label>
                 <Input
-                  disabled={currentData}
+                  disabled={true}
                   value={featureName}
                   onChange={(value) => {
                     setFeatureName(value.target.value);
@@ -108,23 +131,6 @@ const FeatureValue = ({
                 />
               </FormGroup>
             </Col>
-            {/* <Col sm={6} md={8} lg={9}>
-              <FormGroup className="featureValueTags">
-                <Label>Values</Label>
-                <div class="d-flex flex-row ">
-                  {currentData?.tags?.map((value, index) => (
-                    <div className=" mx-1  ">
-                      <h5>
-                        {" "}
-                        <span className="md badge bg-primary-subtle text-primary badge-border">
-                          {value?.name}{" "}
-                        </span>
-                      </h5>
-                    </div>
-                  ))}
-                </div>
-              </FormGroup>
-            </Col> */}
 
             <Col sm={6} md={8} lg={9}>
               <FormGroup className="featureValueTags">
@@ -173,6 +179,7 @@ const FeatureValue = ({
               className="featureValue d-flex justify-content-between "
             >
               <Button
+                disabled={currentData?.isDefault}
                 onClick={(e) => {
                   removeValueFromAttribute(indexOfComponent);
                 }}

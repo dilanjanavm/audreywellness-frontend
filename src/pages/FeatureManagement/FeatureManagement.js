@@ -10,6 +10,7 @@ import {
   Label,
   Row,
 } from "reactstrap";
+import Select from "react-select";
 import TagsInput from "react-tagsinput";
 import FeatureValue from "../../Components/FeatureValues/FeatureValues";
 import * as attributeAndTagService from "../../service/attributeAndTagService";
@@ -29,7 +30,8 @@ const FeatureManagement = () => {
   const [currentFeatureValues, setCurrentFeatureValues] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [searchFeatureName, setSearchFeatureName] = useState("");
-
+  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [statusList, setStatusList] = useState([]);
   //-------------------------- pagination --------------------------
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,6 +41,10 @@ const FeatureManagement = () => {
 
   useEffect(() => {
     loadAllAttributes(currentPage);
+    setStatusList([
+      { value: 1, label: "Active" },
+      { value: 2, label: "Inactive" },
+    ]);
   }, []);
 
   const loadAllAttributes = async (currentPage) => {
@@ -74,17 +80,17 @@ const FeatureManagement = () => {
     loadAllAttributes(currentPage);
   };
 
-  const searchAttributesFiltration = (name, currentPage) => {
+  const searchAttributesFiltration = (name, status, currentPage) => {
     popUploader(dispatch, true);
     let temp = [];
-    if (name === "") {
+    if (name === "" && status === "") {
       loadAllAttributes(currentPage);
     } else {
       popUploader(dispatch, true);
       const withTags = true;
       setCurrentFeatureValues([]);
       attributeAndTagService
-        .attributesWithTagsFiltration(withTags, name, currentPage)
+        .attributesWithTagsFiltration(withTags, name, status, currentPage)
         .then(async (res) => {
           let featureData = [];
           setCurrentFeatureValues([]);
@@ -110,10 +116,14 @@ const FeatureManagement = () => {
 
   const onChangePagination = (page) => {
     setCurrentPage(page);
-    if (searchFeatureName === "") {
+    if (searchFeatureName === "" && selectedStatus === "") {
       loadAllAttributes(page);
     } else {
-      debounceSearchAttributesFiltration(searchFeatureName, page);
+      debounceSearchAttributesFiltration(
+        searchFeatureName,
+        selectedStatus,
+        page
+      );
     }
   };
 
@@ -133,13 +143,13 @@ const FeatureManagement = () => {
               <Row className=" mt-2 d-flex justify-content-end">
                 <Col
                   sm={12}
-                  md={2}
+                  md={6}
                   lg={3}
-                  className=" d-flex justify-content-end"
+                  className=" d-flex justify-content-end "
                 >
                   <Button
                     color="primary"
-                    className="mt-2"
+                    className="my-2"
                     onClick={addFeatureValue}
                   >
                     {" "}
@@ -161,8 +171,42 @@ const FeatureManagement = () => {
                       value={searchFeatureName}
                       onChange={(e) => {
                         setSearchFeatureName(e.target.value);
-                        debounceSearchAttributesFiltration(e.target.value, 1);
+                        debounceSearchAttributesFiltration(
+                          e.target.value,
+                          selectedStatus,
+                          1
+                        );
                       }}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col sm={12} md={6} lg={4} xl={4}>
+                  <FormGroup>
+                    <Label for="exampleEmail">Search by status</Label>
+                    <Select
+                      className="basic-single"
+                      classNamePrefix="select"
+                      isSearchable={true}
+                      isClearable
+                      onChange={(e) => {
+                        setSelectedStatus(
+                          e?.value === undefined
+                            ? ""
+                            : e === null
+                            ? ""
+                            : e.value
+                        );
+                        debounceSearchAttributesFiltration(
+                          searchFeatureName,
+                          e?.value === undefined
+                            ? ""
+                            : e === null
+                            ? ""
+                            : e.value,
+                          1
+                        );
+                      }}
+                      options={statusList}
                     />
                   </FormGroup>
                 </Col>

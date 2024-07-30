@@ -20,19 +20,19 @@ export async function getOrderByOrderId(orderId) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function updateOrdersStatus(orderId, data) {
+export async function updateOrdersStatus(orderId, status) {
   const apiObject = {};
-  apiObject.method = "PUT",
+  apiObject.method = "PATCH",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/order/update-status/${orderId}`;
-  apiObject.body = data;
+  apiObject.endpoint = `api/order/update-status/${orderId}?status=${status}`;
+  apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
 
 export async function updateTrackingCode(orderId, data) {
   const apiObject = {};
-  apiObject.method = "PUT",
+  apiObject.method = "PATCH",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = ``;
