@@ -106,12 +106,12 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
 
   const loadAllRoles = async () => {
     setRoleList([]);
-    const withPermission = false;
+    const status = 1;
     await rolePermissionService
-      .getAllRolesWithStatus(withPermission)
+      .getAllRolesWithStatusToDropdown(status)
       .then((res) => {
         let temp = [];
-        res?.data.map((role, index) => {
+        res?.data.records.map((role, index) => {
           if (
             role.status === 1 &&
             role?.name != "CUSTOMER" &&

@@ -10,7 +10,7 @@ export async function getAllRoles(currentPage) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function getAllRolesWithStatus(status) {
+export async function getAllRolesWithStatusToDropdown(status) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;

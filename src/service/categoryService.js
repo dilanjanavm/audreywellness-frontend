@@ -1,12 +1,11 @@
 import ApiService from "./apiService";
 
-export async function getAllCategoriesWithSubCategories() {
+export async function getAllCategories(currentPage) {
   const apiObject = {};
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint =
-    "api/category/find-all-parent-categories?withSubCategories=true";
+  apiObject.endpoint = `api/admin/category/find-all?perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
@@ -19,16 +18,6 @@ export async function getAllCategoriesWithOrWithoutSubCategories(
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
   apiObject.endpoint = `api/category/find-all-parent-categories?withSubCategories=${withSubCategories}`;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
-}
-
-export async function getAllCategories(currentPage) {
-  const apiObject = {};
-  apiObject.method = "GET";
-  apiObject.authentication = true;
-  apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/category/find-all?perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
@@ -57,9 +46,9 @@ export async function updateCategory(id, data) {
 
 export async function deleteCategory(catId) {
   const apiObject = {};
-  apiObject.method = "DELETE",
-  apiObject.authentication = true,
-  apiObject.isWithoutPrefix = false;
+  (apiObject.method = "DELETE"),
+    (apiObject.authentication = true),
+    (apiObject.isWithoutPrefix = false);
   apiObject.endpoint = ``;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
@@ -70,9 +59,11 @@ export async function categoryFiltration(data, currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/category/find-all?name=${data?.name}&parentCategoryId=${
-    data?.categoryId
-  }&status=${data?.status}&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/admin/category/find-all?name=${
+    data?.name
+  }&parentCategoryId=${data?.categoryId}&status=${
+    data?.status
+  }&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

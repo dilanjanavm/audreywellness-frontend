@@ -77,7 +77,7 @@ const RoleManagement = () => {
 
         let temp = [];
 
-        res?.data.map((role, index) => {
+        res?.data.records.map((role, index) => {
           temp.push({
             id: role?.id,
             name: role?.name,
@@ -146,7 +146,7 @@ const RoleManagement = () => {
 
           let temp = [];
 
-          res?.data.map((role, index) => {
+          res?.data.records.map((role, index) => {
             temp.push({
               id: role?.id,
               name: role?.name,

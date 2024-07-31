@@ -22,7 +22,7 @@ import {
   handleError,
   popUploader,
 } from "../../common/commonFunctions";
-import { getAllRoles } from "../../service/rolePermissionService";
+import { getAllRolesWithStatusToDropdown } from "../../service/rolePermissionService";
 import debounce from "lodash/debounce";
 
 const StaffManagement = () => {
@@ -57,11 +57,11 @@ const StaffManagement = () => {
 
   const loadAllRoles = () => {
     popUploader(dispatch, true);
-    getAllRoles()
+    getAllRolesWithStatusToDropdown("")
       .then((res) => {
         popUploader(dispatch, false);
         let temp = [];
-        res?.data.map((role) => {
+        res?.data.records.map((role) => {
           if (role?.name != "CUSTOMER" && role?.name != "SUPER_ADMIN") {
             temp.push({
               value: role?.id,

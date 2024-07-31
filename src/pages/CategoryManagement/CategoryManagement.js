@@ -80,7 +80,7 @@ const CategoryManagement = () => {
     categoryService
       .getAllCategories(currentPage)
       .then((res) => {
-        const formattedData = res.data.map((record) => ({
+        const formattedData = res.data.records.map((record) => ({
           name: record.name,
           hierarchy: record.hierarchy,
           status: record.status,
@@ -129,7 +129,7 @@ const CategoryManagement = () => {
         }));
         setCategoryTableList(formattedData);
         setCurrentPage(res?.data?.currentPage);
-        setTotalRecodes(res?.data?.totalRecords);
+        setTotalRecodes(res?.data?.totalCount);
         popUploader(dispatch, false);
       })
       .catch((err) => {
@@ -188,7 +188,7 @@ const CategoryManagement = () => {
       categoryService
         .categoryFiltration(data, currentPage)
         .then((res) => {
-          const formattedData = res.data.map((record) => ({
+          const formattedData = res.data.records.map((record) => ({
             name: record.name,
             hierarchy: record.hierarchy,
             status: record.status,
@@ -238,7 +238,7 @@ const CategoryManagement = () => {
           }));
           setCategoryTableList(formattedData);
           setCurrentPage(res?.data?.currentPage);
-          setTotalRecodes(res?.data?.totalRecords);
+          setTotalRecodes(res?.data?.totalCount);
           popUploader(dispatch, false);
         })
         .catch((err) => {

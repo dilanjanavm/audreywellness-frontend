@@ -21,7 +21,7 @@ import {
 } from "../../common/commonFunctions";
 import { DownOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Divider, Dropdown, Menu, Select, Checkbox } from "antd";
-import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
+import { getAllCategoriesWithOrWithoutSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
@@ -87,7 +87,8 @@ const AddNewProduct = () => {
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
-    getAllCategoriesWithSubCategories()
+    const withSubCategories = true;
+    getAllCategoriesWithOrWithoutSubCategories(withSubCategories)
       .then((res) => {
         const formattedCategories = res.data.map((cat) => ({
           key: cat.id,

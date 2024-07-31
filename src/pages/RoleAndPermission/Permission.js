@@ -49,10 +49,10 @@ const Permission = () => {
     popUploader(dispatch, true);
     const status = 1;
     roleAndPermissionService
-      .getAllRolesWithStatus(status)
+      .getAllRolesWithStatusToDropdown(status)
       .then((res) => {
         let temp = [];
-        res?.data.map((role) => {
+        res?.data.records.map((role) => {
           if (role?.name != "CUSTOMER" && role?.name != "SUPER_ADMIN") {
             temp.push({
               value: role?.id,
@@ -62,7 +62,7 @@ const Permission = () => {
         });
         setRoleList(temp);
         // Find the SUPER_ADMIN role
-        const superAdminRole = res.data.find((role) => role.name === "ADMIN");
+        const superAdminRole = res.data.records.find((role) => role.name === "ADMIN");
         if (superAdminRole) {
           setSelectedRole({ id: superAdminRole.id, name: superAdminRole.name });
           searchPermissionsByRole(superAdminRole.id);

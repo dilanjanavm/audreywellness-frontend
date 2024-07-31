@@ -31,7 +31,7 @@ import {
   Checkbox,
   Switch,
 } from "antd";
-import { getAllCategoriesWithSubCategories } from "../../service/categoryService";
+import { getAllCategoriesWithOrWithoutSubCategories } from "../../service/categoryService";
 import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
@@ -100,7 +100,8 @@ const AddProduct = () => {
 
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
-    getAllCategoriesWithSubCategories()
+    const withSubCategories = true;
+    getAllCategoriesWithOrWithoutSubCategories(withSubCategories)
       .then((res) => {
         const formattedCategories = res.data.map((cat) => ({
           key: cat.id,
@@ -436,9 +437,9 @@ const AddProduct = () => {
       // ? customToastMsg("Select product attributes", 2)
       productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
-      // : !validation
-      // ? customToastMsg("Product variant details cannot have empty values", 2)
-      : (validation = true);
+      : // : !validation
+        // ? customToastMsg("Product variant details cannot have empty values", 2)
+        (validation = true);
 
     if (validation) {
       const data = {
