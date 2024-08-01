@@ -44,7 +44,7 @@ const OrderManagement = () => {
 
   const [activeTab, setActiveTab] = useState("1");
   const [orderList, setOrderList] = useState([]);
-  const [searchOrderId, setSearchOrderId] = useState("");
+  const [searchOrderCode, setSearchOrderCode] = useState("");
   const [searchCustomerName, setSearchCustomerName] = useState("");
   const [searchCustomerContactNo, setSearchCustomerContactNo] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
@@ -127,7 +127,7 @@ const OrderManagement = () => {
       history("/order-management");
       setSelectedStatus(type);
       debounceHandleSearchOrderFiltration(
-        searchOrderId,
+        searchOrderCode,
         searchCustomerName,
         searchCustomerContactNo,
         searchDateRange,
@@ -139,7 +139,7 @@ const OrderManagement = () => {
   };
 
   const handleSearchOrderFiltration = (
-    orderId,
+    orderCode,
     CusName,
     Contact,
     dateRange,
@@ -148,7 +148,7 @@ const OrderManagement = () => {
     currentPage
   ) => {
     if (
-      !orderId &&
+      !orderCode &&
       !CusName &&
       !Contact &&
       (dateRange === undefined || dateRange === null || dateRange === "") &&
@@ -167,7 +167,7 @@ const OrderManagement = () => {
 
       setOrderList([]);
       let data = {
-        orderId: orderId,
+        orderCode: orderCode,
         cusName: CusName,
         contact: Contact,
         startDate: startDate,
@@ -241,7 +241,7 @@ const OrderManagement = () => {
     setCurrentPage(page);
 
     if (
-      !searchOrderId &&
+      !searchOrderCode &&
       !searchCustomerName &&
       (searchDateRange === undefined ||
         searchDateRange === null ||
@@ -253,7 +253,7 @@ const OrderManagement = () => {
       loadAllOrders(page);
     } else {
       debounceHandleSearchOrderFiltration(
-        searchOrderId,
+        searchOrderCode,
         searchCustomerName,
         searchCustomerContactNo,
         searchDateRange,
@@ -266,7 +266,7 @@ const OrderManagement = () => {
 
   const clearFiltrationFields = () => {
     setActiveTab("1");
-    setSearchOrderId("");
+    setSearchOrderCode("");
     setSearchCustomerName("");
     setSearchDateRange("");
     setSelectedStatus("");
@@ -382,10 +382,10 @@ const OrderManagement = () => {
 
               <Row className="mt-3">
                 <Col sm={12} md={6} lg={3} xl={3} xxl={2}>
-                  <Label>Search By Order Id</Label>
+                  <Label>Search By Order Code</Label>
                   <Input
                     placeholder="ORD-000000"
-                    value={searchOrderId}
+                    value={searchOrderCode}
                     className="mb-3"
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
@@ -397,7 +397,7 @@ const OrderManagement = () => {
                         selectedStatus,
                         1
                       );
-                      setSearchOrderId(e.target.value);
+                      setSearchOrderCode(e.target.value);
                     }}
                   />
                 </Col>
@@ -427,7 +427,7 @@ const OrderManagement = () => {
                     value={searchCustomerName}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
-                        searchOrderId,
+                        searchOrderCode,
                         e.target.value,
                         searchCustomerContactNo,
                         searchDateRange,
@@ -447,7 +447,7 @@ const OrderManagement = () => {
                     value={searchCustomerContactNo}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
-                        searchOrderId,
+                        searchOrderCode,
                         searchCustomerName,
                         e.target.value,
                         searchDateRange,
@@ -469,7 +469,7 @@ const OrderManagement = () => {
                           date ? date.format("YYYY-MM-DD") : null
                         );
                         debounceHandleSearchOrderFiltration(
-                          searchOrderId,
+                          searchOrderCode,
                           searchCustomerName,
                           searchCustomerContactNo,
                           formattedDates,
@@ -481,7 +481,7 @@ const OrderManagement = () => {
                       } else {
                         setSearchDateRange("");
                         debounceHandleSearchOrderFiltration(
-                          searchOrderId,
+                          searchOrderCode,
                           searchCustomerName,
                           searchCustomerContactNo,
                           "",

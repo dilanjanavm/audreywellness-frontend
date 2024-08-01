@@ -1,122 +1,6 @@
 import { Tag } from "antd";
 import moment from "moment";
 
-export const PaymentTableColumns = [
-  {
-    title: "Order Code",
-    dataIndex: ["order", "orderCode"],
-    key: "orderCode",
-  },
-  {
-    title: "Created At",
-    dataIndex: "createdAt",
-    key: "createdAt",
-    render: (createdAt) => moment(createdAt).format("YYYY-MM-DD HH:mm:ss"),
-  },
-  {
-    title: "Payment Status",
-    key: "status",
-    dataIndex: "status",
-    render: (status) => {
-      let color;
-      let text;
-
-      switch (status) {
-        case "SUCCESS":
-          color = "green";
-          text = "SUCCESS";
-          break;
-        case "FAILED":
-          color = "red";
-          text = "FAILED";
-          break;
-        case "REFUNDED":
-          color = "blue";
-          text = "REFUNDED";
-          break;
-        case "CANCELLED":
-          color = "orange";
-          text = "CANCELLED";
-          break;
-        default:
-          color = "default";
-          text = "NONE";
-          break;
-      }
-
-      return (
-        <Tag color={color} key={status}>
-          {text}
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Tracking Code",
-    dataIndex: ["order", "trackingCode"],
-    key: "trackingCode",
-    render: (trackingCode) => (trackingCode ? trackingCode : " - "),
-  },
-  {
-    title: "Net Total",
-    dataIndex: ["order", "netTotal"],
-    key: "netTotal",
-  },
-  {
-    title: "Order Status",
-    key: "orderStatus",
-    width: "10%",
-    dataIndex: ["order", "status"],
-    render: (orderStatus) => {
-      let color;
-      let text;
-
-      switch (orderStatus) {
-        case "PENDING":
-          color = "blue";
-          text = "PENDING";
-          break;
-        case "PROCESSING":
-          color = "cyan";
-          text = "PROCESSING";
-          break;
-        case "SHIPPED":
-          color = "purple";
-          text = "SHIPPED";
-          break;
-        case "DELIVERED":
-          color = "green";
-          text = "DELIVERED";
-          break;
-        case "CANCELLED":
-          color = "red";
-          text = "CANCELLED";
-          break;
-        case "REJECTED":
-          color = "orange";
-          text = "REJECTED";
-          break;
-        default:
-          color = "default";
-          text = "NONE";
-          break;
-      }
-
-      return (
-        <Tag color={color} key={orderStatus}>
-          {text}
-        </Tag>
-      );
-    },
-  },
-
-  {
-    title: "Action",
-    key: "action",
-    render: (text, record) => <div>{record.action}</div>,
-  },
-];
-
 export const UserTableColumns = [
   {
     title: "Name",
@@ -170,7 +54,6 @@ export const UserTableColumns = [
   },
 ];
 
-//**Staff Table Columns
 export const StaffTableColumns = [
   {
     title: "Name",
@@ -365,6 +248,7 @@ export const CategoryTableColumns = [
     render: (text, record) => <div>{record.action}</div>,
   },
 ];
+
 export const OrderListTableColumns = [
   {
     title: "Order Code",
@@ -376,7 +260,6 @@ export const OrderListTableColumns = [
     title: "Tracking Code",
     dataIndex: "trackingCode",
     key: "trackingCode",
-    editable: true,
   },
 
   {
@@ -447,6 +330,114 @@ export const OrderListTableColumns = [
     title: "Action",
     key: "action",
 
+    render: (text, record) => <div>{record.action}</div>,
+  },
+];
+
+export const PaymentTableColumns = [
+  {
+    title: "Order Code",
+    dataIndex: "orderCode",
+    key: "orderCode",
+  },
+  {
+    title: "Payment Date",
+    dataIndex: "payment_date",
+    key: "payment_date",
+  },
+  {
+    title: "Payment Status",
+    key: "payment_status",
+    width: "15%",
+    dataIndex: "payment_status",
+    render: (payment_status) => (
+      <Tag
+        color={
+          payment_status === "SUCCESS"
+            ? "success"
+            : payment_status === "FAILED"
+            ? "error"
+            : payment_status === "REFUNDED"
+            ? "warning"
+            : payment_status === "CANCELLED"
+            ? "orange"
+            : "default"
+        }
+        key={payment_status}
+      >
+        {payment_status === "SUCCESS"
+          ? "SUCCESS"
+          : payment_status === "FAILED"
+          ? "FAILED"
+          : payment_status === "REFUNDED"
+          ? "REFUNDED"
+          : payment_status === "CANCELLED"
+          ? "CANCELLED"
+          : "none"}
+      </Tag>
+    ),
+  },
+
+  {
+    title: "Tracking Code",
+    dataIndex: "trackingCode",
+    key: "trackingCode",
+  },
+
+  {
+    title: "Total",
+    dataIndex: "total",
+    key: "total",
+  },
+  {
+    title: "Order Date",
+    dataIndex: "orderDate",
+    key: "orderDate",
+  },
+  {
+    title: "Order Status",
+    key: "order_status",
+    width: "15%",
+    dataIndex: "order_status",
+    render: (order_status) => (
+      <Tag
+        color={
+          order_status === "PENDING"
+            ? "warning"
+            : order_status === "PROCESSING"
+            ? "processing"
+            : order_status === "SHIPPED"
+            ? "purple"
+            : order_status === "DELIVERED"
+            ? "success"
+            : order_status === "CANCELLED"
+            ? "error"
+            : order_status === "REJECTED"
+            ? "magenta"
+            : "default"
+        }
+        key={order_status}
+      >
+        {order_status === "PENDING"
+          ? "PENDING"
+          : order_status === "PROCESSING"
+          ? "PROCESSING"
+          : order_status === "SHIPPED"
+          ? "SHIPPED"
+          : order_status === "DELIVERED"
+          ? "DELIVERED"
+          : order_status === "CANCELLED"
+          ? "CANCELLED"
+          : order_status === "REJECTED"
+          ? "REJECTED"
+          : "none"}
+      </Tag>
+    ),
+  },
+
+  {
+    title: "Action",
+    key: "action",
     render: (text, record) => <div>{record.action}</div>,
   },
 ];
