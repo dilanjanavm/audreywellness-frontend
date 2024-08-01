@@ -30,10 +30,9 @@ const RoleManagement = () => {
   const [isAddRoleModal, setIsAddRoleModal] = useState(false);
   const [isUpdateRoleModal, setIsUpdateRoleModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("");
-  const [roleId, setRoleId] = useState("");
   const [roleName, setRoleName] = useState("");
   const [roleList, setRoleList] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [statusList, setStatusList] = useState([]);
 
   //-------------------------- pagination --------------------------
@@ -68,6 +67,7 @@ const RoleManagement = () => {
 
   const loadAllRoles = async (currentPage) => {
     setRoleList([]);
+    clearFiltrationFields();
     popUploader(dispatch, true);
     roleAndPermissionService
       .getAllRoles(currentPage)
@@ -223,6 +223,11 @@ const RoleManagement = () => {
         })
         .finally();
     });
+  };
+
+  const clearFiltrationFields = () => {
+    setRoleName("");
+    setSelectedStatus("");
   };
 
   const onChangePagination = (page) => {
