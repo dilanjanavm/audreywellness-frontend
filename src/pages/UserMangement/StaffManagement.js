@@ -81,6 +81,7 @@ const StaffManagement = () => {
 
   const loadAllStaff = (currentPage) => {
     popUploader(dispatch, true);
+    clearFiltrationFields();
     setStaffTableList([]);
     staffService
       .getAllStaff(currentPage)
@@ -237,6 +238,13 @@ const StaffManagement = () => {
     setIsUpdateStaffModalOpen(false);
     setSelectedStaff([]);
     loadAllStaff(currentPage);
+  };
+
+  const clearFiltrationFields = () => {
+    setSearchName("");
+    setSearchEmail("");
+    setSelectedRole("");
+    setSelectedStatus([]);
   };
 
   const onChangePagination = (page) => {
