@@ -30,7 +30,6 @@ import {
 import { getAllOrderStatus } from "../../service/orderStatusService";
 
 export default function PaymentManagement() {
-  
   document.title = "Payment | Address";
   const dispatch = useDispatch();
   const history = useNavigate();
@@ -41,8 +40,7 @@ export default function PaymentManagement() {
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
 
   const [searchOrderCode, setSearchOrderCode] = useState("");
-  const [searchTrackingID, setSearchTrackingID] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
+  const [searchTrackingCode, setSearchTrackingCode] = useState("");
   const [searchCustomerName, setSearchCustomerName] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
   const [selectedOrderStatus, setSelectedOrderStatus] = useState("");
@@ -93,7 +91,9 @@ export default function PaymentManagement() {
         resp?.data?.records.map((payment, index) => {
           temp.push({
             orderCode: payment?.order?.orderCode,
-            trackingCode: payment?.order?.trackingCode,
+            trackingCode: payment?.order?.trackingCode
+              ? payment?.order?.trackingCode
+              : "-",
             payment_status: payment?.status,
             payment_date: moment(payment?.createdAt).format("YYYY-MM-DD"),
             orderDate: moment(payment?.order?.createdAt).format("YYYY-MM-DD"),
@@ -129,55 +129,51 @@ export default function PaymentManagement() {
       setActiveTab(tab);
       history("/payment-management");
       setSelectedPaymentStatus(type);
-      // debounceHandleSearchOrderFiltration(
-      //   searchOrderCode,
-      //   searchCustomerName,
-      //   searchCustomerContactNo,
-      //   searchDateRange,
-      //   searchTrackingCode,
-      //   type,
-      //   1
-      // );
+      debounceHandleSearchPaymentFiltration(
+        searchOrderCode,
+        searchCustomerName,
+        searchTrackingCode,
+        searchDateRange,
+        selectedOrderStatus,
+        type,
+        1
+      );
     }
   };
 
   const handleChangeOrderStatus = (e) => {
-    let status = e?.label;
-
-    // debounceHandleSearchPaymentFiltration(
-    //   searchOrderId,
-    //   searchCustomerName,
-    //   searchOrderDateRange,
-    //   searchPaymentDateRange,
-    //   status === undefined ? "" : status,
-    //   selectedPaymentStatus,
-    //   selectedPaymentMethod,
-    //   1
-    // );
-    setSelectedOrderStatus(status);
+    debounceHandleSearchPaymentFiltration(
+      searchOrderCode,
+      searchCustomerName,
+      searchTrackingCode,
+      searchDateRange,
+      e?.value === undefined ? "" : e === null ? "" : e?.label,
+      selectedPaymentStatus,
+      1
+    );
+    setSelectedOrderStatus(
+      e?.value === undefined ? "" : e === null ? "" : e?.label
+    );
   };
 
   const handleSearchPaymentFiltration = (
     orderCode,
     CusName,
-    Email,
     trackingCode,
     dateRange,
-    PaymentStatus,
     OrderStatus,
+    PaymentStatus,
     currentPage
   ) => {
     if (
       !orderCode &&
       !CusName &&
-      !Email &&
       trackingCode === "" &&
       (dateRange === undefined || dateRange === null || dateRange === "") &&
-      (
-        PaymentStatus === undefined ||
+      (PaymentStatus === undefined ||
         PaymentStatus === null ||
-        PaymentStatus === ""
-      )(OrderStatus === undefined || OrderStatus === null || OrderStatus === "")
+        PaymentStatus === "") &&
+      (OrderStatus === undefined || OrderStatus === null || OrderStatus === "")
     ) {
       loadAllPayments(currentPage);
     } else {
@@ -193,22 +189,21 @@ export default function PaymentManagement() {
       let data = {
         orderCode: orderCode,
         cusName: CusName,
-        Email: Email,
+        trackingCode: trackingCode,
         startDate: startDate,
         endDate: endDate,
-        trackingCode: trackingCode,
-        PaymentStatus:
-          PaymentStatus === undefined
-            ? ""
-            : PaymentStatus === null
-            ? ""
-            : PaymentStatus,
         OrderStatus:
           OrderStatus === undefined
             ? ""
             : OrderStatus === null
             ? ""
             : OrderStatus,
+        PaymentStatus:
+          PaymentStatus === undefined
+            ? ""
+            : PaymentStatus === null
+            ? ""
+            : PaymentStatus,
       };
 
       let temp = [];
@@ -261,40 +256,45 @@ export default function PaymentManagement() {
     if (
       !searchOrderCode &&
       !searchCustomerName &&
+      searchTrackingCode === "" &&
       (searchDateRange === undefined ||
         searchDateRange === null ||
         searchDateRange === "") &&
-      (selectedStatus === undefined ||
-        selectedStatus === null ||
-        selectedStatus === "")
+      (selectedPaymentStatus === undefined ||
+        selectedPaymentStatus === null ||
+        selectedPaymentStatus === "") &&
+      (selectedOrderStatus === undefined ||
+        selectedOrderStatus === null ||
+        selectedOrderStatus === "")
     ) {
       loadAllPayments(page);
     } else {
-      // debounceHandleSearchPaymentFiltration(
-      //   searchOrderId,
-      //   searchCustomerName,
-      //   searchOrderDateRange,
-      //   searchPaymentDateRange,
-      //   status === undefined ? "" : status,
-      //   selectedPaymentStatus,
-      //   selectedPaymentMethod,
-      //   page
-      // );
+      debounceHandleSearchPaymentFiltration(
+        searchOrderCode,
+        searchCustomerName,
+        searchTrackingCode,
+        searchDateRange,
+        selectedOrderStatus,
+        selectedPaymentStatus,
+        page
+      );
     }
   };
 
   const clearFiltrationFields = () => {
-    // setActiveTab("1");
-    // setSearchOrderCode("");
-    // setSearchCustomerName("");
-    // setSearchDateRange("");
-    // setSelectedStatus("");
-    // setSearchTrackingCode("");
+    setActiveTab("1");
+    setSelectedPaymentStatus("");
+    setSearchOrderCode("");
+    setSearchTrackingCode("");
+    setSearchCustomerName("");
+    setSearchDateRange(null);
+    setSelectedOrderStatus("");
   };
 
   const toggleViewPaymentModal = (selectedPayment) => {
     setSelectedPayment(selectedPayment);
     setIsOpenViewPaymentModal(!isOpenViewPaymentModal);
+    clearFiltrationFields();
   };
 
   return (
@@ -388,6 +388,15 @@ export default function PaymentManagement() {
                       value={searchOrderCode}
                       onChange={(e) => {
                         setSearchOrderCode(e.target.value);
+                        debounceHandleSearchPaymentFiltration(
+                          e.target.value,
+                          searchCustomerName,
+                          searchTrackingCode,
+                          searchDateRange,
+                          selectedOrderStatus,
+                          selectedPaymentStatus,
+                          1
+                        );
                       }}
                     />
                   </Col>
@@ -398,66 +407,39 @@ export default function PaymentManagement() {
                       value={searchCustomerName}
                       onChange={(e) => {
                         setSearchCustomerName(e.target.value);
+                        debounceHandleSearchPaymentFiltration(
+                          searchOrderCode,
+                          e.target.value,
+                          searchTrackingCode,
+                          searchDateRange,
+                          selectedOrderStatus,
+                          selectedPaymentStatus,
+                          1
+                        );
                       }}
                     />
                   </Col>
 
                   <Col sm={12} md={6} lg={3}>
-                    <Label>Search By Customer Email</Label>
+                    <Label>Search By Tracking Code</Label>
                     <Input
-                      placeholder="Search order by email"
-                      value={searchEmail}
+                      placeholder="Search order by tracking code"
+                      value={searchTrackingCode}
                       onChange={(e) => {
-                        setSearchEmail(e.target.value);
+                        setSearchTrackingCode(e.target.value);
+                        debounceHandleSearchPaymentFiltration(
+                          searchOrderCode,
+                          searchCustomerName,
+                          e.target.value,
+                          searchDateRange,
+                          selectedOrderStatus,
+                          selectedPaymentStatus,
+                          1
+                        );
                       }}
                     />
                   </Col>
 
-                  <Col sm={12} md={6} lg={3}>
-                    <Label>Search By Tracking ID</Label>
-                    <Input
-                      placeholder="Search order by tracking ID"
-                      value={searchTrackingID}
-                      onChange={(e) => {
-                        setSearchTrackingID(e.target.value);
-                      }}
-                    />
-                  </Col>
-
-                  <Col sm={12} md={6} lg={3}>
-                    <Label>Search By Order Date </Label>
-                    <RangePicker
-                      style={{ height: 40, width: "100%", borderRadius: 4 }}
-                      onChange={(selectedDates) => {
-                        if (selectedDates) {
-                          const formattedDates = selectedDates.map((date) =>
-                            date ? date.format("YYYY-MM-DD") : null
-                          );
-                          // debounceHandleSearchOrderFiltration(
-                          //   searchOrderCode,
-                          //   searchCustomerName,
-                          //   searchCustomerContactNo,
-                          //   formattedDates,
-                          //   searchTrackingCode,
-                          //   selectedStatus,
-                          //   1
-                          // );
-                          setSearchDateRange(formattedDates);
-                        } else {
-                          setSearchDateRange("");
-                          // debounceHandleSearchOrderFiltration(
-                          //   searchOrderCode,
-                          //   searchCustomerName,
-                          //   searchCustomerContactNo,
-                          //   "",
-                          //   searchTrackingCode,
-                          //   selectedStatus,
-                          //   1
-                          // );
-                        }
-                      }}
-                    />
-                  </Col>
                   <Col sm={12} md={6} lg={3}>
                     <Label>Search By Order Status</Label>
                     <Select
@@ -472,6 +454,41 @@ export default function PaymentManagement() {
                       isClearable
                       onChange={handleChangeOrderStatus}
                       options={orderStatusList}
+                    />
+                  </Col>
+
+                  <Col sm={12} md={12} lg={4}>
+                    <Label>Search By Payment Date </Label>
+                    <RangePicker
+                      style={{ height: 40, width: "100%", borderRadius: 4 }}
+                      onChange={(selectedDates) => {
+                        if (selectedDates) {
+                          const formattedDates = selectedDates.map((date) =>
+                            date ? date.format("YYYY-MM-DD") : null
+                          );
+                          debounceHandleSearchPaymentFiltration(
+                            searchOrderCode,
+                            searchCustomerName,
+                            searchTrackingCode,
+                            formattedDates,
+                            selectedOrderStatus,
+                            selectedPaymentStatus,
+                            1
+                          );
+                          setSearchDateRange(formattedDates);
+                        } else {
+                          setSearchDateRange(null);
+                          debounceHandleSearchPaymentFiltration(
+                            searchOrderCode,
+                            searchCustomerName,
+                            searchTrackingCode,
+                            "",
+                            selectedOrderStatus,
+                            selectedPaymentStatus,
+                            1
+                          );
+                        }
+                      }}
                     />
                   </Col>
                 </Row>

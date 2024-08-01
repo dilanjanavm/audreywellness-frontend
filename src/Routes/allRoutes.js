@@ -75,7 +75,7 @@ const authProtectedRoutes = [
     component: <OrderManagement />,
   },
   {
-    path: "/Payment",
+    path: "/payment-management",
     exact: true,
     component: <PaymentManagement />,
   },

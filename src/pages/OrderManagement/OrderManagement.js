@@ -460,7 +460,7 @@ const OrderManagement = () => {
                   />
                 </Col>
                 <Col sm={12} md={12} lg={4} xl={4} xxl={3}>
-                  <Label>Search By Date Range</Label>
+                  <Label>Search By Order Date Range</Label>
                   <RangePicker
                     style={{ height: 40, width: "100%", borderRadius: 4 }}
                     onChange={(selectedDates) => {

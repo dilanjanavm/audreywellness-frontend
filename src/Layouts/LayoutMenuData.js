@@ -344,7 +344,7 @@ const Navdata = () => {
       id: "apps",
       label: "Payment",
       icon: <FeatherIcon icon="dollar-sign" className="icon-dual" />,
-      link: "/payment",
+      link: "/payment-management",
       click: function (e) {
         e.preventDefault();
         setIsApps(!isApps);
