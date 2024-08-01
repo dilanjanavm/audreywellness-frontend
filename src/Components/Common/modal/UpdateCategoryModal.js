@@ -88,7 +88,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
     setImageModalOpen(!imageModalOpen);
   };
 
-  const handleSubCategory = () => {
+  const handleUpdateCategory = () => {
     let isValidated = false;
 
     categoryName.trim() === ""
@@ -106,9 +106,9 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
 
     let data = {
       name: categoryName,
-      parent_id: selectedParent,
       status: categoryStatus,
-      fileId: Object.keys(uploadedFile).length === 0 ? currentData?.file : temp,
+      fileId:
+        Object.keys(uploadedFile).length === 0 ? currentData?.file?.id : temp,
     };
 
     if (isValidated) {
@@ -254,8 +254,6 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
                           )}
                       </FormGroup>
                       <FormGroup>
-                        {/* <Label for="categoryName">Select image for category </Label> */}
-
                         <button
                           className={"mt-2 clickToUploadButton w-50"}
                           type="button"
@@ -302,7 +300,7 @@ const UpdateCategory = ({ isOpen, toggle, currentData }) => {
                       >
                         Cancel
                       </Button>{" "}
-                      <Button color="primary" onClick={handleSubCategory}>
+                      <Button color="primary" onClick={handleUpdateCategory}>
                         Update
                       </Button>
                     </div>

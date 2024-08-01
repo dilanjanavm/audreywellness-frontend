@@ -77,6 +77,7 @@ const CategoryManagement = () => {
 
   const loadAllCategories = (currentPage) => {
     popUploader(dispatch, true);
+    clearFiltrationFields();
     categoryService
       .getAllCategories(currentPage)
       .then((res) => {
@@ -253,6 +254,12 @@ const CategoryManagement = () => {
     debounce(searchCategoryFiltration, 500),
     []
   );
+
+  const clearFiltrationFields = () => {
+    setSearchCategoryName("");
+    setSelectedStatus("");
+    setSelectedCategoryId("");
+  };
 
   const onChangePagination = (page) => {
     setCurrentPage(page);

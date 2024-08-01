@@ -46,10 +46,10 @@ export async function updateCategory(id, data) {
 
 export async function deleteCategory(catId) {
   const apiObject = {};
-  (apiObject.method = "DELETE"),
-    (apiObject.authentication = true),
-    (apiObject.isWithoutPrefix = false);
-  apiObject.endpoint = ``;
+  apiObject.method = "PATCH",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/category/change-status/${catId}?status=0`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
