@@ -33,6 +33,7 @@ const FeatureValue = ({
   const [featureName, setFeatureName] = useState("");
   const [isModalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
+  
   useEffect(() => {
     currentData && getValuesFromDB();
   }, []);

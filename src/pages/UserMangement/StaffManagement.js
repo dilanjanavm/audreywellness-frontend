@@ -353,6 +353,10 @@ const StaffManagement = () => {
                   className="basic-single"
                   classNamePrefix="select"
                   isSearchable={true}
+                  value={
+                    roleList.find((option) => option.value === selectedRole) ||
+                    null
+                  }
                   isClearable
                   onChange={(e) => {
                     setSelectedRole(
@@ -378,6 +382,11 @@ const StaffManagement = () => {
                   classNamePrefix="select"
                   isSearchable={true}
                   isClearable
+                  value={
+                    statusList.find(
+                      (option) => option.value === selectedStatus
+                    ) || null
+                  }
                   onChange={(e) => {
                     setSelectedStatus(
                       e?.value === undefined ? "" : e === null ? "" : e.value

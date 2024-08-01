@@ -291,6 +291,10 @@ const RoleManagement = () => {
               classNamePrefix="select"
               isSearchable={true}
               isClearable
+              value={
+                statusList.find((option) => option.value === selectedStatus) ||
+                null
+              }
               onChange={(e) => {
                 setSelectedStatus(
                   e?.value === undefined ? "" : e === null ? "" : e.value

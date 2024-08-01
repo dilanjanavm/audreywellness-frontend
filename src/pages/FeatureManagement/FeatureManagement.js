@@ -30,7 +30,7 @@ const FeatureManagement = () => {
   const [currentFeatureValues, setCurrentFeatureValues] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [searchFeatureName, setSearchFeatureName] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [statusList, setStatusList] = useState([]);
   //-------------------------- pagination --------------------------
 
@@ -49,6 +49,7 @@ const FeatureManagement = () => {
 
   const loadAllAttributes = async (currentPage) => {
     popUploader(dispatch, true);
+    clearFiltrationFields();
     const withTags = true;
     setCurrentFeatureValues([]);
     attributeAndTagService
@@ -113,6 +114,11 @@ const FeatureManagement = () => {
     debounce(searchAttributesFiltration, 500),
     []
   );
+
+  const clearFiltrationFields = () => {
+    setSearchFeatureName("");
+    setSelectedStatus("");
+  };
 
   const onChangePagination = (page) => {
     setCurrentPage(page);
@@ -188,6 +194,11 @@ const FeatureManagement = () => {
                       classNamePrefix="select"
                       isSearchable={true}
                       isClearable
+                      value={
+                        statusList.find(
+                          (option) => option.value === selectedStatus
+                        ) || null
+                      }
                       onChange={(e) => {
                         setSelectedStatus(
                           e?.value === undefined
