@@ -145,10 +145,8 @@ const ProductCard = ({ productData, reload }) => {
               {productData?.file && productData?.file.length > 0 ? (
                 <img
                   className="w-100 h-100 object-fit-cover"
-                  // key={index}
                   src={productData?.file[0]?.originalPath}
                   alt="productIamge"
-                  // alt={img?.altTag}
                   onError={(e) =>
                     (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
                   }
@@ -189,9 +187,6 @@ const ProductCard = ({ productData, reload }) => {
             {productData?.priceRange && (
               <h6 className="product-category text-truncate d-flex">
                 {/* <Tooltip title={productData?.priceRange}>
-                {"LKR " + productData?.priceRange.range}
-              </Tooltip> */}
-                {/* <Tooltip title={productData?.priceRange}>
                 {typeof productData?.priceRange === "object"
                   ? "LKR " + productData?.priceRange.range
                   : "LKR " + productData?.priceRange}
@@ -204,12 +199,6 @@ const ProductCard = ({ productData, reload }) => {
                 </Tooltip>
               </h6>
             )}
-
-            {/* <h6 className="product-category text-truncate d-flex">
-            <Tooltip title={productData?.priceRange?.range || "N/A"}>
-              {"LKR " + (productData?.priceRange?.range || "N/A")}
-            </Tooltip>
-          </h6> */}
           </div>
           <h6 className="product-title text-truncate" style={{ zIndex: 10 }}>
             <Switch
