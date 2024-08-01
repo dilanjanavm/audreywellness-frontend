@@ -47,6 +47,7 @@ const StoresManagement = () => {
 
   const loadAllStoreLocaters = (currentPage) => {
     setStoresTableList([]);
+    clearFiltrationFields();
     popUploader(dispatch, true);
     storeLocaterService
       .getAllStores(currentPage)
@@ -205,6 +206,12 @@ const StoresManagement = () => {
     setIsUpdateStoreModalOpen(false);
     setSelectedStore([]);
     loadAllStoreLocaters(currentPage);
+  };
+
+  const clearFiltrationFields = () => {
+    setSearchPostalCode("");
+    setSearchCity("");
+    setSearchAddress("");
   };
 
   const onChangePagination = (page) => {
