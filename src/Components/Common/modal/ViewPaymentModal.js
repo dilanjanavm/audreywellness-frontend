@@ -98,7 +98,7 @@ const ViewPaymentModal = ({ isOpen, currentData, onClose }) => {
                     padding: "8px",
                   }}
                 >
-                  {currentData?.order?.netTotal}
+                  LKR {currentData?.order?.netTotal}
                 </td>
               </tr>
               <tr>
@@ -117,7 +117,7 @@ const ViewPaymentModal = ({ isOpen, currentData, onClose }) => {
                     padding: "8px",
                   }}
                 >
-                  {currentData?.order?.shippingFee}
+                  LKR {currentData?.order?.shippingFee}
                 </td>
               </tr>
               <tr>
@@ -136,7 +136,7 @@ const ViewPaymentModal = ({ isOpen, currentData, onClose }) => {
                     padding: "8px",
                   }}
                 >
-                  {currentData?.order?.subTotal}
+                  LKR {currentData?.order?.subTotal}
                 </td>
               </tr>
               <tr>
@@ -155,7 +155,9 @@ const ViewPaymentModal = ({ isOpen, currentData, onClose }) => {
                     padding: "8px",
                   }}
                 >
-                  {currentData?.order?.discountAmount || " - "}
+                  {currentData?.order?.discountAmount
+                    ? "LKR " + currentData?.order?.discountAmount
+                    : " - "}
                 </td>
               </tr>
               <tr>

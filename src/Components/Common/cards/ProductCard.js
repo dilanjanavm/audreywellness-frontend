@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Popover, Switch, Tag, Tooltip } from "antd";
 import { useDispatch } from "react-redux";
 import * as productService from "../../../service/productService";
+import { activeInactiveDeleteProduct } from "../../../service/productBaseVariationService";
 
 const ProductCard = ({ productData, reload }) => {
   const history = useNavigate();
@@ -21,7 +22,7 @@ const ProductCard = ({ productData, reload }) => {
   const [isDeleted, setIsDeleted] = useState(0);
 
   useEffect(() => {
-    // console.log(productData, "*********************");
+    console.log(productData, "*********************");
   }, []);
 
   useEffect(() => {
@@ -37,12 +38,9 @@ const ProductCard = ({ productData, reload }) => {
   }, []);
 
   const handleDeleteProduct = (productId) => {
-    console.log(productId);
-
     customSweetAlert("Are you sure to delete this product?", 0, () => {
       popUploader(dispatch, true);
-
-      deleteProduct(productId)
+      activeInactiveDeleteProduct(productId, 0)
         .then((res) => {
           customToastMsg("Product deleted successfully", 1);
           reload();
@@ -66,8 +64,7 @@ const ProductCard = ({ productData, reload }) => {
       2,
       () => {
         popUploader(dispatch, true);
-        productService
-          .activeInactiveProduct(productData.id, newStatus)
+        activeInactiveDeleteProduct(productData.id, newStatus)
           .then((res) => {
             popUploader(dispatch, false);
             customToastMsg(

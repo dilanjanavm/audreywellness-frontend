@@ -20,6 +20,16 @@ export async function getProductBaseVariationDetailsById(productId) {
   return await ApiService.callApi(apiObject);
 }
 
+export async function activeInactiveDeleteProduct(productId, status) {
+  const apiObject = {};
+  apiObject.method = "PATCH",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = `api/admin/product-base-variant/change-status/${productId}?status=${status}`;
+  apiObject.body = null;
+  return await ApiService.callApi(apiObject);
+}
+
 export async function productBaseVariationFiltration(data,currentPage) {
   const apiObject = {};
   apiObject.method = "GET",

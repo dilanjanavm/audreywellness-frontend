@@ -30,16 +30,6 @@ export async function updateProduct(productId, data) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function deleteProduct(productId) {
-  const apiObject = {};
-  apiObject.method = "DELETE",
-  apiObject.authentication = true,
-  apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
-}
-
 export async function checkProductNameExists(productName) {
   const apiObject = {};
   apiObject.method = "GET",
@@ -50,15 +40,7 @@ export async function checkProductNameExists(productName) {
   return await ApiService.callApi(apiObject);
 }
 
-export async function activeInactiveProduct(productId, status) {
-  const apiObject = {};
-  apiObject.method = "PATCH",
-  apiObject.authentication = true,
-  apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = ``;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
-}
+
 
 // export async function productsFiltration(data, currentPage) {
 //   const apiObject = {};

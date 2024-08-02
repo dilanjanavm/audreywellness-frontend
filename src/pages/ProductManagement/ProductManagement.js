@@ -29,26 +29,25 @@ const ProductManagement = () => {
   const [isRefresh, setIsRefresh] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
+
   useEffect(() => {
     loadAllProducts();
   }, []);
 
   useEffect(() => {
-    if (isRefresh || searchQuery === "") {
+    if (isRefresh) {
       loadAllProducts();
       setIsRefresh(false);
     }
-  }, [isRefresh, searchQuery]);
-  const loadAllProducts = async () => {
+  }, [isRefresh]);
+
+  const loadAllProducts = () => {
     popUploader(dispatch, true);
     setProductList([]);
     let temp = [];
-    await productBaseVariantService
+    productBaseVariantService
       .getAllProductBaseVariation()
       .then((res) => {
-        console.log(res);
-        popUploader(dispatch, false);
-
         res?.data.map((productVarition, index) => {
           console.log("Product Variation:", productVarition);
           temp.push({
@@ -61,18 +60,12 @@ const ProductManagement = () => {
             productId: productVarition?.productId,
           });
         });
-        if (searchQuery) {
-          temp = temp.filter((product) =>
-            product.name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }
 
         setProductList(temp);
+        popUploader(dispatch, false);
       })
       .catch((err) => {
         popUploader(dispatch, false);
-
-        console.log(err);
         handleError(err);
       });
   };

@@ -282,7 +282,7 @@ const ViewProductDetails = () => {
               ""
             )}
 
-            {/* <Row>
+            <Row>
               <Col
                 className=" d-flex justify-content-end"
                 sm={12}
@@ -299,7 +299,7 @@ const ViewProductDetails = () => {
                   showTotal={(total) => `Total ${total} items`}
                 />
               </Col>
-            </Row> */}
+            </Row>
           </Row>
         </Card>
       </Container>
