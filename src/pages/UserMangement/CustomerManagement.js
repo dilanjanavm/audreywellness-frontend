@@ -122,7 +122,7 @@ const CustomerManagement = () => {
 
   const onChangePagination = (page) => {
     setCurrentPage(page);
-    if (postalCode === "" && city === "" && address === "") {
+    if (searchEmail === "" && searchContactNo === "" && selectedStatus === "") {
       loadAllCustomers(page);
     } else {
       debounceSearchCustomerFiltration(

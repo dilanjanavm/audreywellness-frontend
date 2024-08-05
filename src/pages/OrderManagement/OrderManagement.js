@@ -71,7 +71,7 @@ const OrderManagement = () => {
       .getAllOrders(currentPage)
       .then((resp) => {
         console.log(resp);
-        resp?.data?.map((ord, index) => {
+        resp?.data?.records.map((ord, index) => {
           temp.push({
             orderCode: ord?.orderCode,
             trackingCode: ord?.trackingCode,
@@ -182,7 +182,7 @@ const OrderManagement = () => {
         .ordersFiltration(data, currentPage)
         .then((resp) => {
           console.log(resp);
-          resp?.data?.map((ord, index) => {
+          resp?.data?.records.map((ord, index) => {
             temp.push({
               orderCode: ord?.orderCode,
               trackingCode: ord?.trackingCode,

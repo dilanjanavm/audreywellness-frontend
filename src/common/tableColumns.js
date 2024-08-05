@@ -341,6 +341,11 @@ export const PaymentTableColumns = [
     key: "orderCode",
   },
   {
+    title: "Customer Name",
+    dataIndex: "cusName",
+    key: "cusName",
+  },
+  {
     title: "Payment Date",
     dataIndex: "payment_date",
     key: "payment_date",

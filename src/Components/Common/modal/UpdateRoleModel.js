@@ -48,7 +48,7 @@ const UpdateRoleModal = ({ isOpen, currentData, onClose }) => {
       roleService
         .updateRole(currentData.id, data)
         .then((response) => {
-          // popUploader(dispatch, false);
+          popUploader(dispatch, false);
           onClose();
           setRoleName("");
           setRoleStatus("");

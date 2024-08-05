@@ -231,8 +231,6 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
       ? customToastMsg("First name cannot be empty")
       : lastName === ""
       ? customToastMsg("Last name cannot be empty")
-      : email === ""
-      ? customToastMsg("Email cannot be empty")
       : selectedRole === ""
       ? customToastMsg("Select role")
       : selectedCountry === ""
@@ -244,7 +242,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
     const data = {
       firstName: firstName,
       lastName: lastName,
-      email: email,
+      email: updateValue?.user?.email,
       contactNo: contactNo,
       country: selectedCountry,
       status: staffMemberStatus,
@@ -377,16 +375,20 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
             </FormGroup>
           </Row>
           <Row>
-            <FormGroup className="col-12 col-lg-6">
-              <Label for="email">Email</Label>
-              <Input
-                type="text"
-                id="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </FormGroup>
+            {isUpdate ? (
+              ""
+            ) : (
+              <FormGroup className="col-12 col-lg-6">
+                <Label for="email">Email</Label>
+                <Input
+                  type="text"
+                  id="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormGroup>
+            )}
 
             <FormGroup className="col-12 col-lg-6">
               <Label for="role">Select Role</Label>
@@ -407,10 +409,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
                 options={roleList}
               />
             </FormGroup>
-          </Row>
-          <Row></Row>
 
-          <Row>
             <FormGroup className="col-12 col-lg-6">
               <Label for="role">Select Country</Label>
               <Select
@@ -439,7 +438,7 @@ const StaffModel = ({ isOpen, toggle, updateValue, isUpdate }) => {
             <FormGroup className="col-12 col-lg-6">
               <Label for="contactNo">Contact No</Label>
               <Input
-                type="text"
+                type="number"
                 id="contactNo"
                 placeholder="Enter your contact number"
                 value={contactNo}

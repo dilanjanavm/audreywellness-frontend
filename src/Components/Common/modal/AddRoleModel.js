@@ -33,6 +33,7 @@ const AddRoleModal = ({ isOpen, toggle }) => {
       name: roleName,
     };
     if (isValidated) {
+      popUploader(dispatch, true);
       roleService
         .createRole(data)
         .then((response) => {
