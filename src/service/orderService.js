@@ -45,7 +45,7 @@ export async function ordersFiltration(data,currentPage) {
   apiObject.method = "GET";
   apiObject.authentication = true;
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/admin/order/find-all?orderCode=${data?.orderCode}&trackingCode=${data?.trackingCode}&cusName=${data?.cusName}&contact=${data?.contact}&orderStartDate=${data?.startDate}&orderEndDate=${data?.endDate}&status=${data?.status}&perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/admin/order/find-all?orderCode=${data?.orderCode}&trackingCode=${data?.trackingCode}&customerEmail=${data?.email}&contactNo=${data?.contact}&orderStartDate=${data?.startDate}&orderEndDate=${data?.endDate}&status=${data?.status}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
