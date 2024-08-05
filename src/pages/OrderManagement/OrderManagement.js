@@ -74,11 +74,8 @@ const OrderManagement = () => {
         resp?.data?.records.map((ord, index) => {
           temp.push({
             orderCode: ord?.orderCode,
-            trackingCode: ord?.trackingCode,
-            cusEmail:
-              ord?.billingDetail[0]?.firstName +
-              " " +
-              ord?.billingDetail[0]?.lastName,
+            trackingCode: ord?.trackingCode ? ord?.trackingCode : "-",
+            cusEmail: ord?.billingDetail[0]?.email,
             contactNo: ord?.billingDetail[0]?.contactNo,
             orderDate: moment(ord?.billingDetail[0]?.createdAt).format(
               "YYYY-MM-DD"
@@ -185,11 +182,8 @@ const OrderManagement = () => {
           resp?.data?.records.map((ord, index) => {
             temp.push({
               orderCode: ord?.orderCode,
-              trackingCode: ord?.trackingCode,
-              cusEmail:
-                ord?.billingDetail[0]?.firstName +
-                " " +
-                ord?.billingDetail[0]?.lastName,
+              trackingCode: ord?.trackingCode ? ord?.trackingCode : "-",
+              cusEmail: ord?.billingDetail[0]?.email,
               contactNo: ord?.billingDetail[0]?.contactNo,
               orderDate: moment(ord?.billingDetail[0]?.createdAt).format(
                 "YYYY-MM-DD"

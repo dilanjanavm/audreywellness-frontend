@@ -91,7 +91,7 @@ export default function PaymentManagement() {
         resp?.data?.records.map((payment, index) => {
           temp.push({
             orderCode: payment?.order?.orderCode,
-            cusEmail: "",
+            cusEmail: payment?.order?.deliveryDetail[0].email,
             trackingCode: payment?.order?.trackingCode
               ? payment?.order?.trackingCode
               : "-",
@@ -215,7 +215,7 @@ export default function PaymentManagement() {
           resp?.data?.records.map((payment, index) => {
             temp.push({
               orderCode: payment?.order?.orderCode,
-              cusEmail: "",
+              cusEmail: payment?.order?.deliveryDetail[0].email,
               trackingCode: payment?.order?.trackingCode
                 ? payment?.order?.trackingCode
                 : "-",

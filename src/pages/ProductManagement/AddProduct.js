@@ -341,12 +341,6 @@ const AddProduct = () => {
     setProductColorDetails([...productColorDetails, temp]);
   };
 
-  // const removeColorForm = (index) => {
-  //   const newColorDetails = [...productColorDetails];
-  //   newColorDetails.splice(index, 1);
-  //   setProductColorDetails(newColorDetails);
-  // };
-
   const removeColorForm = (index) => {
     const newColorDetails = [...productColorDetails];
     const removedColor = newColorDetails.splice(index, 1)[0]; // Get the removed color object
@@ -375,16 +369,13 @@ const AddProduct = () => {
   };
 
   const validationProductDetails = () => {
+    next();
     let validate = false;
     selectedCategoryId.trim() === ""
       ? customToastMsg("Select product category first", 2)
       : productName.trim() === ""
       ? customToastMsg("Product name cannot be empty", 2)
-      : // : productDes.trim() === ""
-      // ? customToastMsg("Product description cannot be empty", 2)
-      // : countDescription(productDes) > desMaxLimit
-      // ? customToastMsg("Product description limit exceed", 2)
-      manufactureDetails.trim() === ""
+      : manufactureDetails.trim() === ""
       ? customToastMsg("Manufacture details cannot be empty", 2)
       : countDescription(manufactureDetails) > desMaxLimit
       ? customToastMsg("Manufacture details limit exceed", 2)
@@ -425,11 +416,7 @@ const AddProduct = () => {
       ? customToastMsg("Select product category", 2)
       : productName.trim() === ""
       ? customToastMsg("Product name cannot be empty", 2)
-      : // : productDes.trim() === ""
-      // ? customToastMsg("Product description cannot be empty", 2)
-      // : countDescription(productDes) > desMaxLimit
-      // ? customToastMsg("Product description limit exceed", 2)
-      manufactureDetails.trim() === ""
+      : manufactureDetails.trim() === ""
       ? customToastMsg("Manufacture details cannot be empty", 2)
       : countDescription(manufactureDetails) > desMaxLimit
       ? customToastMsg("Manufacture details limit exceed", 2)
@@ -521,74 +508,6 @@ const AddProduct = () => {
                 </FormGroup>
               </Row>
               <Row>
-                {/* <FormGroup className="col-6">
-                  <div>
-                    <div className="d-flex justify-content-between">
-                      <Label>Product Description</Label>
-                      {countDescription(productDes) > desMaxLimit ? (
-                        <span className="text-count text-danger">
-                          {countDescription(productDes)} of {desMaxLimit}{" "}
-                          Characters
-                        </span>
-                      ) : (
-                        <span className="text-count text-muted">
-                          {countDescription(productDes)} of {desMaxLimit}{" "}
-                          Characters
-                        </span>
-                      )}
-                    </div>
-                    <CKEditor
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        setProductDes(data);
-                      }}
-                      config={{
-                        toolbar: {
-                          items: [
-                            "heading",
-                            "|",
-                            "bold",
-                            "italic",
-                            "underline",
-                            "strikethrough",
-                            "|",
-                            "bulletedList",
-                            "numberedList",
-                            "|",
-                            "alignment",
-                            "|",
-                            "indent",
-                            "outdent",
-                            "|",
-                            "fontColor",
-                            "fontSize",
-                            "fontBackgroundColor",
-                            "|",
-                            "undo",
-                            "redo",
-                            "|",
-                            "cut",
-                            "copy",
-                            "paste",
-                            "|",
-                            "removeFormat",
-                            "|",
-                            "blockQuote",
-                            "horizontalLine",
-                            "|",
-                            "code",
-                            "|",
-                            "specialCharacters",
-                            "|",
-                          ],
-                        },
-                      }}
-                      editor={ClassicEditor}
-                      data={productDes}
-                      onReady={(editor) => {}}
-                    />
-                  </div>
-                </FormGroup> */}
                 <FormGroup className="col-12">
                   <div>
                     <div className="d-flex justify-content-between">

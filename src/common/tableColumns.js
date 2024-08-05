@@ -339,6 +339,7 @@ export const PaymentTableColumns = [
     title: "Order Code",
     dataIndex: "orderCode",
     key: "orderCode",
+    width: "18%",
   },
   {
     title: "Customer Email",
@@ -349,11 +350,12 @@ export const PaymentTableColumns = [
     title: "Payment Date",
     dataIndex: "payment_date",
     key: "payment_date",
+    width: "15%",
   },
   {
     title: "Payment Status",
     key: "payment_status",
-    width: "15%",
+    width: "14%",
     dataIndex: "payment_status",
     render: (payment_status) => (
       <Tag
@@ -387,6 +389,7 @@ export const PaymentTableColumns = [
     title: "Tracking Code",
     dataIndex: "trackingCode",
     key: "trackingCode",
+    width: "10%",
   },
 
   {
@@ -398,6 +401,7 @@ export const PaymentTableColumns = [
     title: "Order Date",
     dataIndex: "orderDate",
     key: "orderDate",
+    width: "17%",
   },
   {
     title: "Order Status",
