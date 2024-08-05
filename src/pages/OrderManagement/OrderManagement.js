@@ -75,7 +75,7 @@ const OrderManagement = () => {
           temp.push({
             orderCode: ord?.orderCode,
             trackingCode: ord?.trackingCode,
-            customerName:
+            cusEmail:
               ord?.billingDetail[0]?.firstName +
               " " +
               ord?.billingDetail[0]?.lastName,
@@ -186,7 +186,7 @@ const OrderManagement = () => {
             temp.push({
               orderCode: ord?.orderCode,
               trackingCode: ord?.trackingCode,
-              customerName:
+              cusEmail:
                 ord?.billingDetail[0]?.firstName +
                 " " +
                 ord?.billingDetail[0]?.lastName,

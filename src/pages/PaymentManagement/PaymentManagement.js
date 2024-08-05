@@ -41,7 +41,7 @@ export default function PaymentManagement() {
 
   const [searchOrderCode, setSearchOrderCode] = useState("");
   const [searchTrackingCode, setSearchTrackingCode] = useState("");
-  const [searchCustomerName, setSearchCustomerName] = useState("");
+  const [searchCustomerEmail, setSearchCustomerEmail] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
   const [selectedOrderStatus, setSelectedOrderStatus] = useState("");
   const [orderStatusList, setOrderStatusList] = useState([]);
@@ -91,6 +91,7 @@ export default function PaymentManagement() {
         resp?.data?.records.map((payment, index) => {
           temp.push({
             orderCode: payment?.order?.orderCode,
+            cusEmail: "",
             trackingCode: payment?.order?.trackingCode
               ? payment?.order?.trackingCode
               : "-",
@@ -131,7 +132,7 @@ export default function PaymentManagement() {
       setSelectedPaymentStatus(type);
       debounceHandleSearchPaymentFiltration(
         searchOrderCode,
-        searchCustomerName,
+        searchCustomerEmail,
         searchTrackingCode,
         searchDateRange,
         selectedOrderStatus,
@@ -144,7 +145,7 @@ export default function PaymentManagement() {
   const handleChangeOrderStatus = (e) => {
     debounceHandleSearchPaymentFiltration(
       searchOrderCode,
-      searchCustomerName,
+      searchCustomerEmail,
       searchTrackingCode,
       searchDateRange,
       e?.value === undefined ? "" : e === null ? "" : e?.label,
@@ -158,7 +159,7 @@ export default function PaymentManagement() {
 
   const handleSearchPaymentFiltration = (
     orderCode,
-    CusName,
+    email,
     trackingCode,
     dateRange,
     OrderStatus,
@@ -167,7 +168,7 @@ export default function PaymentManagement() {
   ) => {
     if (
       !orderCode &&
-      !CusName &&
+      !email &&
       trackingCode === "" &&
       (dateRange === undefined || dateRange === null || dateRange === "") &&
       (PaymentStatus === undefined ||
@@ -188,7 +189,7 @@ export default function PaymentManagement() {
       setPaymentTableList([]);
       let data = {
         orderCode: orderCode,
-        cusName: CusName,
+        email: email,
         trackingCode: trackingCode,
         startDate: startDate,
         endDate: endDate,
@@ -214,7 +215,10 @@ export default function PaymentManagement() {
           resp?.data?.records.map((payment, index) => {
             temp.push({
               orderCode: payment?.order?.orderCode,
-              trackingCode: payment?.order?.trackingCode,
+              cusEmail: "",
+              trackingCode: payment?.order?.trackingCode
+                ? payment?.order?.trackingCode
+                : "-",
               payment_status: payment?.status,
               payment_date: moment(payment?.createdAt).format("YYYY-MM-DD"),
               orderDate: moment(payment?.order?.createdAt).format("YYYY-MM-DD"),
@@ -255,7 +259,7 @@ export default function PaymentManagement() {
     setCurrentPage(page);
     if (
       !searchOrderCode &&
-      !searchCustomerName &&
+      !searchCustomerEmail &&
       searchTrackingCode === "" &&
       (searchDateRange === undefined ||
         searchDateRange === null ||
@@ -271,7 +275,7 @@ export default function PaymentManagement() {
     } else {
       debounceHandleSearchPaymentFiltration(
         searchOrderCode,
-        searchCustomerName,
+        searchCustomerEmail,
         searchTrackingCode,
         searchDateRange,
         selectedOrderStatus,
@@ -286,7 +290,7 @@ export default function PaymentManagement() {
     setSelectedPaymentStatus("");
     setSearchOrderCode("");
     setSearchTrackingCode("");
-    setSearchCustomerName("");
+    setSearchCustomerEmail("");
     setSearchDateRange(null);
     setSelectedOrderStatus("");
   };
@@ -390,7 +394,7 @@ export default function PaymentManagement() {
                         setSearchOrderCode(e.target.value);
                         debounceHandleSearchPaymentFiltration(
                           e.target.value,
-                          searchCustomerName,
+                          searchCustomerEmail,
                           searchTrackingCode,
                           searchDateRange,
                           selectedOrderStatus,
@@ -401,12 +405,13 @@ export default function PaymentManagement() {
                     />
                   </Col>
                   <Col sm={12} md={6} lg={3}>
-                    <Label>Search By Customer Name</Label>
+                    <Label>Search By Customer Email</Label>
                     <Input
-                      placeholder="Search order by customer name"
-                      value={searchCustomerName}
+                      placeholder="Search order by customer email"
+                      value={searchCustomerEmail}
+                      type="email"
                       onChange={(e) => {
-                        setSearchCustomerName(e.target.value);
+                        setSearchCustomerEmail(e.target.value);
                         debounceHandleSearchPaymentFiltration(
                           searchOrderCode,
                           e.target.value,
@@ -429,7 +434,7 @@ export default function PaymentManagement() {
                         setSearchTrackingCode(e.target.value);
                         debounceHandleSearchPaymentFiltration(
                           searchOrderCode,
-                          searchCustomerName,
+                          searchCustomerEmail,
                           e.target.value,
                           searchDateRange,
                           selectedOrderStatus,
@@ -468,7 +473,7 @@ export default function PaymentManagement() {
                           );
                           debounceHandleSearchPaymentFiltration(
                             searchOrderCode,
-                            searchCustomerName,
+                            searchCustomerEmail,
                             searchTrackingCode,
                             formattedDates,
                             selectedOrderStatus,
@@ -480,7 +485,7 @@ export default function PaymentManagement() {
                           setSearchDateRange(null);
                           debounceHandleSearchPaymentFiltration(
                             searchOrderCode,
-                            searchCustomerName,
+                            searchCustomerEmail,
                             searchTrackingCode,
                             "",
                             selectedOrderStatus,

@@ -263,9 +263,9 @@ export const OrderListTableColumns = [
   },
 
   {
-    title: "Customer Name",
-    dataIndex: "customerName",
-    key: "customerName",
+    title: "Customer Email",
+    dataIndex: "cusEmail",
+    key: "cusEmail",
   },
 
   {
@@ -341,9 +341,9 @@ export const PaymentTableColumns = [
     key: "orderCode",
   },
   {
-    title: "Customer Name",
-    dataIndex: "cusName",
-    key: "cusName",
+    title: "Customer Email",
+    dataIndex: "cusEmail",
+    key: "cusEmail",
   },
   {
     title: "Payment Date",
