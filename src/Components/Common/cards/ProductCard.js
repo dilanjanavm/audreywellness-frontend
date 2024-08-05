@@ -84,9 +84,9 @@ const ProductCard = ({ productData, reload }) => {
 
   const updateProductDetails = () => {
     console.log(productData);
-    // history("/update-product", {
-    //   state: { productId: productData?.id },
-    // });
+    history("/update-product", {
+      state: { productId: productData?.id },
+    });
   };
 
   const viewMoreProductDetails = () => {

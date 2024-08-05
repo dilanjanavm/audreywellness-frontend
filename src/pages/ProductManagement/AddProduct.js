@@ -42,21 +42,18 @@ import * as productService from "../../service/productService";
 const AddProduct = () => {
   document.title = "Add Product | Address Shop";
 
-  const { Option } = Select;
+  const history = useNavigate();
 
-  const { token } = theme.useToken();
+  const { Option } = Select;
   const [current, setCurrent] = useState(0);
 
-  const history = useNavigate();
 
   const [productName, setProductName] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [productDes, setProductDes] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedAttributes, setSelectedAttributes] = useState([]);
   const [productVariantDetails, setProductVariantDetails] = useState([]);
-  // const [productImages, setProductImages] = useState();
   const [imageUploadIndex, setImageUploadIndex] = useState(null);
 
   //---------------------data show --------------------------------------
@@ -457,7 +454,6 @@ const AddProduct = () => {
   const clearProductFields = () => {
     setProductName("");
     setSelectedCategoryId("");
-    setProductDes("");
     setManufactureDetails("");
     setSelectedTags([]);
     setSelectedAttributes([]);
