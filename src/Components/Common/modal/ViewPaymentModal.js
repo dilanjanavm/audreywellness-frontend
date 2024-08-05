@@ -41,6 +41,23 @@ const ViewPaymentModal = ({ isOpen, currentData, onClose }) => {
         Payment Details
       </ModalHeader>
       <ModalBody>
+        <Row className="mb-3">
+          <h6 className="text-muted fw-semibold">
+            Name :{" "}
+            {currentData?.order?.deliveryDetail[0]?.firstName +
+              " " +
+              currentData?.order?.deliveryDetail[0]?.lastName}
+          </h6>
+          <h6 className="text-muted fw-semibold">
+            Email : {currentData?.order?.deliveryDetail[0]?.email}
+          </h6>
+          <h6 className="text-muted fw-semibold">
+            Contact No :
+            {currentData?.order?.deliveryDetail[0]?.dialCode +
+              " " +
+              currentData?.order?.deliveryDetail[0]?.contactNo}
+          </h6>
+        </Row>
         <Row className="d-flex justify-content-center">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <tbody>
