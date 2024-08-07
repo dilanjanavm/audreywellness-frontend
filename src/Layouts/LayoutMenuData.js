@@ -353,6 +353,23 @@ const Navdata = () => {
       },
       stateVariables: isApps,
     },
+    {
+      label: "Settings",
+      isHeader: true,
+    },
+    {
+      id: "apps",
+      label: "Settings",
+      icon: <FeatherIcon icon="shopping-bag" className="icon-dual" />,
+      link: "/settings",
+      click: function (e) {
+        e.preventDefault();
+        setIsApps(!isApps);
+        setIscurrentState("Apps");
+        updateIconSidebar(e);
+      },
+      stateVariables: isApps,
+    },
   ];
   return <React.Fragment>{menuItems}</React.Fragment>;
 };
