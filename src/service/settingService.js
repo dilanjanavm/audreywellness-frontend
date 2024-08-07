@@ -9,3 +9,23 @@ export async function getAllSettings() {
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }
+
+export async function activeInactiveSetting(settingId, status) {
+  const apiObject = {};
+  apiObject.method = "PATCH",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = ``;
+  apiObject.body = null;
+  return await ApiService.callApi(apiObject);
+}
+
+export async function updateSetting(settingId, data) {
+  const apiObject = {};
+  apiObject.method = "PUT",
+  apiObject.authentication = true,
+  apiObject.isWithoutPrefix = false;
+  apiObject.endpoint = ``;
+  apiObject.body = data;
+  return await ApiService.callApi(apiObject);
+}

@@ -18,7 +18,6 @@ const ProductCard = ({ productData, reload }) => {
   const history = useNavigate();
   const dispatch = useDispatch();
 
-  const [categoryColor, setCategoryColor] = useState("");
   const [isDeleted, setIsDeleted] = useState(0);
 
   // useEffect(() => {
@@ -115,12 +114,7 @@ const ProductCard = ({ productData, reload }) => {
   );
   return (
     <Col sm={6} md={4} lg={3} xl={3} xxl={2} className="my-2 ">
-      <div
-        className="product-single-card"
-        style={{
-          borderBottom: `6px solid #${categoryColor}`,
-        }}
-      >
+      <div className="product-single-card">
         <div className="product-top-area">
           <div
             className="product-img"

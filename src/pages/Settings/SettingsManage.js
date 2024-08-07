@@ -9,19 +9,28 @@ import {
   popUploader,
 } from "../../common/commonFunctions";
 import { getAllSettings } from "../../service/settingService";
+import SettingsCard from "../../Components/Common/cards/SettingsCard";
 
 const SettingManagement = () => {
   document.title = "Settings | Address Shop";
 
   const [settingsList, setSettingsList] = useState([]);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   let dispatch = useDispatch();
 
   useEffect(() => {
-    loadAllCustomers();
+    loadAllSettings();
   }, []);
 
-  const loadAllCustomers = () => {
+  useEffect(() => {
+    if (isRefresh) {
+      loadAllSettings();
+      setIsRefresh(false);
+    }
+  }, [isRefresh]);
+
+  const loadAllSettings = () => {
     setSettingsList([]);
     popUploader(dispatch, true);
     getAllSettings()
@@ -42,8 +51,16 @@ const SettingManagement = () => {
           <h4>Settings</h4>
         </div>
         <Card>
-          <Row>
-            <Col sm={12} md={12} lg={12} xl={12}></Col>
+          <Row className="mx-2 my-3">
+            {settingsList.map((setting, index) => (
+              <SettingsCard
+                key={index}
+                reload={async () => {
+                  setIsRefresh(true);
+                }}
+                settingData={setting}
+              />
+            ))}
           </Row>
         </Card>
       </Container>
