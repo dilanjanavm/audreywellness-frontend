@@ -8,6 +8,7 @@ import {
   handleError,
   popUploader,
 } from "../../common/commonFunctions";
+import { getAllSettings } from "../../service/settingService";
 
 const SettingManagement = () => {
   document.title = "Settings | Address Shop";
@@ -23,23 +24,9 @@ const SettingManagement = () => {
   const loadAllCustomers = () => {
     setSettingsList([]);
     popUploader(dispatch, true);
-    customerService
-      .getAllCustomers()
+    getAllSettings()
       .then((res) => {
-        const formattedData = res.data.map((record) => {
-          return {
-            name: record.user.firstName + " " + record.user.lastName,
-            contactNo:
-              record.user.customer.dialCode +
-              " " +
-              record.user.customer.contactNo,
-
-            email: record.user.email,
-            status: record.user.status,
-          };
-        });
-
-        setSettingsList(temp);
+        setSettingsList(res?.data);
         popUploader(dispatch, false);
       })
       .catch((err) => {
