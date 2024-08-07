@@ -49,7 +49,7 @@ const ProductManagement = () => {
       .getAllProductBaseVariation()
       .then((res) => {
         res?.data.map((productVarition, index) => {
-          console.log("Product Variation:", productVarition);
+          // console.log("Product Variation:", productVarition);
           temp.push({
             id: productVarition?.id,
             name: productVarition?.name,

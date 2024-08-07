@@ -13,7 +13,12 @@ import {
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../common/util";
-import { countDescription, customSweetAlert, customToastMsg, handleError } from "../../common/commonFunctions";
+import {
+  countDescription,
+  customSweetAlert,
+  customToastMsg,
+  handleError,
+} from "../../common/commonFunctions";
 import { DownOutlined, CloseOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -32,6 +37,7 @@ import { getProductBaseVariationDetailsById } from "../../service/productBaseVar
 import { ArrowLeft, Upload } from "react-feather";
 import ProductVariantsFormRepeater from "../../Components/Common/formRepeters/ProductVariantsFormRepeater";
 import FileUploadModal from "../../Components/Common/modal/FileUploadModal";
+import * as productService from "../../service/productService";
 
 const { Option } = Select;
 
@@ -59,7 +65,14 @@ const UpdateProduct = () => {
   const [selectedSubCategoryName, setSelectedSubCategoryName] = useState("");
   const [attributesAndTagList, setAttributesAndTagList] = useState([]);
   const [productColorDetails, setProductColorDetails] = useState([
-    { attributeId: null, color: null, image: [], sizes: [] },
+    {
+      attributeId: null,
+      color: null,
+      image: [],
+      sizes: [],
+      name: null,
+      description: null,
+    },
   ]);
 
   const [selectCheckBox, setSelectColorCheckBox] = useState(false);
@@ -84,7 +97,14 @@ const UpdateProduct = () => {
   useEffect(() => {
     if (!selectCheckBox) {
       setProductColorDetails([
-        { attributeId: null, color: null, image: null, sizes: [] },
+        {
+          attributeId: null,
+          color: null,
+          image: null,
+          sizes: [],
+          name: null,
+          description: null,
+        },
       ]);
     }
   }, [selectCheckBox]);
@@ -130,14 +150,99 @@ const UpdateProduct = () => {
   };
 
   const loadProductDetailsById = () => {
-    setProductDetails([]);
+    setProductDetails("");
     getProductBaseVariationDetailsById(productId)
       .then((res) => {
-        console.log(res);
+        console.log(res?.data);
+        setProductDetails(res?.data);
+        setProductDetailsToInputs(res?.data);
       })
       .catch((err) => {
         handleError(err);
       });
+  };
+
+  const setProductDetailsToInputs = (productDetails) => {
+    setSelectedCategoryId(productDetails?.category?.children?.id);
+    setSelectedProductCategoryName(productDetails?.category?.parent);
+    setSelectedSubCategoryName(productDetails?.category?.children?.name);
+    setProductName(productDetails?.product?.name);
+    setManufactureDetails(productDetails?.product?.manufactureDetails);
+
+    // product attribute set part
+    productDetails?.productAttributes.map((att) => {
+      setSelectedTags((prevSelectedTags) => {
+        const newTags = prevSelectedTags.filter(
+          (tag) => tag.attributeId !== att?.attribute?.id
+        );
+
+        if (att?.attribute?.tag?.id !== undefined) {
+          newTags.push({
+            attributeId: att?.attribute?.id,
+            tagId: att?.attribute?.tag?.id,
+          });
+        }
+        console.log(newTags);
+        return newTags;
+      });
+    });
+
+    // product base variant  set part
+    if (productDetails?.baseVariant?.attribute?.name === "Color") {
+      setSelectColorCheckBox(true);
+      getAttributeIds("Color", true);
+    } else {
+      setSelectColorCheckBox(false);
+    }
+
+    if (productDetails?.sizeVariants[0]?.attribute?.name === "Size") {
+      setSelectSizeCheckBox(true);
+      getAttributeIds("Size", true);
+    } else {
+      setSelectSizeCheckBox(false);
+    }
+
+    // product colors  set part
+    const newColorDetails = [...productColorDetails];
+
+    if (productDetails?.baseVariant?.attribute?.id) {
+      newColorDetails[0].attributeId =
+        productDetails?.baseVariant?.attribute?.id;
+
+      if (productDetails?.baseVariant?.attribute?.tag) {
+        newColorDetails[0].color = {
+          id: productDetails?.baseVariant?.attribute?.tag?.id,
+          name: productDetails?.baseVariant?.attribute?.tag?.name,
+        };
+      }
+    }
+    const files = [];
+    productDetails?.file.map((image) => {
+      files.push({
+        id: image?.id,
+        path: image?.originalPath,
+      });
+    });
+
+    newColorDetails[0].image = files;
+    const sizeArray = [];
+    productDetails?.sizeVariants.map((size) => {
+      sizeArray.push({
+        price: size?.sellingPrice,
+        qty: size?.availableQty,
+        size: size?.attribute?.tag,
+      });
+    });
+
+    newColorDetails[0].sizes = sizeArray;
+    newColorDetails[0].name = productDetails?.name;
+    newColorDetails[0].description = productDetails?.description;
+
+    setProductColorDetails(newColorDetails);
+
+    if (0 === productColorDetails.length - 1) {
+      addColorForm();
+    }
   };
 
   const handleMenuClick = ({ key, item }) => {
@@ -182,13 +287,20 @@ const UpdateProduct = () => {
     : selectedProductCategoryName || "Select...";
 
   const handleTagSelection = (attributeId, tagId) => {
+    console.log(attributeId, tagId);
+
     setSelectedTags((prevSelectedTags) => {
       const newTags = prevSelectedTags.filter(
         (tag) => tag.attributeId !== attributeId
       );
+
       if (tagId !== undefined) {
-        newTags.push(tagId);
+        newTags.push({
+          attributeId: attributeId,
+          tagId: tagId,
+        });
       }
+      console.log(newTags);
       return newTags;
     });
   };
@@ -309,6 +421,8 @@ const UpdateProduct = () => {
   }, [productColorDetails]);
 
   const handleColorChange = (value, index) => {
+    console.log(value, index);
+
     const newColorDetails = [...productColorDetails];
     const colorAttribute = attributesAndTagList.find(
       (attribute) => attribute.name === "Color"
@@ -434,13 +548,14 @@ const UpdateProduct = () => {
         // ? customToastMsg("Product variant details cannot have empty values", 2)
         (validation = true);
 
+    const tagIds = selectedTags.map((tag) => tag.tagId);
+
     if (validation) {
       const data = {
         name: productName,
-        // description: productDes,
         manufactureDetails: manufactureDetails,
         categoryId: selectedCategoryId,
-        productTagIds: selectedTags,
+        productTagIds: tagIds,
         productAttributeIds: selectedAttributes,
         productVariants: productVariantDetails,
       };
@@ -472,7 +587,14 @@ const UpdateProduct = () => {
     setSelectedSubCategoryName("");
     setAttributesAndTagList([]);
     setProductColorDetails([
-      { attributeId: null, color: null, image: [], sizes: [] },
+      {
+        attributeId: null,
+        color: null,
+        image: [],
+        sizes: [],
+        name: null,
+        description: null,
+      },
     ]);
   };
 
@@ -618,16 +740,24 @@ const UpdateProduct = () => {
                   checkedChildren="Have Colors"
                   unCheckedChildren="No Colors"
                   defaultChecked={selectCheckBox}
+                  disabled={
+                    productDetails?.baseVariant?.attribute?.name === "Color"
+                  }
                   onChange={(e) => {
                     console.log(e);
                     setSelectColorCheckBox(e);
                     getAttributeIds("Color", e);
                   }}
                 />
+
                 <Switch
                   className="mx-3"
                   checkedChildren="Have Sizes"
                   unCheckedChildren="No Sizes"
+                  disabled={
+                    productDetails?.sizeVariants?.[0]?.attribute?.name ===
+                    "Size"
+                  }
                   defaultChecked={selectSizeCheckBox}
                   onChange={(e) => {
                     setSelectSizeCheckBox(e);

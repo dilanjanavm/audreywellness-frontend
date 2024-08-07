@@ -50,8 +50,8 @@ const ProductVariantsFormRepeater = ({
   }, []);
 
   useEffect(() => {
-    // console.log(removeColor, "remove color");
-    // console.log(selectSize, "select size");
+    console.log(removeColor, "remove color");
+    console.log(selectSize, "select size");
     console.log(variantTypes, "color details");
     if (variantTypes && variantTypes.length > 0) {
       let formattedItems = [];

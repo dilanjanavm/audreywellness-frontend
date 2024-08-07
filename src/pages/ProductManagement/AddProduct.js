@@ -47,7 +47,6 @@ const AddProduct = () => {
   const { Option } = Select;
   const [current, setCurrent] = useState(0);
 
-
   const [productName, setProductName] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [manufactureDetails, setManufactureDetails] = useState("");
@@ -178,7 +177,10 @@ const AddProduct = () => {
         (tag) => tag.attributeId !== attributeId
       );
       if (tagId !== undefined) {
-        newTags.push(tagId);
+        newTags.push({
+          attributeId: attributeId,
+          tagId: tagId,
+        });
       }
       return newTags;
     });
@@ -425,13 +427,14 @@ const AddProduct = () => {
         // ? customToastMsg("Product variant details cannot have empty values", 2)
         (validation = true);
 
+    const tagIds = selectedTags.map((tag) => tag.tagId);
+
     if (validation) {
       const data = {
         name: productName,
-        // description: productDes,
         manufactureDetails: manufactureDetails,
         categoryId: selectedCategoryId,
-        productTagIds: selectedTags,
+        productTagIds: tagIds,
         productAttributeIds: selectedAttributes,
         productVariants: productVariantDetails,
       };

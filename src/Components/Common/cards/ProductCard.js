@@ -21,21 +21,9 @@ const ProductCard = ({ productData, reload }) => {
   const [categoryColor, setCategoryColor] = useState("");
   const [isDeleted, setIsDeleted] = useState(0);
 
-  useEffect(() => {
-    console.log(productData, "*********************");
-  }, []);
-
-  useEffect(() => {
-    let temp = [];
-    console.log(productData, "0000000000");
-
-    setCategoryColor(
-      productData?.category?.color != ""
-        ? productData?.category?.color
-        : "ffffff"
-    );
-    console.log(productData?.category?.color);
-  }, []);
+  // useEffect(() => {
+  //   console.log(productData, "*********************");
+  // }, []);
 
   const handleDeleteProduct = (productId) => {
     customSweetAlert("Are you sure to delete this product?", 0, () => {

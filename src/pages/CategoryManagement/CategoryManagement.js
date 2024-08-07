@@ -148,7 +148,7 @@ const CategoryManagement = () => {
         .deleteCategory(catId)
         .then((res) => {
           console.log(res);
-          loadAllCategories(currentPage);
+          loadAllCategories(1);
           popUploader(dispatch, false);
           customToastMsg("Category has been  deleted", 1);
         })

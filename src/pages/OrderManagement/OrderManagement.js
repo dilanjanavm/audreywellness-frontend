@@ -165,13 +165,16 @@ const OrderManagement = () => {
       setOrderList([]);
       let data = {
         orderCode: orderCode,
+        trackingCode: trackingCode,
         email: email,
         contact: Contact,
         startDate: startDate,
         endDate: endDate,
-        trackingCode: trackingCode,
         status: Status === undefined ? "" : Status === null ? "" : Status,
       };
+
+      console.log(data);
+      
 
       let temp = [];
       popUploader(dispatch, true);
@@ -402,11 +405,11 @@ const OrderManagement = () => {
                     value={searchTrackingCode}
                     onChange={(e) => {
                       debounceHandleSearchOrderFiltration(
-                        e.target.value,
+                        searchOrderCode,
                         searchCustomerEmail,
                         searchCustomerContactNo,
                         searchDateRange,
-                        searchTrackingCode,
+                        e.target.value,
                         selectedStatus,
                         1
                       );

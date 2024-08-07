@@ -33,7 +33,6 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
   }, []);
 
   const handleSubmit = () => {
-    console.log(currentData, currentTerms);
     let tempTerms = [];
     currentTerms.map((term, index) => {
       tempTerms.push({
@@ -41,12 +40,15 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
         name: term.Values,
       });
     });
-    console.log(tempTerms);
+    // console.log(tempTerms);
     let data = {
       id: currentData.id,
       name: featureName,
       terms: tempTerms,
+      status: featureStatus,
     };
+
+    console.log(data, "----------------------");
 
     featureName.trim() === ""
       ? customToastMsg("Feature name cannot be empty!", 0)
@@ -119,9 +121,15 @@ const UpdateFeatureModel = ({ isOpen, toggle, currentData }) => {
             <ReactEditList
               schema={schema}
               onLoad={() => currentTerms}
-              onUpdate={(item) => {}}
-              onDelete={(item) => {}}
-              onInsert={(item) => {}}
+              onUpdate={(item) => {
+                console.log(item);
+              }}
+              onDelete={(item) => {
+                console.log(item);
+              }}
+              onInsert={(item) => {
+                console.log(item);
+              }}
               onChange={(e) => {
                 setCurrentTerms(e);
               }}
