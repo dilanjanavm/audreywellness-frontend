@@ -35,7 +35,7 @@ export async function productBaseVariationFiltration(data,currentPage) {
   apiObject.method = "GET",
   apiObject.authentication = true,
   apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/admin/product-base-variant/find-all?name=${data.name}&category=${data.category}&status=${data.status}perPage=${15}&page=${currentPage}`;
+  apiObject.endpoint = `api/admin/product-base-variant/find-all?name=${data.name}&category=${data.categoryId}&status=${data.status}&minPrice=${data.minPrice}&maxPrice=${data.maxPrice}&perPage=${15}&page=${currentPage}`;
   apiObject.body = null;
   return await ApiService.callApi(apiObject);
 }

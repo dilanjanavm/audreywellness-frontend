@@ -18,7 +18,7 @@ function App() {
             // Seed Token
             colorPrimary: "#000",
             colorPrimaryHover:"#000",
-            borderRadius: 8,
+            borderRadius: 5,
             activeBg: "#124585",
             optionSelectedBg: "#e6f4ff",
             controlItemBgHover: "#e6f4ff",
