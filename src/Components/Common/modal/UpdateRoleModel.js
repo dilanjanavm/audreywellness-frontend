@@ -80,7 +80,7 @@ const UpdateRoleModal = ({ isOpen, currentData, onClose }) => {
           onClose();
         }}
       >
-        Add New Role
+        Update Role
       </ModalHeader>
       <ModalBody>
         <Form>

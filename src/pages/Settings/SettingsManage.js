@@ -10,6 +10,7 @@ import {
 } from "../../common/commonFunctions";
 import { getAllSettings } from "../../service/settingService";
 import SettingsCard from "../../Components/Common/cards/SettingsCard";
+import UpdateSettingsModel from "../../Components/Common/modal/UpdateSettingsModel";
 
 const SettingManagement = () => {
   document.title = "Settings | Address Shop";

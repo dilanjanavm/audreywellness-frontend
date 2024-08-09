@@ -11,12 +11,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card, Switch } from "antd";
 import { useDispatch } from "react-redux";
-import { activeInactiveSetting } from "../../../service/settingService";
+import { updateSetting } from "../../../service/settingService";
 import parse from "html-react-parser";
+import UpdateSettingsModel from "../modal/UpdateSettingsModel";
 
 const SettingsCard = ({ settingData, reload }) => {
   const history = useNavigate();
   const dispatch = useDispatch();
+  const [isOpenUpdateSettingModal, setIsOpenUpdateSettingModal] =
+    useState(false);
 
   useEffect(() => {
     console.log(settingData, "*********************");
@@ -24,6 +27,12 @@ const SettingsCard = ({ settingData, reload }) => {
 
   const changeStatusProduct = (settingData) => {
     const newStatus = settingData.status === 1 ? 2 : 1;
+
+    const data = {
+      value: settingData?.value,
+      status: newStatus,
+    };
+
     customSweetAlert(
       settingData.status === 1
         ? "Do you want to deactivate this setting?"
@@ -31,7 +40,7 @@ const SettingsCard = ({ settingData, reload }) => {
       2,
       () => {
         popUploader(dispatch, true);
-        activeInactiveSetting(settingData.id, newStatus)
+        updateSetting(settingData.id, data)
           .then((res) => {
             popUploader(dispatch, false);
             customToastMsg(
@@ -49,14 +58,19 @@ const SettingsCard = ({ settingData, reload }) => {
   };
 
   const updateProductDetails = () => {
-    console.log(settingData);
-    // history("/update-product", {
-    //   state: { productId: settingData?.id },
-    // });
+    setIsOpenUpdateSettingModal(true);
   };
 
   return (
     <Col sm={12} md={12} lg={12} xl={12} xxl={12} className="my-2 ">
+      <UpdateSettingsModel
+        isOpen={isOpenUpdateSettingModal}
+        currentData={settingData}
+        onClose={(e) => {
+          setIsOpenUpdateSettingModal(false);
+          reload();
+        }}
+      />
       <Card
         hoverable
         title={settingData?.key}
