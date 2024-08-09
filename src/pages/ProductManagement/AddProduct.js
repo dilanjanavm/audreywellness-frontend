@@ -645,6 +645,7 @@ const AddProduct = () => {
               }}
               variantTypes={productColorDetails}
               selectSize={selectSizeCheckBox}
+              isUpdate={false}
             />
           </Row>
           <Row className="d-flex justify-content-between">

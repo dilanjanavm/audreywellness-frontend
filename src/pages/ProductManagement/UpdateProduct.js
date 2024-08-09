@@ -83,6 +83,8 @@ const UpdateProduct = () => {
 
   const [removeColor, setRemoveColor] = useState({});
   const [productDetails, setProductDetails] = useState("");
+  const [sendVariantDetailsToInputs, setSendVariantDetailsToInputs] =
+    useState(false);
 
   useEffect(() => {
     loadAllCategoriesWithSubCategories();
@@ -231,6 +233,8 @@ const UpdateProduct = () => {
         price: size?.sellingPrice,
         qty: size?.availableQty,
         size: size?.attribute?.tag,
+        status: 1,
+        // status: size?.status,
       });
     });
 
@@ -239,10 +243,7 @@ const UpdateProduct = () => {
     newColorDetails[0].description = productDetails?.description;
 
     setProductColorDetails(newColorDetails);
-
-    if (0 === productColorDetails.length - 1) {
-      addColorForm();
-    }
+    setSendVariantDetailsToInputs(true);
   };
 
   const handleMenuClick = ({ key, item }) => {
@@ -444,9 +445,9 @@ const UpdateProduct = () => {
 
     setProductColorDetails(newColorDetails);
 
-    if (value && index === productColorDetails.length - 1) {
-      addColorForm();
-    }
+    // if (value && index === productColorDetails.length - 1) {
+    //   addColorForm();
+    // }
   };
 
   const handleImageChange = (files, index) => {
@@ -456,10 +457,10 @@ const UpdateProduct = () => {
     setProductColorDetails(newColorDetails);
   };
 
-  const addColorForm = () => {
-    let temp = { attributeId: null, color: null, image: [], sizes: [] };
-    setProductColorDetails([...productColorDetails, temp]);
-  };
+  // const addColorForm = () => {
+  //   let temp = { attributeId: null, color: null, image: [], sizes: [] };
+  //   setProductColorDetails([...productColorDetails, temp]);
+  // };
 
   const removeColorForm = (index) => {
     const newColorDetails = [...productColorDetails];
@@ -488,34 +489,7 @@ const UpdateProduct = () => {
     });
   };
 
-  const validationProductDetails = () => {
-    next();
-    let validate = false;
-    selectedCategoryId.trim() === ""
-      ? customToastMsg("Select product category first", 2)
-      : productName.trim() === ""
-      ? customToastMsg("Product name cannot be empty", 2)
-      : manufactureDetails.trim() === ""
-      ? customToastMsg("Manufacture details cannot be empty", 2)
-      : countDescription(manufactureDetails) > desMaxLimit
-      ? customToastMsg("Manufacture details limit exceed", 2)
-      : // : selectedTags.length === 0
-        // ? customToastMsg("Select product attributes", 2)
-        (validate = true);
-
-    if (validate) {
-      productService
-        .checkProductNameExists(productName)
-        .then((res) => {
-          next();
-        })
-        .catch((err) => {
-          handleError(err);
-        });
-    }
-  };
-
-  const handleCreateProduct = async () => {
+  const handleUpdateProduct = async () => {
     let validation = false;
 
     // for (const variant of productVariantDetails) {
@@ -540,9 +514,7 @@ const UpdateProduct = () => {
       ? customToastMsg("Manufacture details cannot be empty", 2)
       : countDescription(manufactureDetails) > desMaxLimit
       ? customToastMsg("Manufacture details limit exceed", 2)
-      : // : selectedTags.length === 0
-      // ? customToastMsg("Select product attributes", 2)
-      productVariantDetails.length === 0
+      : productVariantDetails.length === 0
       ? customToastMsg("Select product variant details", 2)
       : // : !validation
         // ? customToastMsg("Product variant details cannot have empty values", 2)
@@ -558,14 +530,14 @@ const UpdateProduct = () => {
         productTagIds: tagIds,
         productAttributeIds: selectedAttributes,
         productVariants: productVariantDetails,
-      };
+      };   
 
       console.log(data);
       await productService
-        .addNewProduct(data)
+        .updateProduct(productDetails?.id, data)
         .then((res) => {
           console.log(res);
-          customToastMsg("Product saved successfully", 1);
+          customToastMsg("Product update successfully", 1);
           clearProductFields();
           history("/product-management");
         })
@@ -718,7 +690,7 @@ const UpdateProduct = () => {
             <div className="text-end mb-3" style={{ width: 300 }}>
               <button
                 type="button"
-                onClick={() => validationProductDetails()}
+                onClick={() => next()}
                 className="w-100 btn btn-primary w-sm"
               >
                 Next
@@ -772,16 +744,19 @@ const UpdateProduct = () => {
             </CardBody>
           </Card>
           <Row>
-            <ProductVariantsFormRepeater
-              removeColor={removeColor}
-              getProductVariantData={(data) => {
-                console.log(data, "in main class");
-                setProductVariantDetails([]);
-                setProductVariantDetails(data);
-              }}
-              variantTypes={productColorDetails}
-              selectSize={selectSizeCheckBox}
-            />
+            {sendVariantDetailsToInputs && (
+              <ProductVariantsFormRepeater
+                removeColor={removeColor}
+                getProductVariantData={(data) => {
+                  console.log(data, "in main class");
+                  setProductVariantDetails([]);
+                  setProductVariantDetails(data);
+                }}
+                variantTypes={productColorDetails}
+                selectSize={selectSizeCheckBox}
+                isUpdate={true}
+              />
+            )}
           </Row>
           <Row className="d-flex justify-content-between">
             <div className="text-end mb-3  col-1">
@@ -814,10 +789,10 @@ const UpdateProduct = () => {
               <div className="text-end mb-3 col-3">
                 <button
                   type="button"
-                  onClick={() => handleCreateProduct()}
+                  onClick={() => handleUpdateProduct()}
                   className="w-100 btn btn-primary w-sm"
                 >
-                  Save Product
+                  Update Product
                 </button>
               </div>
             </div>

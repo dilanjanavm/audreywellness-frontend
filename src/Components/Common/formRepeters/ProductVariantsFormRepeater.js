@@ -18,7 +18,7 @@ import {
   handleError,
 } from "../../../common/commonFunctions";
 import { getAllAttributesWithTags } from "../../../service/attributeAndTagService";
-import { Divider, Select } from "antd";
+import { Divider, Select, Switch } from "antd";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { desMaxLimit } from "../../../common/util";
@@ -31,6 +31,7 @@ const ProductVariantsFormRepeater = ({
   getProductVariantData,
   variantTypes,
   selectSize,
+  isUpdate,
 }) => {
   const [inputList, setInputList] = useState([
     {
@@ -75,6 +76,7 @@ const ProductVariantsFormRepeater = ({
                 size: size.size,
                 qty: size.qty,
                 price: size.price,
+                status: size.status,
               })),
             });
           } else {
@@ -89,6 +91,7 @@ const ProductVariantsFormRepeater = ({
                   size: "",
                   qty: "",
                   price: "",
+                  status: "",
                 },
               ],
             });
@@ -110,7 +113,7 @@ const ProductVariantsFormRepeater = ({
               files: variant?.image ? variant.image.map((img) => img.id) : [],
               name: "",
               description: "",
-              sizes: [{ size: "", qty: "", price: "" }],
+              sizes: [{ size: "", qty: "", price: "", status: "" }],
             });
           }
         }
@@ -127,6 +130,10 @@ const ProductVariantsFormRepeater = ({
   useEffect(() => {
     console.log(inputList, "input list");
   }, [inputList]);
+
+  useEffect(() => {
+    console.log(variantTypes, "variantTypes list");
+  }, [variantTypes]);
 
   useEffect(() => {
     getVariantTypes();
@@ -160,6 +167,13 @@ const ProductVariantsFormRepeater = ({
     setInputList(list);
   };
 
+  const handleStatusChange = (e, index, sizeIndex, name) => {
+    console.log(e, index, sizeIndex, name);
+    const list = [...inputList];
+    list[index].sizes[sizeIndex][name] = e ? 1 : 2;
+    setInputList(list);
+  };
+
   const handleDesChange = (data, index) => {
     const list = [...inputList];
     list[index].description = data;
@@ -173,6 +187,7 @@ const ProductVariantsFormRepeater = ({
         size,
         qty: "",
         price: "",
+        status: "",
       }));
       list[index].sizes = sizes;
 
@@ -220,17 +235,32 @@ const ProductVariantsFormRepeater = ({
   const getVariantTypes = () => {
     console.log(inputList);
 
-    const variants = inputList.map((variant) => ({
-      name: variant?.name,
-      description: variant?.description,
-      fileIds: variant?.files,
-      baseTagId: variant.color?.id,
-      variants: variant.sizes.map((size) => ({
-        sellingPrice: parseFloat(size.price),
-        availableQty: parseFloat(size.qty),
-        variantTagId: size.size.id,
-      })),
-    }));
+    const variants = inputList.map((variant) =>
+      isUpdate
+        ? {
+            name: variant?.name,
+            description: variant?.description,
+            fileIds: variant?.files,
+            baseTagId: variant.color?.id,
+            variants: variant.sizes.map((size) => ({
+              sellingPrice: parseFloat(size.price),
+              availableQty: parseFloat(size.qty),
+              variantTagId: size.size.id,
+              status: size.status,
+            })),
+          }
+        : {
+            name: variant?.name,
+            description: variant?.description,
+            fileIds: variant?.files,
+            baseTagId: variant.color?.id,
+            variants: variant.sizes.map((size) => ({
+              sellingPrice: parseFloat(size.price),
+              availableQty: parseFloat(size.qty),
+              variantTagId: size.size.id,
+            })),
+          }
+    );
 
     getProductVariantData(variants);
   };
@@ -431,6 +461,11 @@ const ProductVariantsFormRepeater = ({
                         <Col sm={4}>
                           <h6>Price</h6>
                         </Col>
+                        {isUpdate && (
+                          <Col sm={2}>
+                            <h6>Status</h6>
+                          </Col>
+                        )}
                       </Row>
                     </>
                   )}
@@ -442,9 +477,6 @@ const ProductVariantsFormRepeater = ({
                         <h6 className="fw-normal">{size.size.name}</h6>
                       </div>
                       <div className="form-group col-md-4 col-lg-4">
-                        {/* <label className="form-label">
-                      Quantity of {size.size.name}
-                    </label> */}
                         <Input
                           type="number"
                           name="qty"
@@ -459,9 +491,6 @@ const ProductVariantsFormRepeater = ({
                         )}
                       </div>
                       <div className="form-group col-md-4 col-lg-4">
-                        {/* <label className="form-label">
-                      Price of {size.size.name}
-                    </label> */}
                         <Input
                           type="number"
                           name="price"
@@ -475,6 +504,31 @@ const ProductVariantsFormRepeater = ({
                           <FormFeedback>Invalid Price</FormFeedback>
                         )}
                       </div>
+                      {isUpdate && (
+                        <div className="form-group col-md-2 col-lg-2 d-flex align-items-center">
+                          <Switch
+                            className="ms-4"
+                            name="status"
+                            checked={
+                              size.status === 1
+                                ? true
+                                : size.status === 2
+                                ? false
+                                : false
+                            }
+                            onChange={(e) => {
+                              handleStatusChange(e, i, sizeIndex, "status");
+                            }}
+                            handleBg={size.status === 1 ? "#60b24c" : "#bababa"}
+                            checkedChildren="Active"
+                            unCheckedChildren="Inactive"
+                            style={{
+                              backgroundColor:
+                                size.status === 1 ? "#60b24c" : "#bababa",
+                            }}
+                          />
+                        </div>
+                      )}
                     </Row>
                   ))}
                 </div>
