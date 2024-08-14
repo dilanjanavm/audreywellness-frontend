@@ -50,6 +50,8 @@ const ProductVariantsFormRepeater = ({
     loadAllAttributesWithTags();
   }, []);
 
+  useEffect(() => {}, [isUpdate]);
+
   useEffect(() => {
     console.log(removeColor, "remove color");
     console.log(selectSize, "select size");
