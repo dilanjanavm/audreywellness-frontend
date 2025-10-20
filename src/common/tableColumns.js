@@ -418,6 +418,76 @@ export const ItemTableColumns = [
     },
 ];
 
+export const SupplierTableColumns = [
+    {
+        title: "Supplier Code",
+        dataIndex: "supplierCode",
+        width: "12%",
+        key: "supplierCode",
+    },
+    {
+        title: "Name",
+        dataIndex: "name",
+        width: "15%",
+        key: "name",
+    },
+    {
+        title: "Reference",
+        dataIndex: "reference",
+        width: "12%",
+        key: "reference",
+    },
+    {
+        title: "Contact Person",
+        dataIndex: "contactPerson",
+        width: "12%",
+        key: "contactPerson",
+        render: (person) => person || 'N/A',
+    },
+    {
+        title: "Phone",
+        dataIndex: "phone",
+        width: "12%",
+        key: "phone",
+    },
+    {
+        title: "Email",
+        dataIndex: "email",
+        width: "15%",
+        key: "email",
+        render: (email) => email || 'N/A',
+    },
+    {
+        title: "Items",
+        dataIndex: "itemCount",
+        width: "8%",
+        key: "itemCount",
+        render: (count, record) => (
+            <Tag color="blue">
+                {record.items ? record.items.length : count || 0}
+            </Tag>
+        ),
+    },
+    {
+        title: "Status",
+        key: "isActive",
+        width: "8%",
+        dataIndex: "isActive",
+        render: (isActive) => (
+            <Tag color={isActive ? "success" : "error"}>
+                {isActive ? "Active" : "Inactive"}
+            </Tag>
+        ),
+    },
+    {
+        title: "Actions",
+        key: "action",
+        width: "16%",
+        dataIndex: "action",
+        fixed: 'right'
+    },
+];
+
 export const PaymentTableColumns = [
     {
         title: "Order Code",

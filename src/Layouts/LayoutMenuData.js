@@ -258,7 +258,7 @@ const Navdata = () => {
         },
         //================Suppliers Management========================
         {
-            id: "productManagement",
+            id: "suppliersManagement",
             label: "Suppliers Management",
             icon: <FeatherIcon icon="grid" className="icon-dual"/>,
             link: "/suppliers-management",
