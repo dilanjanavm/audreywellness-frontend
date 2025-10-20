@@ -1,23 +1,51 @@
 import ApiService from "./apiService";
 
 export async function getAllCustomers(currentPage) {
-  const apiObject = {};
-  apiObject.method = "GET";
-  apiObject.authentication = true;
-  apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/customer/find-all?perPage=${15}&page=${currentPage}`;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers`;
+    apiObject.body = null;
+    return await ApiService.callApi(apiObject);
 }
 
-export async function customerFiltration(data, currentPage) {
-  const apiObject = {};
-  apiObject.method = "GET";
-  apiObject.authentication = true;
-  apiObject.isWithoutPrefix = false;
-  apiObject.endpoint = `api/customer/find-all?email=${data?.email}&contactNo=${
-    data?.contactNo
-  }&status=${data?.status}&perPage=${15}&page=${currentPage}`;
-  apiObject.body = null;
-  return await ApiService.callApi(apiObject);
+export async function searchCustomers(data, currentPage) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers/search/${data.searchTerm}`;
+    apiObject.body = null;
+    return await ApiService.callApi(apiObject);
+}
+
+export async function getCustomerById(cusId) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers/${cusId}`;
+    apiObject.body = null;
+    return await ApiService.callApi(apiObject);
+}
+
+export async function updateCustomer(cusId, data) {
+    const apiObject = {};
+    apiObject.method = "PUT";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers/${cusId}`;
+    apiObject.body = data;
+    return await ApiService.callApi(apiObject);
+}
+
+export async function deleteCustomer(cusId) {
+    const apiObject = {};
+    apiObject.method = "PUT";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers/${cusId}`;
+    apiObject.body = null;
+    return await ApiService.callApi(apiObject);
 }

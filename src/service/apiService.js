@@ -49,8 +49,13 @@ export const callApi = async (apiObject) => {
     let result;
 
     //  await axios[method](url, {headers: headers}, {headers: headers})
-    await axios[method](url, method !== 'get' && method !== 'delete' ? body : {headers: headers}, {headers: headers} )
-        .then(async response => {
+    // await axios[method](url, method !== 'get' && method !== 'delete' ? body : {headers: headers}, {headers: headers} )
+    await axios({
+        method: method,
+        url: url,
+        data: (method === 'post' || method === 'put' || method === 'patch') ? body : undefined,
+        headers: headers
+    }).then(async response => {
             result = {
                 ...await response.data,
                 desc: response.data.desc ? response.data.desc : response.data.result,

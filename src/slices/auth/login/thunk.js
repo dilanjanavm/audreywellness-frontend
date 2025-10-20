@@ -23,16 +23,18 @@ export const loginUser = (user, history) => async (dispatch) => {
     authService
       .login(userDetails)
       .then((res) => {
+        console.log('call')
         console.log(res);
-        Cookies.set(constant.ACCESS_TOKEN, res.access_token);
-        Cookies.set(constant.REFRESH_TOKEN, res.refresh_token);
-        Cookies.set(constant.Expire_time, res.expire_time);
-        window.location.href = "/dashboard";
-        console.log(res);
-        sessionStorage.setItem("authUser", JSON.stringify(res.data));
+        Cookies.set(constant.ACCESS_TOKEN, res.data.access_token);
+         Cookies.set(constant.REFRESH_TOKEN, res.data.refresh_token);
+        // Cookies.set(constant.Expire_time, res.expire_time);
+         window.location.href = "/dashboard";
+        // console.log(res);
+        sessionStorage.setItem("authUser", JSON.stringify(res.data.user));
         // dispatch(loginSuccess(tempVariable));
       })
       .catch((c) => {
+        console.log(c.response)
         console.log(c.response.data.message[0]);
         customToastMsg(c.response.data.message[0], 0);
       });

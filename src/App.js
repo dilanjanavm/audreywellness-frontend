@@ -16,8 +16,8 @@ function App() {
         theme={{
           token: {
             // Seed Token
-            colorPrimary: "#000",
-            colorPrimaryHover:"#000",
+            colorPrimary: "#458533",
+            colorPrimaryHover:"#69af57",
             borderRadius: 5,
             activeBg: "#124585",
             optionSelectedBg: "#e6f4ff",
