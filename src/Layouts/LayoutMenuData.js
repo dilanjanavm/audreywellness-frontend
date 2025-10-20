@@ -206,25 +206,25 @@ const Navdata = () => {
             ],
         },
         //===============Role And Permissions=========================
+        // {
+        //     label: "Role and Permission",
+        //     isHeader: true,
+        // },
+        // {
+        //     id: "apps",
+        //     label: "Role and Permissions",
+        //     icon: <FeatherIcon icon="shield" className="icon-dual"/>,
+        //     link: "/role-permission-management",
+        //     click: function (e) {
+        //         e.preventDefault();
+        //         setIsApps(!isApps);
+        //         setIscurrentState("Apps");
+        //         updateIconSidebar(e);
+        //     },
+        //     stateVariables: isApps,
+        // },
         {
-            label: "Role and Permission",
-            isHeader: true,
-        },
-        {
-            id: "apps",
-            label: "Role and Permissions",
-            icon: <FeatherIcon icon="shield" className="icon-dual"/>,
-            link: "/role-permission-management",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
-        {
-            label: "Product",
+            label: "Other",
             isHeader: true,
         },
         {
@@ -244,7 +244,7 @@ const Navdata = () => {
         //================Product Management========================
         {
             id: "productManagement",
-            label: "Product Management",
+            label: "Items Management",
             icon: <FeatherIcon icon="grid" className="icon-dual"/>,
             link: "/product-management",
             click: function (e) {
@@ -254,135 +254,25 @@ const Navdata = () => {
                 updateIconSidebar(e);
             },
             stateVariables: isProduct,
-            subItems: [
-                {
-                    id: "product",
-                    label: "Products",
-                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
-                    link: "/product-management",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsProduct(!isProduct);
-                        setIscurrentState("Products");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isProduct,
-                },
-                {
-                    id: "addNewProduct",
-                    label: "Add New Product",
-                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
-                    link: "/create-product",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsProduct(!isProduct);
-                        setIscurrentState("Products");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isProduct,
-                },
 
-                {
-                    id: "featureManagement",
-                    label: "Feature Management",
-                    icon: <FeatherIcon icon="users" className="icon-dual"/>,
-                    link: "/feature-management",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsProduct(!isProduct);
-                        setIscurrentState("Products");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isProduct,
-                },
+        },
+        //================Suppliers Management========================
+        {
+            id: "productManagement",
+            label: "Suppliers Management",
+            icon: <FeatherIcon icon="grid" className="icon-dual"/>,
+            link: "/suppliers-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsProduct(!isProduct);
+                setIscurrentState("Products");
+                updateIconSidebar(e);
+            },
+            stateVariables: isProduct,
 
-                {
-                    id: "categoryManagement",
-                    label: "Category Management",
-                    icon: <FeatherIcon icon="users" className="icon-dual"/>,
-                    link: "/category-management",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsProduct(!isProduct);
-                        setIscurrentState("Products");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isProduct,
-                },
-            ],
         },
 
-        //=============Banner Management=======================
 
-        {
-            id: "apps",
-            label: "Banners",
-            icon: <FeatherIcon icon="layout" className="icon-dual"/>,
-            link: "/banner-management",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
-        {
-            id: "apps",
-            label: "Order",
-            icon: <FeatherIcon icon="layout" className="icon-dual"/>,
-            link: "/order-management",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
-        {
-            id: "apps",
-            label: "Payment",
-            icon: <FeatherIcon icon="dollar-sign" className="icon-dual"/>,
-            link: "/payment-management",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
-        {
-            id: "apps",
-            label: "Stores",
-            icon: <FeatherIcon icon="shopping-bag" className="icon-dual"/>,
-            link: "/stores",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
-        {
-            label: "Settings",
-            isHeader: true,
-        },
-        {
-            id: "apps",
-            label: "Settings",
-            icon: <FeatherIcon icon="shopping-bag" className="icon-dual"/>,
-            link: "/settings",
-            click: function (e) {
-                e.preventDefault();
-                setIsApps(!isApps);
-                setIscurrentState("Apps");
-                updateIconSidebar(e);
-            },
-            stateVariables: isApps,
-        },
     ];
     return <React.Fragment>{menuItems}</React.Fragment>;
 };

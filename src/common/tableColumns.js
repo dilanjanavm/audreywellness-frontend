@@ -347,6 +347,77 @@ export const OrderListTableColumns = [
     },
 ];
 
+
+export const ItemTableColumns = [
+    {
+        title: "Item Code",
+        dataIndex: "itemCode",
+        width: "10%",
+        key: "itemCode",
+    },
+    {
+        title: "Stock ID",
+        dataIndex: "stockId",
+        width: "10%",
+        key: "stockId",
+    },
+    {
+        title: "Type",
+        dataIndex: "type",
+        width: "12%",
+        key: "type",
+        render: (type) => (
+            <Tag color="blue" key={type}>
+                {type}
+            </Tag>
+        ),
+    },
+    {
+        title: "Name",
+        dataIndex: "description",
+        width: "20%",
+        key: "description",
+        ellipsis: true,
+    },
+    {
+        title: "Category",
+        dataIndex: "categoryName",
+        width: "12%",
+        key: "categoryName",
+    },
+    {
+        title: "Units",
+        dataIndex: "units",
+        width: "8%",
+        key: "units",
+    },
+    {
+        title: "MB Flag",
+        dataIndex: "mbFlag",
+        width: "8%",
+        key: "mbFlag",
+        render: (flag) => (
+            <Tag color={flag === 'B' ? 'green' : 'orange'} key={flag}>
+                {flag}
+            </Tag>
+        ),
+    },
+    {
+        title: "Price",
+        dataIndex: "price",
+        width: "10%",
+        key: "price",
+        render: (price) => `$${parseFloat(price).toFixed(2)}`,
+    },
+    {
+        title: "Actions",
+        key: "action",
+        width: "10%",
+        dataIndex: "action",
+        fixed: 'right'
+    },
+];
+
 export const PaymentTableColumns = [
     {
         title: "Order Code",

@@ -36,6 +36,7 @@ import OrderDetail from "../pages/OrderManagement/OrderDetail";
 import PaymentManagement from "../pages/PaymentManagement/PaymentManagement";
 import StoresManagement from "../pages/StoresManagement/StoresManagement";
 import SettingManagement from "../pages/Settings/SettingsManage";
+import ItemManagement from "../pages/ItemManagement/ItemManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -58,7 +59,7 @@ const authProtectedRoutes = [
   { path: "/create-product", component: <AddProduct /> },
   { path: "/update-product", component: <UpdateProduct /> },
   { path: "/product-view", component: <ViewProductDetails /> },
-  { path: "/product-management", component: <ProductManagement /> },
+  { path: "/product-management", component: <ItemManagement  /> },
 
   // { path: "/user-management", component: <UserManagement /> },
 
