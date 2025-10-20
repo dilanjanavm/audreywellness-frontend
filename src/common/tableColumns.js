@@ -208,57 +208,60 @@ export const RoleTableColumns = [
 
 export const CategoryTableColumns = [
     {
-        title: "Image",
-        dataIndex: "file",
-        key: "file",
-
-        render: (text, record) => (
-            <div
-                style={{
-                    maxWidth: 120,
-                    minWidth: 80,
-                }}
-            >
-                {record.file}
+        title: "Category ID",
+        dataIndex: "categoryId",
+        width: "15%",
+        key: "categoryId",
+    },
+    {
+        title: "Category Name",
+        dataIndex: "categoryName",
+        width: "20%",
+        key: "categoryName",
+    },
+    {
+        title: "Description",
+        dataIndex: "categoryDesc",
+        width: "25%",
+        key: "categoryDesc",
+        ellipsis: true,
+    },
+    {
+        title: "Color",
+        key: "categoryColor",
+        width: "12%",
+        dataIndex: "categoryColor",
+        render: (color) => (
+            <div className="d-flex align-items-center">
+                <div
+                    className="color-badge me-2"
+                    style={{
+                        backgroundColor: color,
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '4px',
+                        border: '1px solid #d9d9d9'
+                    }}
+                />
+                <span>{color}</span>
             </div>
         ),
     },
-
     {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
+        title: "Created At",
+        dataIndex: "createdAt",
+        width: "15%",
+        key: "createdAt",
+        render: (date) => new Date(date).toLocaleDateString(),
     },
-
     {
-        title: "Hierarchy",
-        dataIndex: "hierarchy",
-        key: "hierarchy",
-    },
-
-    {
-        title: "Status",
-        key: "status",
-        width: "12%",
-        dataIndex: "status",
-        render: (status) => (
-            <Tag
-                color={status === 1 ? "success" : status === 2 ? "error" : "default"}
-                key={status}
-            >
-                {status === 1 ? "ACTIVE" : status === 2 ? "INACTIVE" : "none"}
-            </Tag>
-        ),
-    },
-
-    {
-        title: "Action",
+        title: "Actions",
         key: "action",
-
-        render: (text, record) => <div>{record.action}</div>,
+        width: "13%",
+        dataIndex: "action",
+        fixed: 'right'
     },
 ];
-
 export const OrderListTableColumns = [
     {
         title: "Order Code",

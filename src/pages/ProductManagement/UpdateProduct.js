@@ -30,8 +30,7 @@ import {
   Switch,
   Table,
 } from "antd";
-import { getAllCategoriesWithOrWithoutSubCategories } from "../../service/categoryService";
-import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
+ import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getProductBaseVariationDetailsById } from "../../service/productBaseVariationService";
 import { ArrowLeft, Upload } from "react-feather";
@@ -118,26 +117,7 @@ const UpdateProduct = () => {
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
     const withSubCategories = true;
-    getAllCategoriesWithOrWithoutSubCategories(withSubCategories)
-      .then((res) => {
-        const formattedCategories = res.data.map((cat) => ({
-          key: cat.id,
-          label: cat.name,
-          children:
-            cat.children.length > 0
-              ? cat.children.map((subCat) => ({
-                  key: subCat.id,
-                  label: subCat.name,
-                  parentLabel: cat.name,
-                }))
-              : null,
-        }));
-        setCategoryList(formattedCategories);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err);
-      });
+
   };
 
   const loadAllAttributesWithTags = () => {

@@ -1,432 +1,267 @@
-import React, { useEffect, useState } from "react";
+// src/modules/category/CategoryManagement.js
+import React, {useEffect, useState, useCallback} from "react";
 import {
-  Container,
-  Card,
-  Row,
-  Col,
-  Label,
-  Input,
-  FormGroup,
-  Button,
+    Container,
+    Card,
+    Row,
+    Col,
+    Label,
+    Input,
+    FormGroup,
+    Button,
 } from "reactstrap";
-import { Pagination, Table, Tag } from "antd";
-import { Plus } from "react-feather";
-import { CategoryTableColumns } from "../../common/tableColumns";
-import AddCategoryModel from "../../Components/Common/modal/AddCategoriesModal";
+import {Table, Tag, Tooltip} from "antd";
+import {Plus, Search, Edit, Trash2, Eye} from "react-feather";
+
 import * as categoryService from "../../service/categoryService";
-import { useDispatch } from "react-redux";
-import Select from "react-select";
-import debounce from "lodash.debounce";
+import {useDispatch} from "react-redux";
 import {
-  customSweetAlert,
-  customToastMsg,
-  handleError,
-  popUploader,
+    customToastMsg,
+    handleError,
+    popUploader,
+    customSweetAlert
 } from "../../common/commonFunctions";
-import UpdateCategory from "../../Components/Common/modal/UpdateCategoryModal";
+import debounce from "lodash.debounce";
+import CreateCategoryModal from "../../Components/Common/modal/CreateCategoryModal";
+import UpdateCategoryModal from "../../Components/Common/modal/UpdateCategoryModal";
+import {CategoryTableColumns} from "../../common/tableColumns";
+
+// Import Modal Components
+
+
 const CategoryManagement = () => {
-  document.title = "Staff Management| Address Shop";
+    document.title = "Categories | Address Shop";
 
-  const [categoryTableList, setCategoryTableList] = useState([]);
-  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
-  const [isUpdateCategoryModalOpen, setIsUpdateCategoryModalOpen] =
-    useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [searchCategoryName, setSearchCategoryName] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [statusList, setStatusList] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [categoryTableList, setCategoryTableList] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
 
-  //-------------------------- pagination --------------------------
+    // Modal States
+    const [createModalVisible, setCreateModalVisible] = useState(false);
+    const [updateModalVisible, setUpdateModalVisible] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalRecodes, setTotalRecodes] = useState(0);
+    const dispatch = useDispatch();
 
-  let dispatch = useDispatch();
+    useEffect(() => {
+        loadAllCategories();
+    }, []);
 
-  useEffect(() => {
-    loadAllCategories(currentPage);
-    getAllCategoriesWithOrWithoutSubCat();
-    setStatusList([
-      { value: 1, label: "Active" },
-      { value: 2, label: "Inactive" },
-    ]);
-  }, []);
+    // Load all categories
+    const loadAllCategories = () => {
+        setLoading(true);
+        popUploader(dispatch, true);
 
-  const getAllCategoriesWithOrWithoutSubCat = () => {
-    setCategoryList([]);
-    popUploader(dispatch, true);
-    categoryService
-      .getAllCategoriesWithOrWithoutSubCategories(false)
-      .then((res) => {
-        console.log(res.data);
-        let temp = [];
-        res.data.map((cat, index) => {
-          temp.push({ value: cat?.id, label: cat?.name });
-        });
+        categoryService.getAllCategories()
+            .then((res) => {
+                console.log(res)
+                const categoryData = res.data.data || [];
+                console.log(categoryData.data)
+                const formattedData = formatCategoryData(categoryData.data);
 
-        setCategoryList(temp);
-        popUploader(dispatch, false);
-      })
-      .catch((c) => {
-        popUploader(dispatch, false);
-        handleError(c);
-      });
-  };
+                setCategoryTableList(formattedData);
+                setLoading(false);
+                popUploader(dispatch, false);
+            })
+            .catch((err) => {
+                setLoading(false);
+                popUploader(dispatch, false);
+                handleError(err);
+            });
+    };
 
-  const loadAllCategories = (currentPage) => {
-    popUploader(dispatch, true);
-    clearFiltrationFields();
-    categoryService
-      .getAllCategories(currentPage)
-      .then((res) => {
-        const formattedData = res.data.records.map((record) => ({
-          name: record.name,
-          hierarchy: record.hierarchy,
-          status: record.status,
-          file: (
-            <div>
-              {record?.file ? (
-                <img
-                  className="w-100 h-100 object-fit-cover"
-                  src={record?.file?.originalPath}
-                  alt="categoryImg"
-                  onError={(e) =>
-                    (e.target.src = "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                  }
-                />
-              ) : (
-                <img
-                  src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
-                  alt="placeholder"
-                  className="w-100 h-100 object-fit-cover"
-                />
-              )}
-            </div>
-          ),
-          action: (
-            <>
-              <Button
-                color="warning"
-                className="m-2"
-                outline
-                onClick={(e) => {
-                  toggleUpdateCategoryModal(record);
-                }}
-              >
-                <span>Update</span>
-              </Button>
-              <Button
-                color="danger"
-                className="m-2"
-                outline
-                onClick={() => deleteCategory(record.id)}
-              >
-                <span>Remove</span>
-              </Button>
-            </>
-          ),
-        }));
-        setCategoryTableList(formattedData);
-        setCurrentPage(res?.data?.currentPage);
-        setTotalRecodes(res?.data?.totalCount);
-        popUploader(dispatch, false);
-      })
-      .catch((err) => {
-        console.log(err);
-        popUploader(dispatch, false);
-        handleError(err);
-      });
-  };
-
-  const deleteCategory = (catId) => {
-    console.log(catId);
-    customSweetAlert("Are you sure to delete this category ?", 0, () => {
-      popUploader(dispatch, true);
-      categoryService
-        .deleteCategory(catId)
-        .then((res) => {
-          console.log(res);
-          loadAllCategories(1);
-          popUploader(dispatch, false);
-          customToastMsg("Category has been  deleted", 1);
-        })
-        .catch((err) => {
-          handleError(err);
-          console.log(err);
-          popUploader(dispatch, false);
-        });
-    });
-  };
-
-  const toggleAddCategoryModal = () => {
-    setIsAddCategoryModalOpen(!isAddCategoryModalOpen);
-  };
-
-  const toggleUpdateCategoryModal = (category) => {
-    setIsUpdateCategoryModalOpen(true);
-    setSelectedCategory(category);
-  };
-
-  const closeCategoryModal = () => {
-    setIsUpdateCategoryModalOpen(false);
-    setSelectedCategory("");
-  };
-
-  const searchCategoryFiltration = (name, categoryId, status, currentPage) => {
-    popUploader(dispatch, true);
-    let temp = [];
-    if (name === "" && categoryId === "" && status === "") {
-      loadAllCategories(currentPage);
-    } else {
-      popUploader(dispatch, true);
-      const data = {
-        name: name,
-        categoryId: categoryId,
-        status: status,
-      };
-      categoryService
-        .categoryFiltration(data, currentPage)
-        .then((res) => {
-          const formattedData = res.data.records.map((record) => ({
-            name: record.name,
-            hierarchy: record.hierarchy,
-            status: record.status,
-            file: (
-              <div>
-                {record?.file ? (
-                  <img
-                    className="w-100 h-100 object-fit-cover"
-                    src={record?.file?.originalPath}
-                    alt="categoryImg"
-                    onError={(e) =>
-                      (e.target.src =
-                        "https://i.ibb.co/qpB9ZCZ/placeholder.png")
-                    }
-                  />
-                ) : (
-                  <img
-                    src="https://i.ibb.co/qpB9ZCZ/placeholder.png"
-                    alt="placeholder"
-                    className="w-100 h-100 object-fit-cover"
-                  />
-                )}
-              </div>
-            ),
+    // Format category data with actions
+    const formatCategoryData = (categoryData) => {
+        return categoryData.map((category) => ({
+            key: category.id,
+            id: category.id,
+            categoryId: category.categoryId,
+            categoryName: category.categoryName,
+            categoryDesc: category.categoryDesc,
+            categoryColor: category.categoryColor,
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
             action: (
-              <>
-                <Button
-                  color="warning"
-                  className="m-2"
-                  outline
-                  onClick={(e) => {
-                    toggleUpdateCategoryModal(record);
-                  }}
-                >
-                  <span>Update</span>
-                </Button>
-                <Button
-                  color="danger"
-                  className="m-2"
-                  outline
-                  onClick={() => deleteCategory(record.id)}
-                >
-                  <span>Remove</span>
-                </Button>
-              </>
-            ),
-          }));
-          setCategoryTableList(formattedData);
-          setCurrentPage(res?.data?.currentPage);
-          setTotalRecodes(res?.data?.totalCount);
-          popUploader(dispatch, false);
-        })
-        .catch((err) => {
-          console.log(err);
-          popUploader(dispatch, false);
-          handleError(err);
-        });
-    }
-  };
+                <div className="d-flex gap-2">
+                    <Tooltip title="Edit Category">
+                        <Button
+                            size="sm"
+                            color="warning"
+                            outline
+                            onClick={() => handleEditCategory(category)}
+                        >
+                            <Edit size={14}/>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Delete Category">
+                        <Button
+                            size="sm"
+                            color="danger"
+                            outline
+                            onClick={() => handleDeleteCategory(category)}
+                        >
+                            <Trash2 size={14}/>
+                        </Button>
+                    </Tooltip>
+                </div>
+            )
+        }));
+    };
 
-  const debounceSearchCategoryFiltration = React.useCallback(
-    debounce(searchCategoryFiltration, 500),
-    []
-  );
+    // Handle create category
+    const handleCreateCategory = async (values) => {
+        try {
+            setModalLoading(true);
+            await categoryService.createCategory(values);
+            customToastMsg('Category created successfully', 'success');
+            setCreateModalVisible(false);
+            loadAllCategories();
+            setModalLoading(false);
+        } catch (error) {
+            setModalLoading(false);
+            handleError(error);
+        }
+    };
 
-  const clearFiltrationFields = () => {
-    setSearchCategoryName("");
-    setSelectedStatus("");
-    setSelectedCategoryId("");
-  };
+    // Handle edit category
+    const handleEditCategory = (category) => {
+        setSelectedCategory(category);
+        setUpdateModalVisible(true);
+    };
 
-  const onChangePagination = (page) => {
-    setCurrentPage(page);
-    if (searchCategoryName === "" && selectedStatus === "") {
-      loadAllCategories(page);
-    } else {
-      debounceSearchCategoryFiltration(
-        searchCategoryName,
-        selectedStatus,
-        page
-      );
-    }
-  };
+    // Handle update category
+    const handleUpdateCategory = async (values) => {
+        try {
+            setModalLoading(true);
+            await categoryService.updateCategory(selectedCategory.categoryId, values);
+            customToastMsg('Category updated successfully', 'success');
+            setUpdateModalVisible(false);
+            loadAllCategories();
+            setModalLoading(false);
+        } catch (error) {
+            setModalLoading(false);
+            handleError(error);
+        }
+    };
 
-  return (
-    <div className="page-content">
-      <AddCategoryModel
-        isOpen={isAddCategoryModalOpen}
-        toggle={(e) => {
-          toggleAddCategoryModal();
-          loadAllCategories(currentPage);
-        }}
-      />
-      <UpdateCategory
-        currentData={selectedCategory}
-        isOpen={isUpdateCategoryModalOpen}
-        toggle={(e) => {
-          closeCategoryModal();
-          loadAllCategories(currentPage);
-        }}
-      />
-      <Container fluid>
-        <div className="row mt-3">
-          <h4>Category Management</h4>
+    // Handle delete category
+    const handleDeleteCategory = (category) => {
+        customSweetAlert(
+            `Do you want to delete category "${category.categoryName}"?`,
+            0,
+            () => deleteCategory(category.categoryId)
+        );
+    };
+
+    const deleteCategory = async (categoryId) => {
+        try {
+            popUploader(dispatch, true);
+            await categoryService.deleteCategory(categoryId);
+            customToastMsg("Category deleted successfully", 1);
+            loadAllCategories();
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    // Search functionality
+    const handleSearch = (value) => {
+        setSearchTerm(value);
+
+        if (!value.trim()) {
+            loadAllCategories();
+            return;
+        }
+
+        const filteredData = categoryTableList.filter(category =>
+            category.categoryId.toLowerCase().includes(value.toLowerCase()) ||
+            category.categoryName.toLowerCase().includes(value.toLowerCase()) ||
+            category.categoryDesc.toLowerCase().includes(value.toLowerCase())
+        );
+
+        setCategoryTableList(filteredData);
+    };
+
+    const debouncedSearch = useCallback(
+        debounce(handleSearch, 300),
+        [categoryTableList]
+    );
+
+    return (
+        <div className="page-content">
+            <Container fluid>
+                <div className="row mt-3">
+                    <h4>Category Management</h4>
+                </div>
+
+                <Card>
+                    {/* Search and Action Section */}
+                    <Row className="mt-4 mx-2">
+                        <Col sm={12} md={6} lg={4}>
+                            <FormGroup>
+                                <Label for="search">
+                                    <Search size={16} className="me-1"/>
+                                    Search Categories
+                                </Label>
+                                <Input
+                                    id="search"
+                                    placeholder="Search by ID, name, or description"
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        debouncedSearch(e.target.value);
+                                    }}
+                                />
+                            </FormGroup>
+                        </Col>
+
+                        <Col sm={12} md={6} lg={4} className="d-flex align-items-end">
+                            <Button
+                                color="primary"
+                                className="w-100"
+                                onClick={() => setCreateModalVisible(true)}
+                            >
+                                <Plus size={16} className="me-1"/>
+                                Add Category
+                            </Button>
+                        </Col>
+                    </Row>
+
+                    {/* Category Table */}
+                    <Row>
+                        <Col sm={12}>
+                            <Table
+                                className="mx-3 my-4"
+                                pagination={false}
+                                columns={CategoryTableColumns}
+                                dataSource={categoryTableList}
+                                scroll={{x: "max-content"}}
+                                loading={loading}
+                                locale={{emptyText: "No categories found"}}
+                            />
+                        </Col>
+                    </Row>
+                </Card>
+
+                {/* Modal Components */}
+                <CreateCategoryModal
+                    visible={createModalVisible}
+                    onClose={() => setCreateModalVisible(false)}
+                    onCreate={handleCreateCategory}
+                    loading={modalLoading}
+                />
+
+                <UpdateCategoryModal
+                    visible={updateModalVisible}
+                    category={selectedCategory}
+                    onClose={() => setUpdateModalVisible(false)}
+                    onUpdate={handleUpdateCategory}
+                    loading={modalLoading}
+                />
+            </Container>
         </div>
-        <Card>
-          <Row className="d-flex mt-4 mb-2 mx-1 justify-content-end">
-            <Col
-              sm={12}
-              md={3}
-              lg={3}
-              xl={3}
-              className="d-flex justify-content-end"
-            >
-              <Button
-                className="mb-2"
-                color="primary"
-                onClick={() => {
-                  toggleAddCategoryModal();
-                }}
-              >
-                <Plus size={24} /> Add New Category
-              </Button>
-            </Col>
-          </Row>
-          <Row className="mx-2">
-            <Col sm={12} md={4} lg={4} xl={4}>
-              <FormGroup>
-                <Label for="name">Search by Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  placeholder="Search by name"
-                  type="text"
-                  value={searchCategoryName}
-                  onChange={(e) => {
-                    setSearchCategoryName(e.target.value);
-                    debounceSearchCategoryFiltration(
-                      e.target.value,
-                      selectedCategoryId,
-                      selectedStatus,
-                      1
-                    );
-                  }}
-                />
-              </FormGroup>
-            </Col>
-            <Col sm={12} md={4} lg={4} xl={4}>
-              <FormGroup>
-                <Label for="categoryName">Select Main Category </Label>
-                <Select
-                  className="basic-single"
-                  classNamePrefix="select"
-                  isSearchable={true}
-                  isClearable
-                  value={
-                    categoryList.find(
-                      (option) => option.value === selectedCategoryId
-                    ) || null
-                  }
-                  onChange={(e) => {
-                    setSelectedCategoryId(
-                      e?.value === undefined ? "" : e.value
-                    );
-                    debounceSearchCategoryFiltration(
-                      searchCategoryName,
-                      e?.value === undefined ? "" : e === null ? "" : e.value,
-                      selectedStatus,
-                      1
-                    );
-                  }}
-                  options={categoryList}
-                />
-              </FormGroup>
-            </Col>
-            <Col sm={12} md={4} lg={4} xl={4}>
-              <FormGroup>
-                <Label for="exampleEmail">Search by Status</Label>
-                <Select
-                  className="basic-single"
-                  classNamePrefix="select"
-                  isSearchable={true}
-                  isClearable
-                  value={
-                    statusList.find(
-                      (option) => option.value === selectedStatus
-                    ) || null
-                  }
-                  onChange={(e) => {
-                    setSelectedStatus(
-                      e?.value === undefined ? "" : e === null ? "" : e.value
-                    );
-                    debounceSearchCategoryFiltration(
-                      searchCategoryName,
-                      selectedCategoryId,
-                      e?.value === undefined ? "" : e === null ? "" : e.value,
-                      1
-                    );
-                  }}
-                  options={statusList}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={12} md={12} lg={12} xl={12}>
-              <Table
-                className="mx-3 my-4"
-                pagination={false}
-                columns={CategoryTableColumns}
-                dataSource={categoryTableList}
-                scroll={{ x: "fit-content" }}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col
-              className=" d-flex justify-content-end"
-              sm={12}
-              md={12}
-              lg={12}
-              xl={12}
-            >
-              <Pagination
-                className="m-3"
-                current={currentPage}
-                onChange={onChangePagination}
-                defaultPageSize={15}
-                total={totalRecodes}
-                showTotal={(total) => `Total ${total} items`}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </Container>
-    </div>
-  );
+    );
 };
 
 export default CategoryManagement;

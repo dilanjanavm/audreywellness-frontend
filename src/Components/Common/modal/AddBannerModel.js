@@ -20,7 +20,6 @@ import { DownOutlined } from "@ant-design/icons";
 
 import { Upload } from "react-feather";
 import { Dropdown, Menu, Button, Select } from "antd";
-import { getAllCategoriesWithOrWithoutSubCategories } from "../../../service/categoryService";
 
 const AddBannerModal = ({ isOpen, toggle }) => {
   const [position, setPosition] = useState("");
@@ -90,26 +89,7 @@ const AddBannerModal = ({ isOpen, toggle }) => {
   const loadAllCategoriesWithSubCategories = () => {
     setCategoryList([]);
     const withSubCategory = true;
-    getAllCategoriesWithOrWithoutSubCategories(withSubCategory)
-      .then((res) => {
-        const formattedCategories = res.data.map((cat) => ({
-          key: cat.id,
-          label: cat.name,
-          children:
-            cat.children.length > 0
-              ? cat.children.map((subCat) => ({
-                  key: subCat.id,
-                  label: subCat.name,
-                  parentLabel: cat.name,
-                }))
-              : null,
-        }));
-        setCategoryList(formattedCategories);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err);
-      });
+
   };
 
   const handleMenuClick = ({ key, item }) => {

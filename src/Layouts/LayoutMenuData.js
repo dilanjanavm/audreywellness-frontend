@@ -227,6 +227,19 @@ const Navdata = () => {
             label: "Product",
             isHeader: true,
         },
+        {
+            id: "categoryManagement",
+            label: "Category Management",
+            icon: <FeatherIcon icon="box" className="icon-dual"/>,
+            link: "/category-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsProduct(!isProduct);
+                setIscurrentState("Products");
+                updateIconSidebar(e);
+            },
+            stateVariables: isProduct,
+        },
 
         //================Product Management========================
         {

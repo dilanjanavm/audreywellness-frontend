@@ -21,8 +21,7 @@ import {
 } from "../../common/commonFunctions";
 import { DownOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Divider, Dropdown, Menu, Select, Checkbox } from "antd";
-import { getAllCategoriesWithOrWithoutSubCategories } from "../../service/categoryService";
-import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
+ import { getAllAttributesWithTags } from "../../service/attributeAndTagService";
 import { ArrowLeft, Upload } from "react-feather";
 import { useNavigate } from "react-router-dom";
 import ProductVariantsFormRepeater from "../../Components/Common/formRepeters/ProductVariantsFormRepeater";
@@ -86,28 +85,7 @@ const AddNewProduct = () => {
   };
 
   const loadAllCategoriesWithSubCategories = () => {
-    setCategoryList([]);
-    const withSubCategories = true;
-    getAllCategoriesWithOrWithoutSubCategories(withSubCategories)
-      .then((res) => {
-        const formattedCategories = res.data.map((cat) => ({
-          key: cat.id,
-          label: cat.name,
-          children:
-            cat.children.length > 0
-              ? cat.children.map((subCat) => ({
-                  key: subCat.id,
-                  label: subCat.name,
-                  parentLabel: cat.name,
-                }))
-              : null,
-        }));
-        setCategoryList(formattedCategories);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err);
-      });
+
   };
 
   const loadAllAttributesWithTags = () => {
