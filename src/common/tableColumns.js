@@ -488,6 +488,94 @@ export const SupplierTableColumns = [
     },
 ];
 
+export const ComplaintTableColumns = [
+    {
+        title: "Complaint #",
+        dataIndex: "complaintNumber",
+        width: "12%",
+        key: "complaintNumber",
+    },
+    {
+        title: "Customer",
+        dataIndex: "customer",
+        width: "15%",
+        key: "customer",
+        render: (customer) => customer?.fullName || 'N/A',
+    },
+    {
+        title: "Headline",
+        dataIndex: "headline",
+        width: "20%",
+        key: "headline",
+        ellipsis: true,
+    },
+    {
+        title: "Category",
+        dataIndex: "category",
+        width: "12%",
+        key: "category",
+        render: (category) => (
+            <Tag color="blue" key={category}>
+                {category?.replace('_', ' ').toUpperCase()}
+            </Tag>
+        ),
+    },
+    {
+        title: "Priority",
+        dataIndex: "priority",
+        width: "10%",
+        key: "priority",
+        render: (priority) => {
+            const colorMap = {
+                low: 'green',
+                medium: 'orange',
+                high: 'red',
+                critical: 'purple'
+            };
+            return (
+                <Tag color={colorMap[priority] || 'default'} key={priority}>
+                    {priority?.toUpperCase()}
+                </Tag>
+            );
+        },
+    },
+    {
+        title: "Status",
+        dataIndex: "status",
+        width: "12%",
+        key: "status",
+        render: (status) => {
+            const colorMap = {
+                open: 'blue',
+                in_progress: 'orange',
+                resolved: 'green',
+                awaiting_feedback: 'gold',
+                closed: 'gray',
+                reopened: 'red'
+            };
+            return (
+                <Tag color={colorMap[status] || 'default'} key={status}>
+                    {status?.replace('_', ' ').toUpperCase()}
+                </Tag>
+            );
+        },
+    },
+    {
+        title: "Assigned To",
+        dataIndex: "assignedTo",
+        width: "12%",
+        key: "assignedTo",
+        render: (assignedTo) => assignedTo?.username || 'Unassigned',
+    },
+    {
+        title: "Actions",
+        key: "action",
+        width: "12%",
+        dataIndex: "action",
+        fixed: 'right'
+    },
+];
+
 export const PaymentTableColumns = [
     {
         title: "Order Code",

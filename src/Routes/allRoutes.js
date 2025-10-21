@@ -38,6 +38,7 @@ import StoresManagement from "../pages/StoresManagement/StoresManagement";
 import SettingManagement from "../pages/Settings/SettingsManage";
 import ItemManagement from "../pages/ItemManagement/ItemManagement";
 import SupplierManagement from "../pages/SuppliersManagement/SupplierManagement";
+import ComplaintManagement from "../pages/ComplaintManagement/ComplaintManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -66,6 +67,7 @@ const authProtectedRoutes = [
 
   { path: "/staff-management", exact: true, component: <StaffManagement /> },
   { path: "/suppliers-management", exact: true, component: <SupplierManagement /> },
+  { path: "/complaint-management", exact: true, component: <ComplaintManagement /> },
   {
     path: "/customer-management",
     exact: true,

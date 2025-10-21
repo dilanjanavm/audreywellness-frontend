@@ -260,12 +260,26 @@ const Navdata = () => {
         {
             id: "suppliersManagement",
             label: "Suppliers Management",
-            icon: <FeatherIcon icon="grid" className="icon-dual"/>,
+            icon: <FeatherIcon icon="truck" className="icon-dual"/>,
             link: "/suppliers-management",
             click: function (e) {
                 e.preventDefault();
                 setIsProduct(!isProduct);
                 setIscurrentState("Products");
+                updateIconSidebar(e);
+            },
+            stateVariables: isProduct,
+
+        },  //================Suppliers Management========================
+        {
+            id: "ComplaintManagement",
+            label: "Complaint Management",
+            icon: <FeatherIcon icon="phone-incoming" className="icon-dual"/>,
+            link: "/complaint-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsProduct(!isProduct);
+                setIscurrentState("ComplaintManagement");
                 updateIconSidebar(e);
             },
             stateVariables: isProduct,
