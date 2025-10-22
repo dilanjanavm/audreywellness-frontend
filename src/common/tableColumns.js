@@ -162,7 +162,7 @@ export const CustomerTableColumns = [
         key: 'status',
         width: 100,
         render: (status) => (
-            <Tag color={status === 'ACTIVE' ? 'green' : 'red'}>
+            <Tag color={status.toUpperCase() === 'ACTIVE' ? 'green' : 'red'}>
                 {status}
             </Tag>
         ),

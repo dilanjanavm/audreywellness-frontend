@@ -388,29 +388,8 @@ const CustomerManagement = () => {
                             />
                         </Col>
 
-                        <Col sm={12} md={6} lg={2}>
-                            <Label>Customer Type</Label>
-                            <Select
-                                value={customerTypeList.find(option => option.value === selectedCustomerType) || null}
-                                placeholder="Customer Type"
-                                isClearable
-                                onChange={(e) => handleCustomerTypeChange(e?.value || "")}
-                                options={customerTypeList}
-                            />
-                        </Col>
-
-                        <Col sm={12} md={6} lg={2}>
-                            <Label>Sales Type</Label>
-                            <Select
-                                value={salesTypeList.find(option => option.value === selectedSalesType) || null}
-                                placeholder="Sales Type"
-                                isClearable
-                                onChange={(e) => handleSalesTypeChange(e?.value || "")}
-                                options={salesTypeList}
-                            />
-                        </Col>
-
-                        <Col sm={12} md={6} lg={3} className="d-flex align-items-end gap-2">
+                        <Col sm={12} md={6} lg={3}>
+                            <Label  className='opacity-0'>Customer Type</Label> <br/>
                             <Button
                                 color="primary"
                                 className="w-50"
@@ -419,7 +398,10 @@ const CustomerManagement = () => {
                                 <Plus size={16} className="me-1"/>
                                 Add Customer
                             </Button>
+                        </Col>
 
+                        <Col sm={12} md={6} lg={3}>
+                            <Label className='opacity-0'>Sales Type</Label> <br/>
                             <Button
                                 color="success"
                                 className="w-50"
@@ -429,6 +411,8 @@ const CustomerManagement = () => {
                                 Import CSV
                             </Button>
                         </Col>
+
+
                     </Row>
 
                     {/* Customer Table */}
