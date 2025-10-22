@@ -106,62 +106,73 @@ export const StaffTableColumns = [
     },
 ];
 
+// src/common/tableColumns.js
 export const CustomerTableColumns = [
     {
-        title: "Customer Code",
-        dataIndex: "customerCode",
-        width: "12%",
-        key: "customerCode",
+        title: 'S.No',
+        dataIndex: 'sNo',
+        key: 'sNo',
+        width: 80,
     },
     {
-        title: "Full Name",
-        dataIndex: "fullName",
-        width: "15%",
-        key: "fullName",
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: 200,
     },
     {
-        title: "Contact No",
-        key: "phone",
-        width: "15%",
-        dataIndex: "phone",
+        title: 'Short Name',
+        dataIndex: 'shortName',
+        key: 'shortName',
+        width: 150,
     },
     {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
-        width: "20%",
-        ellipsis: true,
+        title: 'Branch Name',
+        dataIndex: 'branchName',
+        key: 'branchName',
+        width: 150,
     },
     {
-        title: "City",
-        dataIndex: "city",
-        key: "city",
-        width: "10%",
+        title: 'City/Area',
+        dataIndex: 'cityArea',
+        key: 'cityArea',
+        width: 120,
     },
     {
-        title: "Status",
-        key: "status",
-        width: "12%",
-        dataIndex: "status",
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email',
+        width: 200,
+    },
+    {
+        title: 'SMS Phone',
+        dataIndex: 'smsPhone',
+        key: 'smsPhone',
+        width: 150,
+    },
+    {
+        title: 'Sales Type',
+        dataIndex: 'salesType',
+        key: 'salesType',
+        width: 120,
+    },
+    {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 100,
         render: (status) => (
-            <Tag
-                color={status === 1 ? "success" : "error"}
-                key={status}
-                style={{
-                    minWidth: "65px",
-                    textAlign: "center",
-                }}
-            >
-                {status === 1 ? "Active" : "Inactive"}
+            <Tag color={status === 'ACTIVE' ? 'green' : 'red'}>
+                {status}
             </Tag>
         ),
     },
     {
-        title: "Actions",
-        key: "action",
-        width: "16%",
-        dataIndex: "action",
-        fixed: 'right'
+        title: 'Actions',
+        dataIndex: 'action',
+        key: 'action',
+        width: 200,
+        fixed: 'right',
     },
 ];
 export const RoleTableColumns = [
@@ -210,54 +221,58 @@ export const CategoryTableColumns = [
     {
         title: "Category ID",
         dataIndex: "categoryId",
-        width: "15%",
+        width: 20,
         key: "categoryId",
+        ellipsis: true,
     },
     {
         title: "Category Name",
         dataIndex: "categoryName",
-        width: "20%",
+        width: 20,
         key: "categoryName",
+        ellipsis: true,
     },
     {
         title: "Description",
         dataIndex: "categoryDesc",
-        width: "25%",
+        Width: 20,
         key: "categoryDesc",
         ellipsis: true,
+
     },
-    {
-        title: "Color",
-        key: "categoryColor",
-        width: "12%",
-        dataIndex: "categoryColor",
-        render: (color) => (
-            <div className="d-flex align-items-center">
-                <div
-                    className="color-badge me-2"
-                    style={{
-                        backgroundColor: color,
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '4px',
-                        border: '1px solid #d9d9d9'
-                    }}
-                />
-                <span>{color}</span>
-            </div>
-        ),
-    },
+    // {
+    //     title: "Color",
+    //     key: "categoryColor",
+    //     width: "12%",
+    //     dataIndex: "categoryColor",
+    //     render: (color) => (
+    //         <div className="d-flex align-items-center">
+    //             <div
+    //                 className="color-badge me-2"
+    //                 style={{
+    //                     backgroundColor: color,
+    //                     width: '20px',
+    //                     height: '20px',
+    //                     borderRadius: '4px',
+    //                     border: '1px solid #d9d9d9'
+    //                 }}
+    //             />
+    //             <span>{color}</span>
+    //         </div>
+    //     ),
+    // },
     {
         title: "Created At",
         dataIndex: "createdAt",
-        width: "15%",
+        width: 20,
         key: "createdAt",
         render: (date) => new Date(date).toLocaleDateString(),
+        ellipsis: true,
     },
     {
         title: "Actions",
         key: "action",
-        width: "13%",
+        width: 20,
         dataIndex: "action",
         fixed: 'right'
     },
@@ -361,17 +376,7 @@ export const ItemTableColumns = [
         width: "10%",
         key: "stockId",
     },
-    {
-        title: "Type",
-        dataIndex: "type",
-        width: "12%",
-        key: "type",
-        render: (type) => (
-            <Tag color="blue" key={type}>
-                {type}
-            </Tag>
-        ),
-    },
+
     {
         title: "Name",
         dataIndex: "description",
@@ -381,9 +386,9 @@ export const ItemTableColumns = [
     },
     {
         title: "Category",
-        dataIndex: "categoryName",
+        dataIndex: "category",
         width: "12%",
-        key: "categoryName",
+        key: "category",
     },
     {
         title: "Units",
@@ -392,22 +397,11 @@ export const ItemTableColumns = [
         key: "units",
     },
     {
-        title: "MB Flag",
-        dataIndex: "mbFlag",
-        width: "8%",
-        key: "mbFlag",
-        render: (flag) => (
-            <Tag color={flag === 'B' ? 'green' : 'orange'} key={flag}>
-                {flag}
-            </Tag>
-        ),
-    },
-    {
         title: "Price",
         dataIndex: "price",
         width: "10%",
         key: "price",
-        render: (price) => `$${parseFloat(price).toFixed(2)}`,
+        render: (price) => `LKR${parseFloat(price).toFixed(2)}`,
     },
     {
         title: "Actions",

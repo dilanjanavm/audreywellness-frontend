@@ -1,27 +1,32 @@
-// src/components/complaint/CreateComplaintModal.js
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, DatePicker, Button, Row, Col, Tag, Alert, Spin } from 'antd';
-import { User, Mail, Phone, AlertTriangle, Calendar } from 'react-feather';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, Input, DatePicker, Button, Row, Col, Tag, Alert, Spin} from 'antd';
+import Select from 'antd/lib/select';
+
+const {Option} = Select;
+import {User, Mail, Phone, AlertTriangle, Calendar} from 'react-feather';
 import debounce from 'lodash.debounce';
 
-import CKEditor from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import {CKEditor} from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import * as userService from "../../../../service/userService";
 import * as customerService from "../../../../service/customerService";
-import {COMPLAINT_CATEGORIES,PRIORITY_LEVELS} from "../../../../common/enum";
+import {COMPLAINT_CATEGORIES, PRIORITY_LEVELS} from "../../../../common/enum";
+import {handleError, popUploader} from "../../../../common/commonFunctions";
+import {useDispatch} from "react-redux";
 
 
-
-
-const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) => {
+const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => {
     const [form] = Form.useForm();
-    const [customers, setCustomers] = useState([]);
+    const [customers, setCustomers] = useState([]); // Store full customer objects
+    const [customerOptions, setCustomerOptions] = useState([]); // Store options for Select
     const [users, setUsers] = useState([]);
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [customerDetailsVisible, setCustomerDetailsVisible] = useState(false);
+    const dispatch = useDispatch();
 
     useEffect(() => {
+        loadAllCustomers();
         if (visible) {
             loadUsers();
             form.setFieldsValue({
@@ -39,27 +44,34 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
         }
     };
 
-    // Real-time customer search with debouncing
-    const handleCustomerSearch = debounce(async (searchTerm) => {
-        if (!searchTerm || searchTerm.length < 2) {
-            setCustomers([]);
-            return;
-        }
+    // Load all customers
+    const loadAllCustomers = () => {
+        customerService.getAllCustomers()
+            .then((res) => {
+                const customerData = res.data?.data || [];
 
-        setCustomerSearchLoading(true);
-        try {
-            const response = await customerService.searchCustomers(searchTerm);
-            setCustomers(response.data?.data || []);
-        } catch (error) {
-            console.error('Error searching customers:', error);
-            setCustomers([]);
-        } finally {
-            setCustomerSearchLoading(false);
-        }
-    }, 500);
+                // Store full customer objects
+                setCustomers(customerData);
+
+                // Create options for Select component
+                const options = customerData.map((customer) => ({
+                    value: customer.id,
+                    label: `${customer.fullName} - ${customer.email}`,
+                    customer: customer // Store the full customer object in the option
+                }));
+
+                setCustomerOptions(options);
+                popUploader(dispatch, false);
+            })
+            .catch((err) => {
+                popUploader(dispatch, false);
+                handleError(err);
+            });
+    };
 
     const handleCustomerSelect = (value, option) => {
-        const customer = customers.find(c => c.id === value);
+        // Get the full customer object from the option
+        const customer = option.customer;
         if (customer) {
             setSelectedCustomer(customer);
             setCustomerDetailsVisible(true);
@@ -67,7 +79,8 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
             // Auto-fill customer details
             form.setFieldsValue({
                 customerName: customer.fullName,
-                customerPhone: customer.phone
+                customerPhone: customer.phone,
+                customerEmail: customer.email // Also set the email field
             });
         }
     };
@@ -93,6 +106,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
         setSelectedCustomer(null);
         setCustomerDetailsVisible(false);
         setCustomers([]);
+        setCustomerOptions([]);
         onClose();
     };
 
@@ -100,7 +114,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
         <Modal
             title={
                 <div className="d-flex align-items-center">
-                    <AlertTriangle size={20} className="me-2" />
+                    <AlertTriangle size={20} className="me-2"/>
                     Create New Complaint
                 </div>
             }
@@ -119,39 +133,31 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                 {/* Customer Search Section */}
                 <div className="mb-4 p-3 border rounded">
                     <h5 className="mb-3">
-                        <User size={16} className="me-2" />
+                        <User size={16} className="me-2"/>
                         Customer Information
                     </h5>
 
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
-                                label="Search Customer by Email"
+                                label="Search Customer"
                                 name="customerEmail"
                                 rules={[
-                                    { required: true, message: 'Please enter customer email' },
-                                    { type: 'email', message: 'Please enter valid email' }
+                                    {required: true, message: 'Please select customer'},
                                 ]}
                             >
                                 <Select
                                     showSearch
-                                    placeholder="Type customer email to search..."
+                                    placeholder="Search customer by name or email..."
                                     size="large"
-                                    filterOption={false}
-                                    onSearch={handleCustomerSearch}
+                                    filterOption={(input, option) =>
+                                        option.label.toLowerCase().includes(input.toLowerCase())
+                                    }
+                                    options={customerOptions}
                                     onChange={handleCustomerSelect}
                                     loading={customerSearchLoading}
-                                    notFoundContent={customerSearchLoading ? <Spin size="small" /> : null}
-                                >
-                                    {customers.map(customer => (
-                                        <Option key={customer.id} value={customer.email}>
-                                            <div className="d-flex justify-content-between">
-                                                <span>{customer.fullName}</span>
-                                                <span className="text-muted">{customer.email}</span>
-                                            </div>
-                                        </Option>
-                                    ))}
-                                </Select>
+                                    notFoundContent={customerSearchLoading ? <Spin size="small"/> : "No customers found"}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -189,10 +195,10 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                                     <Form.Item
                                         label="Customer Name"
                                         name="customerName"
-                                        rules={[{ required: true, message: 'Please enter customer name' }]}
+                                        rules={[{required: true, message: 'Please enter customer name'}]}
                                     >
                                         <Input
-                                            prefix={<User size={16} />}
+                                            prefix={<User size={16}/>}
                                             placeholder="Enter customer name"
                                             size="large"
                                         />
@@ -202,10 +208,10 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                                     <Form.Item
                                         label="Customer Phone"
                                         name="customerPhone"
-                                        rules={[{ required: true, message: 'Please enter customer phone' }]}
+                                        rules={[{required: true, message: 'Please enter customer phone'}]}
                                     >
                                         <Input
-                                            prefix={<Phone size={16} />}
+                                            prefix={<Phone size={16}/>}
                                             placeholder="Enter customer phone"
                                             size="large"
                                         />
@@ -222,10 +228,11 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                     )}
                 </div>
 
+                {/* Rest of your component remains the same */}
                 {/* Complaint Details */}
                 <div className="mb-4">
                     <h5 className="mb-3">
-                        <AlertTriangle size={16} className="me-2" />
+                        <AlertTriangle size={16} className="me-2"/>
                         Complaint Details
                     </h5>
 
@@ -234,7 +241,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                             <Form.Item
                                 label="Headline"
                                 name="headline"
-                                rules={[{ required: true, message: 'Please enter complaint headline' }]}
+                                rules={[{required: true, message: 'Please enter complaint headline'}]}
                             >
                                 <Input
                                     placeholder="Brief description of the complaint"
@@ -246,7 +253,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                             <Form.Item
                                 label="Category"
                                 name="category"
-                                rules={[{ required: true, message: 'Please select category' }]}
+                                rules={[{required: true, message: 'Please select category'}]}
                             >
                                 <Select placeholder="Select category" size="large">
                                     {COMPLAINT_CATEGORIES.map(cat => (
@@ -299,7 +306,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                         name="targetResolutionDate"
                     >
                         <DatePicker
-                            style={{ width: '100%' }}
+                            style={{width: '100%'}}
                             size="large"
                             placeholder="Select target resolution date"
                         />
@@ -308,7 +315,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                     <Form.Item
                         label="Description"
                         name="description"
-                        rules={[{ required: true, message: 'Please enter complaint description' }]}
+                        rules={[{required: true, message: 'Please enter complaint description'}]}
                     >
                         <div className="ckeditor-container">
                             <CKEditor
@@ -322,7 +329,7 @@ const CreateComplaintModal = ({ visible, onClose, onCreate, loading = false }) =
                                 }}
                                 onChange={(event, editor) => {
                                     const data = editor.getData();
-                                    form.setFieldsValue({ description: data });
+                                    form.setFieldsValue({description: data});
                                 }}
                             />
                         </div>

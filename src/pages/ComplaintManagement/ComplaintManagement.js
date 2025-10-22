@@ -1,5 +1,5 @@
 // src/modules/complaint/ComplaintManagement.js
-import React, { useEffect, useState, useCallback } from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import {
     Container,
     Card,
@@ -10,11 +10,11 @@ import {
     FormGroup,
     Button,
 } from "reactstrap";
-import { Table, Tag, Tooltip, Select, DatePicker, Statistic } from "antd";
-import { Plus, Search, Eye, Edit, AlertTriangle } from "react-feather";
-import { ComplaintTableColumns } from "../../common/tableColumns";
+import {Table, Tag, Tooltip, Select, DatePicker, Statistic} from "antd";
+import {Plus, Search, Eye, Edit, AlertTriangle} from "react-feather";
+import {ComplaintTableColumns} from "../../common/tableColumns";
 import * as complaintService from "../../service/complaintService";
-import { useDispatch } from "react-redux";
+import {useDispatch} from "react-redux";
 import {
     customToastMsg,
     handleError,
@@ -25,9 +25,8 @@ import CreateComplaintModal from "../../Components/Common/modal/Complaint/Create
 import ComplaintDetailsModal from "../../Components/Common/modal/Complaint/ComplaintDetailsModal";
 
 
-
-const { Option } = Select;
-const { RangePicker } = DatePicker;
+const {Option} = Select;
+const {RangePicker} = DatePicker;
 
 // Complaint Enums
 const COMPLAINT_STATUS = ['open', 'in_progress', 'resolved', 'awaiting_feedback', 'closed', 'reopened'];
@@ -116,7 +115,7 @@ const ComplaintManagement = () => {
                             outline
                             onClick={() => handleViewComplaint(complaint.id)}
                         >
-                            <Eye size={14} />
+                            <Eye size={14}/>
                         </Button>
                     </Tooltip>
                     <Tooltip title="Edit Complaint">
@@ -126,7 +125,7 @@ const ComplaintManagement = () => {
                             outline
                             onClick={() => handleEditComplaint(complaint)}
                         >
-                            <Edit size={14} />
+                            <Edit size={14}/>
                         </Button>
                     </Tooltip>
                 </div>
@@ -244,44 +243,44 @@ const ComplaintManagement = () => {
                 </div>
 
                 {/* Statistics Cards */}
-                <Row gutter={16} className="mb-4">
+                <Row gutter={16} className="mb-4 mt-2">
                     <Col span={6}>
-                        <Card>
+                        <Card className='px-4 py-2'>
                             <Statistic
                                 title="Total Complaints"
                                 value={stats.total}
-                                prefix={<AlertTriangle size={20} />}
-                                valueStyle={{ color: '#3f8600' }}
+                                prefix={<AlertTriangle size={20}/>}
+                                valueStyle={{color: '#3f8600'}}
                             />
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card>
+                        <Card className='px-4 py-2'>
                             <Statistic
                                 title="Open Complaints"
                                 value={stats.open}
-                                prefix={<AlertTriangle size={20} />}
-                                valueStyle={{ color: '#1890ff' }}
+                                prefix={<AlertTriangle size={20}/>}
+                                valueStyle={{color: '#1890ff'}}
                             />
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card>
+                        <Card className='px-4 py-2'>
                             <Statistic
                                 title="In Progress"
                                 value={stats.inProgress}
-                                prefix={<AlertTriangle size={20} />}
-                                valueStyle={{ color: '#faad14' }}
+                                prefix={<AlertTriangle size={20}/>}
+                                valueStyle={{color: '#faad14'}}
                             />
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card>
+                        <Card className='px-4 py-2'>
                             <Statistic
                                 title="Resolved"
                                 value={stats.resolved}
-                                prefix={<AlertTriangle size={20} />}
-                                valueStyle={{ color: '#52c41a' }}
+                                prefix={<AlertTriangle size={20}/>}
+                                valueStyle={{color: '#52c41a'}}
                             />
                         </Card>
                     </Col>
@@ -293,7 +292,7 @@ const ComplaintManagement = () => {
                         <Col sm={12} md={6} lg={3}>
                             <FormGroup>
                                 <Label for="search">
-                                    <Search size={16} className="me-1" />
+                                    <Search size={16} className="me-1"/>
                                     Search Complaints
                                 </Label>
                                 <Input
@@ -308,11 +307,12 @@ const ComplaintManagement = () => {
                         <Col sm={12} md={6} lg={2}>
                             <Label>Status</Label>
                             <Select
+                                size='large'
                                 mode="multiple"
                                 placeholder="Filter by status"
                                 value={filters.status}
                                 onChange={(value) => handleFilterChange('status', value)}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                             >
                                 {COMPLAINT_STATUS.map(status => (
                                     <Option key={status} value={status}>
@@ -325,11 +325,12 @@ const ComplaintManagement = () => {
                         <Col sm={12} md={6} lg={2}>
                             <Label>Priority</Label>
                             <Select
+                                size='large'
                                 mode="multiple"
                                 placeholder="Filter by priority"
                                 value={filters.priority}
                                 onChange={(value) => handleFilterChange('priority', value)}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                             >
                                 {PRIORITY_LEVELS.map(priority => (
                                     <Option key={priority} value={priority}>
@@ -342,11 +343,12 @@ const ComplaintManagement = () => {
                         <Col sm={12} md={6} lg={2}>
                             <Label>Category</Label>
                             <Select
+                                size='large'
                                 mode="multiple"
                                 placeholder="Filter by category"
                                 value={filters.category}
                                 onChange={(value) => handleFilterChange('category', value)}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                             >
                                 {COMPLAINT_CATEGORIES.map(category => (
                                     <Option key={category} value={category}>
@@ -359,20 +361,22 @@ const ComplaintManagement = () => {
                         <Col sm={12} md={6} lg={2}>
                             <Label>Date Range</Label>
                             <RangePicker
-                                style={{ width: '100%' }}
+                                size='large'
+                                style={{width: '100%'}}
                                 onChange={handleDateRangeChange}
                             />
                         </Col>
 
-                        <Col sm={12} md={6} lg={1} className="d-flex align-items-end">
-                            <Button
-                                color="primary"
-                                className="w-100"
-                                onClick={() => setCreateModalVisible(true)}
-                            >
-                                <Plus size={16} className="me-1" />
-                                Add
-                            </Button>
+                        <Col sm={12} md={6} lg={1}>
+                            <Label className='opacity-0'>Date Range</Label> <Button
+
+                            color="primary"
+                            className="w-100"
+                            onClick={() => setCreateModalVisible(true)}
+                        >
+                            <Plus size={16} className="me-1"/>
+                            Add
+                        </Button>
                         </Col>
                     </Row>
 
@@ -395,9 +399,9 @@ const ComplaintManagement = () => {
                                 }}
                                 columns={ComplaintTableColumns}
                                 dataSource={complaintTableList}
-                                scroll={{ x: "max-content" }}
+                                scroll={{x: "max-content"}}
                                 loading={loading}
-                                locale={{ emptyText: "No complaints found" }}
+                                locale={{emptyText: "No complaints found"}}
                             />
                         </Col>
                     </Row>

@@ -246,7 +246,7 @@ const UpdateSupplierModal = ({
                                     name="ntnNumber"
                                 >
                                     <Input
-                                        prefix={<IdCard size={16} />}
+                                        prefix={<CreditCard size={16} />}
                                         placeholder="Enter NTN number"
                                         size="large"
                                     />
@@ -259,7 +259,7 @@ const UpdateSupplierModal = ({
                                     name="gstNumber"
                                 >
                                     <Input
-                                        prefix={<IdCard size={16} />}
+                                        prefix={<CreditCard size={16} />}
                                         placeholder="Enter GST number"
                                         size="large"
                                     />

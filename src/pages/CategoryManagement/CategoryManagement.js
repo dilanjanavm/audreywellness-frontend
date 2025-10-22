@@ -216,7 +216,11 @@ const CategoryManagement = () => {
                             </FormGroup>
                         </Col>
 
-                        <Col sm={12} md={6} lg={4} className="d-flex align-items-end">
+                        <Col sm={12} md={6} lg={4} className="">
+                            <Label className="opacity-0">
+
+                                action Categories
+                            </Label>
                             <Button
                                 color="primary"
                                 className="w-100"

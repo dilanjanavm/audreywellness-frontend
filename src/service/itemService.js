@@ -2,11 +2,59 @@
 
 import ApiService from "./apiService";
 
-export const getAllItems = () => {
+export const getAllItems = (page = 1, limit = 50, search, category) => {
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
-    apiObject.endpoint = `items`;
+
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+    });
+    console.log(search)
+    if (search) {
+        queryParams.append('search', search);
+    }
+
+    if (category) {
+        queryParams.append('category', category);
+    }
+
+    apiObject.endpoint = `items?${queryParams.toString()}`;
+    return ApiService.callApi(apiObject);
+};
+
+//import items
+export const importItemsFromCSVFile = (file) => {
+    const apiObject = {};
+    apiObject.method = 'POST';
+    apiObject.authentication = true;
+    apiObject.endpoint = `items/import/upload`;
+    apiObject.isMultipart = true;
+
+    const formData = new FormData();
+    formData.append('file', file.originFileObj || file);
+    console.log(formData)
+    apiObject.body = formData;
+
+    return ApiService.callApi(apiObject);
+};
+
+export const downloadCsvTemplate = () => {
+    const apiObject = {};
+    apiObject.method = 'GET';
+    apiObject.authentication = true;
+    apiObject.endpoint = `items/export/template`;
+    return ApiService.callApi(apiObject);
+};
+
+// Keep other functions the same...
+export const searchItems = (searchTerm) => {
+    const apiObject = {};
+    apiObject.method = 'GET';
+    apiObject.authentication = true;
+    apiObject.endpoint = `items/search/${searchTerm}`;
     return ApiService.callApi(apiObject);
 };
 
@@ -49,7 +97,7 @@ export const bulkDeleteItems = (itemCodes) => {
     apiObject.method = 'POST';
     apiObject.authentication = true;
     apiObject.endpoint = `items/bulk-remove`;
-    apiObject.body = { itemCodes };
+    apiObject.body = {itemCodes};
     return ApiService.callApi(apiObject);
 };
 
@@ -58,7 +106,7 @@ export const importItemsFromCSV = (csvContent) => {
     apiObject.method = 'POST';
     apiObject.authentication = true;
     apiObject.endpoint = `items/import`;
-    apiObject.body = { csvContent };
+    apiObject.body = {csvContent};
     return ApiService.callApi(apiObject);
 };
 
@@ -71,13 +119,6 @@ export const exportItemsToCSV = (options = {}) => {
     return ApiService.callApi(apiObject);
 };
 
-export const searchItems = (searchTerm) => {
-    const apiObject = {};
-    apiObject.method = 'GET';
-    apiObject.authentication = true;
-    apiObject.endpoint = `items/search/${searchTerm}`;
-    return ApiService.callApi(apiObject);
-};
 
 export const getItemsByCategory = (categoryId) => {
     const apiObject = {};

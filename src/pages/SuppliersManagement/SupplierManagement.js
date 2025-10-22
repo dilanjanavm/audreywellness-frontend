@@ -114,16 +114,16 @@ const SupplierManagement = () => {
             updatedAt: supplier.updatedAt,
             action: (
                 <div className="d-flex gap-2">
-                    <Tooltip title="View Details">
-                        <Button
-                            size="sm"
-                            color="info"
-                            outline
-                            onClick={() => handleViewSupplier(supplier.id)}
-                        >
-                            <Eye size={14}/>
-                        </Button>
-                    </Tooltip>
+                    {/*<Tooltip title="View Details">*/}
+                    {/*    <Button*/}
+                    {/*        size="sm"*/}
+                    {/*        color="info"*/}
+                    {/*        outline*/}
+                    {/*        onClick={() => handleViewSupplier(supplier.id)}*/}
+                    {/*    >*/}
+                    {/*        <Eye size={14}/>*/}
+                    {/*    </Button>*/}
+                    {/*</Tooltip>*/}
                     <Tooltip title="Edit Supplier">
                         <Button
                             size="sm"
@@ -323,9 +323,9 @@ const SupplierManagement = () => {
 
                 {/* Statistics Cards */}
                 {stats && (
-                    <Row gutter={16} className="mb-4">
+                    <Row gutter={16} className="mb-4 mt-2">
                         <Col span={6}>
-                            <Card>
+                            <Card className='px-4 py-2'>
                                 <Statistic
                                     title="Total Suppliers"
                                     value={stats.totalSuppliers}
@@ -335,7 +335,7 @@ const SupplierManagement = () => {
                             </Card>
                         </Col>
                         <Col span={6}>
-                            <Card>
+                            <Card className='px-4 py-2'>
                                 <Statistic
                                     title="Active Suppliers"
                                     value={stats.activeSuppliers}
@@ -345,7 +345,7 @@ const SupplierManagement = () => {
                             </Card>
                         </Col>
                         <Col span={6}>
-                            <Card>
+                            <Card className='px-4 py-2'>
                                 <Statistic
                                     title="Recently Added"
                                     value={stats.recentlyAdded}
@@ -355,8 +355,8 @@ const SupplierManagement = () => {
                             </Card>
                         </Col>
                         <Col span={6}>
-                            <Card>
-                                <Statistic
+                            <Card className='px-4 py-2'>
+                                    <Statistic
                                     title="Inactive Suppliers"
                                     value={stats.totalSuppliers - stats.activeSuppliers}
                                     prefix={<Users size={20}/>}
@@ -400,7 +400,8 @@ const SupplierManagement = () => {
                             </div>
                         </Col>
 
-                        <Col sm={12} md={6} lg={2} className="d-flex align-items-end">
+                        <Col sm={12} md={6} lg={3} className="">
+                            <Label className='opacity-0'>Status Filter</Label>
                             <Button
                                 color="primary"
                                 className="w-100"
@@ -411,20 +412,23 @@ const SupplierManagement = () => {
                             </Button>
                         </Col>
 
-                        <Col sm={12} md={6} lg={2} className="d-flex align-items-end">
-                            <Upload {...uploadProps}>
-                                <Button
-                                    color="success"
-                                    outline
-                                    className="w-100"
-                                >
-                                    <UploadIcon size={16} className="me-1"/>
-                                    Import CSV
-                                </Button>
-                            </Upload>
-                        </Col>
+                        {/*<Col sm={12} md={6} lg={2} >*/}
+                        {/*    <Upload {...uploadProps}>*/}
+                        {/*        <Label className='opacity-0'>Status Filter</Label>*/}
 
-                        <Col sm={12} md={6} lg={2} className="d-flex align-items-end">
+                        {/*        <Button*/}
+                        {/*            color="success"*/}
+                        {/*            outline*/}
+                        {/*            className="w-100"*/}
+                        {/*        >*/}
+                        {/*            <UploadIcon size={16} className="me-1"/>*/}
+                        {/*            Import CSV*/}
+                        {/*        </Button>*/}
+                        {/*    </Upload>*/}
+                        {/*</Col>*/}
+
+                        <Col sm={12} md={6} lg={3}  >
+                            <Label className='opacity-0'>Status Filter</Label>
                             <Button
                                 color="info"
                                 outline

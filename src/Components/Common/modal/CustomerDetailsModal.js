@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Row, Col, Tag, Divider, Descriptions } from "antd";
-import { User, Mail, Phone, MapPin, Calendar, Tag as TagIcon } from "react-feather";
+import { User, Mail, Phone, MapPin, Calendar, Users, DollarSign } from "react-feather";
 
 const CustomerDetailsModal = ({ visible, customer, onClose }) => {
     return (
@@ -21,19 +21,16 @@ const CustomerDetailsModal = ({ visible, customer, onClose }) => {
                 <div className="p-3">
                     {/* Header Section */}
                     <div className="text-center mb-4">
-                        <div className="customer-avatar">
-                            {customer.fullName?.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </div>
-                        <h4 className="mt-3 mb-1">{customer.fullName}</h4>
+                        <h4 className="mt-3 mb-1">{customer.name}</h4>
                         <Tag color="blue" className="mb-2">
-                            {customer.customerCode}
+                            {customer.sNo}
                         </Tag>
                         <div>
-                            <Tag
-                                color={customer.status === 1 ? "green" : "red"}
-                                icon={<TagIcon size={12} />}
-                            >
-                                {customer.status === 1 ? "Active" : "Inactive"}
+                            <Tag color={customer.status === "ACTIVE" ? "green" : "red"}>
+                                {customer.status}
+                            </Tag>
+                            <Tag color="purple" className="ms-1">
+                                {customer.customerType}
                             </Tag>
                         </div>
                     </div>
@@ -42,77 +39,96 @@ const CustomerDetailsModal = ({ visible, customer, onClose }) => {
 
                     {/* Customer Information */}
                     <Descriptions column={1} bordered size="small">
-                        <Descriptions.Item
-                            label={
-                                <span className="d-flex align-items-center">
-                  <Mail size={14} className="me-2" />
-                  Email
-                </span>
-                            }
-                        >
-                            {customer.email}
+                        <Descriptions.Item label="Short Name">
+                            {customer.shortName}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Branch Name">
+                            {customer.branchName}
                         </Descriptions.Item>
 
                         <Descriptions.Item
                             label={
                                 <span className="d-flex align-items-center">
-                  <Phone size={14} className="me-2" />
-                  Phone
-                </span>
+                                    <Mail size={14} className="me-2" />
+                                    Email
+                                </span>
                             }
                         >
-                            {customer.phone}
+                            {customer.email || 'N/A'}
                         </Descriptions.Item>
 
                         <Descriptions.Item
                             label={
                                 <span className="d-flex align-items-center">
-                  <MapPin size={14} className="me-2" />
-                  Address
-                </span>
+                                    <Phone size={14} className="me-2" />
+                                    SMS Phone
+                                </span>
                             }
                         >
-                            <div>
-                                <div>{customer.address}</div>
-                                <div>{customer.city}, {customer.country}</div>
-                            </div>
+                            {customer.smsPhone}
                         </Descriptions.Item>
+
+                        <Descriptions.Item
+                            label={
+                                <span className="d-flex align-items-center">
+                                    <MapPin size={14} className="me-2" />
+                                    City/Area
+                                </span>
+                            }
+                        >
+                            {customer.cityArea}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item
+                            label={
+                                <span className="d-flex align-items-center">
+                                    <DollarSign size={14} className="me-2" />
+                                    Currency
+                                </span>
+                            }
+                        >
+                            {customer.currency}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Sales Type">
+                            {customer.salesType}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Payment Terms">
+                            {customer.paymentTerms}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Sales Group">
+                            {customer.salesGroup}
+                        </Descriptions.Item>
+
+                        {customer.dob && (
+                            <Descriptions.Item
+                                label={
+                                    <span className="d-flex align-items-center">
+                                        <Calendar size={14} className="me-2" />
+                                        Date of Birth
+                                    </span>
+                                }
+                            >
+                                {new Date(customer.dob).toLocaleDateString()}
+                            </Descriptions.Item>
+                        )}
+
+                        {customer.address && (
+                            <Descriptions.Item
+                                label={
+                                    <span className="d-flex align-items-center">
+                                        <MapPin size={14} className="me-2" />
+                                        Address
+                                    </span>
+                                }
+                            >
+                                {customer.address}
+                            </Descriptions.Item>
+                        )}
                     </Descriptions>
-
-                    {/* Timeline Section */}
-                    <Divider>Timeline</Divider>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <div className="timeline-item">
-                                <Calendar size={14} className="me-2 text-muted" />
-                                <small className="text-muted">Created</small>
-                                <div className="fw-semibold">
-                                    {new Date(customer.createdAt).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </div>
-                            </div>
-                        </Col>
-                        <Col span={12}>
-                            <div className="timeline-item">
-                                <Calendar size={14} className="me-2 text-muted" />
-                                <small className="text-muted">Last Updated</small>
-                                <div className="fw-semibold">
-                                    {new Date(customer.updatedAt).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
                 </div>
             )}
         </Modal>

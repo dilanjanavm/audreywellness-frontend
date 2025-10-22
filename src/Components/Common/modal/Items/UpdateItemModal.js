@@ -1,12 +1,12 @@
 // src/components/item/UpdateItemModal.js
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, InputNumber, Button, Row, Col } from 'antd';
-import { Package, DollarSign, FileText, Hash, Columns } from 'react-feather';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, Input, Select, InputNumber, Button, Row, Col} from 'antd';
+import {Package, DollarSign, FileText, Hash, Columns} from 'react-feather';
 import * as categoryService from "../../../../service/categoryService";
-import { ITEM_TYPES, MB_FLAGS, UNIT_TYPES } from "../../../../common/enum";
+import {ITEM_TYPES, MB_FLAGS, UNIT_TYPES} from "../../../../common/enum";
 
-const { Option } = Select;
-const { TextArea } = Input;
+const {Option} = Select;
+const {TextArea} = Input;
 
 const UpdateItemModal = ({
                              visible,
@@ -20,6 +20,7 @@ const UpdateItemModal = ({
     const [categoriesLoading, setCategoriesLoading] = useState(false);
 
     useEffect(() => {
+        console.log(item)
         if (visible) {
             loadCategories();
             if (item) {
@@ -72,7 +73,7 @@ const UpdateItemModal = ({
         <Modal
             title={
                 <div className="d-flex align-items-center">
-                    <Package size={20} className="me-2" />
+                    <Package size={20} className="me-2"/>
                     Update Item
                 </div>
             }
@@ -96,7 +97,7 @@ const UpdateItemModal = ({
                             name="itemCode"
                         >
                             <Input
-                                prefix={<Hash size={16} />}
+                                prefix={<Hash size={16}/>}
                                 disabled
                                 size="large"
                             />
@@ -109,7 +110,7 @@ const UpdateItemModal = ({
                             name="stockId"
                         >
                             <Input
-                                prefix={<Columns size={16} />}
+                                prefix={<Columns size={16}/>}
                                 disabled
                                 size="large"
                             />
@@ -122,7 +123,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Item Type"
                             name="type"
-                            rules={[{ required: true, message: 'Please select item type' }]}
+                            rules={[{required: true, message: 'Please select item type'}]}
                         >
                             <Select placeholder="Select item type" size="large">
                                 {ITEM_TYPES.map(type => (
@@ -136,7 +137,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Category"
                             name="categoryId"
-                            rules={[{ required: true, message: 'Please select category' }]}
+                            rules={[{required: true, message: 'Please select category'}]}
                         >
                             <Select
                                 placeholder="Select category"
@@ -173,7 +174,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Units"
                             name="units"
-                            rules={[{ required: true, message: 'Please select units' }]}
+                            rules={[{required: true, message: 'Please select units'}]}
                         >
                             <Select placeholder="Select units" size="large">
                                 {UNIT_TYPES.map(unit => (
@@ -187,7 +188,7 @@ const UpdateItemModal = ({
                 <Form.Item
                     label="Name"
                     name="description"
-                    rules={[{ required: true, message: 'Please enter description' }]}
+                    rules={[{required: true, message: 'Please enter description'}]}
                 >
                     <Input
                         placeholder="Enter item description"
@@ -210,7 +211,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="MB Flag"
                             name="mbFlag"
-                            rules={[{ required: true, message: 'Please select MB flag' }]}
+                            rules={[{required: true, message: 'Please select MB flag'}]}
                         >
                             <Select placeholder="Select MB flag" size="large">
                                 {MB_FLAGS.map(flag => (
@@ -240,13 +241,13 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Price"
                             name="price"
-                            rules={[{ required: true, message: 'Please enter price' }]}
+                            rules={[{required: true, message: 'Please enter price'}]}
                         >
                             <InputNumber
                                 placeholder="0.00"
                                 min={0}
                                 step={0.01}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                                 size="large"
                                 prefix="$"
                             />
@@ -262,7 +263,7 @@ const UpdateItemModal = ({
                                 placeholder="0.00"
                                 min={0}
                                 step={0.01}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                                 size="large"
                                 prefix="$"
                             />
@@ -275,7 +276,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Sales Account"
                             name="salesAccount"
-                            rules={[{ required: true, message: 'Please enter sales account' }]}
+                            rules={[{required: true, message: 'Please enter sales account'}]}
                         >
                             <Input
                                 placeholder="Enter sales account"
@@ -288,7 +289,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Inventory Account"
                             name="inventoryAccount"
-                            rules={[{ required: true, message: 'Please enter inventory account' }]}
+                            rules={[{required: true, message: 'Please enter inventory account'}]}
                         >
                             <Input
                                 placeholder="Enter inventory account"
@@ -303,7 +304,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="COGS Account"
                             name="cogsAccount"
-                            rules={[{ required: true, message: 'Please enter COGS account' }]}
+                            rules={[{required: true, message: 'Please enter COGS account'}]}
                         >
                             <Input
                                 placeholder="Enter COGS account"
@@ -316,7 +317,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Adjustment Account"
                             name="adjustmentAccount"
-                            rules={[{ required: true, message: 'Please enter adjustment account' }]}
+                            rules={[{required: true, message: 'Please enter adjustment account'}]}
                         >
                             <Input
                                 placeholder="Enter adjustment account"
@@ -331,7 +332,7 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="WIP Account"
                             name="wipAccount"
-                            rules={[{ required: true, message: 'Please enter WIP account' }]}
+                            rules={[{required: true, message: 'Please enter WIP account'}]}
                         >
                             <Input
                                 placeholder="Enter WIP account"
