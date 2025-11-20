@@ -54,3 +54,12 @@ export const submitComplaintFeedback = (id, feedback, rating) => {
     apiObject.body = { feedback, rating };
     return ApiService.callApi(apiObject);
 };
+
+export const updateComplaintStatus = (id, statusData) => {
+    const apiObject = {};
+    apiObject.method = 'PUT';
+    apiObject.authentication = true;
+    apiObject.endpoint = `complaints/${id}/status`;
+    apiObject.body = statusData;
+    return ApiService.callApi(apiObject);
+};

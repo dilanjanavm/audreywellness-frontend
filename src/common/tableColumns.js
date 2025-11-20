@@ -1,5 +1,8 @@
-import {Button, Tag} from "antd";
+import {Button, Space, Tag, Typography} from "antd";
 import moment from "moment";
+import {EditOutlined, EyeOutlined, FileTextOutlined, PlusOutlined} from "@ant-design/icons";
+import React from "react";
+const {Title, Text} = Typography;
 
 export const UserTableColumns = [
     {
@@ -240,27 +243,38 @@ export const CategoryTableColumns = [
         ellipsis: true,
 
     },
-    // {
-    //     title: "Color",
-    //     key: "categoryColor",
-    //     width: "12%",
-    //     dataIndex: "categoryColor",
-    //     render: (color) => (
-    //         <div className="d-flex align-items-center">
-    //             <div
-    //                 className="color-badge me-2"
-    //                 style={{
-    //                     backgroundColor: color,
-    //                     width: '20px',
-    //                     height: '20px',
-    //                     borderRadius: '4px',
-    //                     border: '1px solid #d9d9d9'
-    //                 }}
-    //             />
-    //             <span>{color}</span>
-    //         </div>
-    //     ),
-    // },
+    {
+        title: "Color",
+        key: "categoryColor",
+        width: "12%",
+        dataIndex: "categoryColor",
+        render: (color) => (
+            <div className="d-flex align-items-center">
+                <div
+                    className="color-badge me-2"
+                    style={{
+                        backgroundColor: color,
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '4px',
+                        border: '1px solid #d9d9d9'
+                    }}
+                />
+                <span>{color}</span>
+            </div>
+        ),
+    },
+    {
+        title: "Status",
+        key: "status",
+        width: "8%",
+        dataIndex: "status",
+        render: (status) => (
+            <Tag color={status === "Active" ? "success" : "error"}>
+                {status === "Active" ? "Active" : "Inactive"}
+            </Tag>
+        ),
+    },
     {
         title: "Created At",
         dataIndex: "createdAt",
@@ -397,11 +411,22 @@ export const ItemTableColumns = [
         key: "units",
     },
     {
-        title: "Price",
+        title: "Unit Price",
         dataIndex: "price",
         width: "10%",
         key: "price",
         render: (price) => `LKR${parseFloat(price).toFixed(2)}`,
+    },
+    {
+        title: "Status",
+        key: "status",
+        width: "8%",
+        dataIndex: "status",
+        render: (status) => (
+            <Tag color={status === "Active" ? "success" : "error"}>
+                {status === "Active" ? "Active" : "Inactive"}
+            </Tag>
+        ),
     },
     {
         title: "Actions",
@@ -494,7 +519,14 @@ export const ComplaintTableColumns = [
         dataIndex: "customer",
         width: "15%",
         key: "customer",
-        render: (customer) => customer?.fullName || 'N/A',
+        render: (customer) => customer?.name || 'N/A',
+    },
+    {
+        title: "Customer Number",
+        dataIndex: "customer",
+        width: "15%",
+        key: "customer",
+        render: (customer) => customer?.phone || 'N/A',
     },
     {
         title: "Headline",
@@ -534,10 +566,9 @@ export const ComplaintTableColumns = [
         },
     },
     {
-        title: "Status",
-        dataIndex: "status",
-        width: "12%",
-        key: "status",
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
         render: (status) => {
             const colorMap = {
                 open: 'blue',
@@ -548,19 +579,13 @@ export const ComplaintTableColumns = [
                 reopened: 'red'
             };
             return (
-                <Tag color={colorMap[status] || 'default'} key={status}>
-                    {status?.replace('_', ' ').toUpperCase()}
+                <Tag color={colorMap[status] || 'default'}>
+                    {status.replace('_', ' ').toUpperCase()}
                 </Tag>
             );
-        },
+        }
     },
-    {
-        title: "Assigned To",
-        dataIndex: "assignedTo",
-        width: "12%",
-        key: "assignedTo",
-        render: (assignedTo) => assignedTo?.username || 'Unassigned',
-    },
+
     {
         title: "Actions",
         key: "action",
@@ -570,6 +595,72 @@ export const ComplaintTableColumns = [
     },
 ];
 
+// Table columns for items with cost actions
+export const ItemCoastTableColumns = [
+    {
+        title: 'Item Code',
+        dataIndex: 'itemCode',
+        key: 'itemCode',
+        render: (text) => <strong>{text}</strong>,
+        width: 120,
+    },
+    {
+        title: 'Stock ID',
+        dataIndex: 'stockId',
+        key: 'stockId',
+        width: 120,
+    },
+    {
+        title: 'Description',
+        dataIndex: 'description',
+        key: 'description',
+        render: (text) => (
+            <Space>
+                <FileTextOutlined/>
+                {text}
+            </Space>
+        ),
+        width: 200,
+    },
+    {
+        title: 'Category',
+        dataIndex: 'category',
+        key: 'category',
+        render: (text) => <Tag color="blue">{text}</Tag>,
+        width: 120,
+    },
+    {
+        title: 'Units',
+        dataIndex: 'units',
+        key: 'units',
+        width: 100,
+    },
+    {
+        title: 'Price',
+        dataIndex: 'price',
+        key: 'price',
+        render: (price) => `LKR ${parseFloat(price || 0).toFixed(2)}`,
+        width: 120,
+    },
+    {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status) => (
+            <Tag color={status === 'Active' ? 'green' : 'red'}>
+                {status}
+            </Tag>
+        ),
+        width: 100,
+    },
+    {
+        title: 'Cost Actions',
+        key: 'action',
+        fixed: 'right',
+        width: 200,
+        render: (text, record) => <div>{record.action}</div>,
+    }
+];
 export const PaymentTableColumns = [
     {
         title: "Order Code",

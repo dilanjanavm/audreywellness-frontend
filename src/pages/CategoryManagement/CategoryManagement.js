@@ -80,6 +80,7 @@ const CategoryManagement = () => {
             categoryName: category.categoryName,
             categoryDesc: category.categoryDesc,
             categoryColor: category.categoryColor,
+            status: category.status,
             createdAt: category.createdAt,
             updatedAt: category.updatedAt,
             action: (

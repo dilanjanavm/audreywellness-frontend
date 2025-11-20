@@ -127,6 +127,7 @@ const ItemManagement = () => {
             mbFlag: item.mbFlag,
             price: item.price,
             altPrice: item.altPrice,
+            status: item.status,
             salesAccount: item.salesAccount,
             inventoryAccount: item.inventoryAccount,
             cogsAccount: item.cogsAccount,
@@ -321,22 +322,7 @@ const ItemManagement = () => {
                                 </Button>
                             </Col>
 
-                            <Col sm={12} md={6} lg={2}>
-                                <Label className="opacity-0">
-                                    <Search size={16} className="me-1"/>
-                                    Action
-                                </Label>
-                                <Button
-                                    color="success"
-                                    outline
-                                    className="w-100"
-                                    onClick={handleExportCSV}
-                                    disabled={itemTableList.length === 0}
-                                >
-                                    <Download size={16} className="me-1"/>
-                                    Export CSV
-                                </Button>
-                            </Col>
+
 
                             <Col sm={12} md={6} lg={2}>
                                 <Label className="opacity-0">

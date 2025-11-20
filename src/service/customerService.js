@@ -19,6 +19,16 @@ export async function getAllCustomers(page = 1, limit = 10, filters = {}) {
     return await ApiService.callApi(apiObject);
 }
 
+export async function getAllCustomersDrp( ) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.isWithoutPrefix = false;
+    apiObject.endpoint = `customers`;
+    apiObject.body = null;
+    return await ApiService.callApi(apiObject);
+}
+
 export async function getCustomerById(cusId) {
     const apiObject = {};
     apiObject.method = "GET";

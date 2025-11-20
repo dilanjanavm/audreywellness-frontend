@@ -256,6 +256,46 @@ const Navdata = () => {
             stateVariables: isProduct,
 
         },
+        //================Product Management========================
+        {
+            id: "productCostManagement",
+            label: "Cost Management",
+            icon: <FeatherIcon icon="dollar-sign" className="icon-dual"/>,
+            link: "/product-cost-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsProduct(!isProduct);
+                setIscurrentState("Products");
+                updateIconSidebar(e);
+            },
+            stateVariables: isProduct,
+            subItems: [
+                {
+                    id: "product-cost-calculate",
+                    label: "Cost Management",
+                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
+                    link: "/product-cost-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },{
+                    id: "productCostManagement",
+                    label: "Cost Calculator",
+                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
+                    link: "/product-cost-calculate",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },]
+        },
         //================Suppliers Management========================
         {
             id: "suppliersManagement",

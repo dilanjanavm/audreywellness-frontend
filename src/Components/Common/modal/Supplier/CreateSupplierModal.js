@@ -27,7 +27,7 @@ const CreateSupplierModal = ({ visible, onClose, onCreate, loading = false }) =>
             setItemsLoading(true);
             const response = await itemService.getAllItems();
             console.log(response.data)
-            setItems(response.data || []);
+            setItems(response.data.data || []);
         } catch (error) {
             console.error('Error loading items:', error);
         } finally {

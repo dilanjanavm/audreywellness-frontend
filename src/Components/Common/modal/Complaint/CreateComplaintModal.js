@@ -4,7 +4,7 @@ import Select from 'antd/lib/select';
 
 const {Option} = Select;
 import {User, Mail, Phone, AlertTriangle, Calendar} from 'react-feather';
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 
 import {CKEditor} from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -14,11 +14,9 @@ import {COMPLAINT_CATEGORIES, PRIORITY_LEVELS} from "../../../../common/enum";
 import {handleError, popUploader} from "../../../../common/commonFunctions";
 import {useDispatch} from "react-redux";
 
-
 const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => {
     const [form] = Form.useForm();
-    const [customers, setCustomers] = useState([]); // Store full customer objects
-    const [customerOptions, setCustomerOptions] = useState([]); // Store options for Select
+    const [customerOptions, setCustomerOptions] = useState([]);
     const [users, setUsers] = useState([]);
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -26,47 +24,80 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadAllCustomers();
         if (visible) {
-            loadUsers();
+
+            getAllCustomers();
             form.setFieldsValue({
                 priority: 'medium'
             });
         }
     }, [visible]);
 
-    const loadUsers = async () => {
-        try {
-            const response = await userService.getAllUsers();
-            setUsers(response.data?.data || []);
-        } catch (error) {
-            console.error('Error loading users:', error);
+
+    // Debounced customer search function
+    const searchCustomers = debounce(async (searchQuery) => {
+        if (!searchQuery || searchQuery.trim().length < 2) {
+            setCustomerOptions([]);
+            return;
         }
-    };
 
-    // Load all customers
-    const loadAllCustomers = () => {
-        customerService.getAllCustomers()
-            .then((res) => {
-                const customerData = res.data?.data || [];
+        setCustomerSearchLoading(true);
+        try {
+            const filters = {
+                search: searchQuery.trim()
+            };
 
-                // Store full customer objects
-                setCustomers(customerData);
+            const response = await customerService.getAllCustomers(1, 100, filters);
+            const customerData = response.data?.data || [];
+            console.log(response.data.data)
+            // Create options for Select component
+            const options = customerData.map((customer) => ({
+                value: customer.id,
+                label: `${customer.name} - ${customer.shortName} (${customer.email || 'No email'})`,
+                customer: customer // Store the full customer object in the option
+            }));
 
-                // Create options for Select component
-                const options = customerData.map((customer) => ({
-                    value: customer.id,
-                    label: `${customer.fullName} - ${customer.email}`,
-                    customer: customer // Store the full customer object in the option
-                }));
+            setCustomerOptions(options);
+        } catch (error) {
+            console.error('Error searching customers:', error);
+            setCustomerOptions([]);
+            message.error('Failed to search customers');
+        } finally {
+            setCustomerSearchLoading(false);
+        }
+    }, 500); // 500ms debounce
 
-                setCustomerOptions(options);
-                popUploader(dispatch, false);
-            })
-            .catch((err) => {
-                popUploader(dispatch, false);
-                handleError(err);
-            });
+
+    // Debounced customer search function
+    const getAllCustomers = debounce(async () => {
+
+
+        try {
+
+
+            const response = await customerService.getAllCustomers(1, 100);
+            const customerData = response.data?.data || [];
+            console.log(response.data.data)
+            // Create options for Select component
+            const options = customerData.map((customer) => ({
+                value: customer.id,
+                label: `${customer.name} - ${customer.shortName} (${customer.email || 'No email'})`,
+                customer: customer // Store the full customer object in the option
+            }));
+
+            setCustomerOptions(options);
+        } catch (error) {
+            console.error('Error laoding customers ');
+            setCustomerOptions([]);
+
+        } finally {
+            setCustomerSearchLoading(false);
+        }
+    }, 500); // 500ms debounce
+
+    // Handle customer search input
+    const handleCustomerSearch = (value) => {
+        searchCustomers(value);
     };
 
     const handleCustomerSelect = (value, option) => {
@@ -78,11 +109,24 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
 
             // Auto-fill customer details
             form.setFieldsValue({
-                customerName: customer.fullName,
-                customerPhone: customer.phone,
-                customerEmail: customer.email // Also set the email field
+                customerName: customer.name,
+                customerPhone: customer.smsPhone || customer.phone,
+                customerEmail: customer.email
             });
         }
+    };
+
+    const handleCustomerDeselect = () => {
+        setSelectedCustomer(null);
+        setCustomerDetailsVisible(false);
+        setCustomerOptions([]);
+
+        // Clear customer details fields
+        form.setFieldsValue({
+            customerName: undefined,
+            customerPhone: undefined,
+            customerEmail: undefined
+        });
     };
 
     const handleSubmit = (values) => {
@@ -105,11 +149,14 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
         form.resetFields();
         setSelectedCustomer(null);
         setCustomerDetailsVisible(false);
-        setCustomers([]);
         setCustomerOptions([]);
         onClose();
     };
+    console.log(customerOptions)
+    useEffect(() => {
+        console.log(customerOptions)
 
+    }, [customerOptions]);
     return (
         <Modal
             title={
@@ -148,16 +195,27 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                             >
                                 <Select
                                     showSearch
-                                    placeholder="Search customer by name or email..."
+                                    placeholder="Type customer name, short name, or email to search..."
                                     size="large"
-                                    filterOption={(input, option) =>
-                                        option.label.toLowerCase().includes(input.toLowerCase())
+                                    filterOption={false} // Disable default filtering as we're using API
+                                    onSearch={handleCustomerSearch}
+                                    onChange={handleCustomerSelect}
+                                    onClear={handleCustomerDeselect}
+                                    allowClear
+                                    loading={customerSearchLoading}
+                                    notFoundContent={
+                                        customerSearchLoading ?
+                                            <div className="text-center p-2"><Spin size="small"/> Searching...</div> :
+                                            "Type at least 2 characters to search customers"
                                     }
                                     options={customerOptions}
-                                    onChange={handleCustomerSelect}
-                                    loading={customerSearchLoading}
-                                    notFoundContent={customerSearchLoading ? <Spin size="small"/> : "No customers found"}
                                 />
+                                {/*{customerOptions.map(option => (*/}
+                                {/*    <Option key={option.value} value={option.value}>*/}
+                                {/*        {option.label}*/}
+                                {/*    </Option>*/}
+                                {/*))}*/}
+                                {/*</Select>*/}
                             </Form.Item>
                         </Col>
                     </Row>
@@ -170,15 +228,28 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                                 <div className="mt-2">
                                     <Row gutter={16}>
                                         <Col span={8}>
-                                            <strong>Name:</strong> {selectedCustomer.fullName}
+                                            <strong>Name:</strong> {selectedCustomer.name}
                                         </Col>
                                         <Col span={8}>
-                                            <strong>Phone:</strong> {selectedCustomer.phone}
+                                            <strong>Phone:</strong> {selectedCustomer.smsPhone || selectedCustomer.phone || 'N/A'}
                                         </Col>
                                         <Col span={8}>
-                                            <strong>Code:</strong> <Tag color="blue">{selectedCustomer.customerCode}</Tag>
+                                            <strong>Short Name:</strong> <Tag
+                                            color="blue">{selectedCustomer.shortName}</Tag>
                                         </Col>
                                     </Row>
+                                    <Row gutter={16} className="mt-2">
+                                        <Col span={24}>
+                                            <strong>Email:</strong> {selectedCustomer.email || 'N/A'}
+                                        </Col>
+                                    </Row>
+                                    {selectedCustomer.branchName && (
+                                        <Row gutter={16} className="mt-2">
+                                            <Col span={24}>
+                                                <strong>Branch:</strong> {selectedCustomer.branchName}
+                                            </Col>
+                                        </Row>
+                                    )}
                                 </div>
                             }
                             type="success"
@@ -228,7 +299,6 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                     )}
                 </div>
 
-                {/* Rest of your component remains the same */}
                 {/* Complaint Details */}
                 <div className="mb-4">
                     <h5 className="mb-3">
@@ -285,20 +355,7 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Assigned To"
-                                name="assignedToId"
-                            >
-                                <Select placeholder="Assign to staff" size="large">
-                                    {users.map(user => (
-                                        <Option key={user.id} value={user.id}>
-                                            {user.username} ({user.email})
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
+
                     </Row>
 
                     <Form.Item

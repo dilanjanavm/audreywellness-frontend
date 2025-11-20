@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {Modal, Form, Input, Select, InputNumber, Button, Row, Col} from 'antd';
 import {Package, DollarSign, FileText, Hash, Columns} from 'react-feather';
 import * as categoryService from "../../../../service/categoryService";
-import {ITEM_TYPES, MB_FLAGS, UNIT_TYPES} from "../../../../common/enum";
+import {UNIT_TYPES} from "../../../../common/enum";
 
 const {Option} = Select;
 const {TextArea} = Input;
@@ -20,29 +20,19 @@ const UpdateItemModal = ({
     const [categoriesLoading, setCategoriesLoading] = useState(false);
 
     useEffect(() => {
-        console.log(item)
         if (visible) {
             loadCategories();
             if (item) {
                 form.setFieldsValue({
                     itemCode: item.itemCode,
                     stockId: item.stockId,
-                    type: item.type,
-                    isbnNo: item.isbnNo,
                     description: item.description,
                     categoryId: item.categoryId,
                     units: item.units,
-                    dummy: item.dummy,
-                    mbFlag: item.mbFlag,
                     price: item.price,
                     altPrice: item.altPrice,
-                    salesAccount: item.salesAccount,
-                    inventoryAccount: item.inventoryAccount,
-                    cogsAccount: item.cogsAccount,
-                    adjustmentAccount: item.adjustmentAccount,
-                    wipAccount: item.wipAccount,
-                    hsCode: item.hsCode,
-                    longDescription: item.longDescription,
+                    currency: item.currency,
+                    status: item.status,
                 });
             }
         }
@@ -80,7 +70,7 @@ const UpdateItemModal = ({
             open={visible}
             onCancel={handleClose}
             footer={null}
-            width={800}
+            width={700}
             className="update-item-modal"
         >
             <Form
@@ -89,16 +79,17 @@ const UpdateItemModal = ({
                 onFinish={handleSubmit}
                 requiredMark="optional"
             >
-                {/* Item Code and Stock ID (Read-only for update) */}
+                {/* Item Code and Stock ID */}
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Item Code"
                             name="itemCode"
+                            rules={[{required: true, message: 'Item code is required'}]}
                         >
                             <Input
                                 prefix={<Hash size={16}/>}
-                                disabled
+                                placeholder="Enter item code"
                                 size="large"
                             />
                         </Form.Item>
@@ -108,31 +99,32 @@ const UpdateItemModal = ({
                         <Form.Item
                             label="Stock ID"
                             name="stockId"
+                            rules={[{required: true, message: 'Stock ID is required'}]}
                         >
                             <Input
                                 prefix={<Columns size={16}/>}
-                                disabled
+                                placeholder="Enter stock ID"
                                 size="large"
                             />
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Item Type"
-                            name="type"
-                            rules={[{required: true, message: 'Please select item type'}]}
-                        >
-                            <Select placeholder="Select item type" size="large">
-                                {ITEM_TYPES.map(type => (
-                                    <Option key={type} value={type}>{type}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                {/* Description */}
+                <Form.Item
+                    label="Item Name/Description"
+                    name="description"
+                    rules={[{required: true, message: 'Please enter item description'}]}
+                >
+                    <Input
+                        prefix={<FileText size={16}/>}
+                        placeholder="Enter item description"
+                        size="large"
+                    />
+                </Form.Item>
 
+                {/* Category and Units */}
+                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Category"
@@ -145,6 +137,9 @@ const UpdateItemModal = ({
                                 loading={categoriesLoading}
                                 showSearch
                                 optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
                             >
                                 {categories.map(category => (
                                     <Option key={category.categoryId} value={category.categoryId}>
@@ -152,21 +147,6 @@ const UpdateItemModal = ({
                                     </Option>
                                 ))}
                             </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                {/* Rest of the form fields remain the same */}
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="ISBN Number"
-                            name="isbnNo"
-                        >
-                            <Input
-                                placeholder="Enter ISBN number"
-                                size="large"
-                            />
                         </Form.Item>
                     </Col>
 
@@ -185,63 +165,13 @@ const UpdateItemModal = ({
                     </Col>
                 </Row>
 
-                <Form.Item
-                    label="Name"
-                    name="description"
-                    rules={[{required: true, message: 'Please enter description'}]}
-                >
-                    <Input
-                        placeholder="Enter item description"
-                        size="large"
-                    />
-                </Form.Item>
-
-                <Form.Item
-                    label="Long Description"
-                    name="longDescription"
-                >
-                    <TextArea
-                        rows={3}
-                        placeholder="Enter detailed description"
-                    />
-                </Form.Item>
-
+                {/* Pricing */}
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="MB Flag"
-                            name="mbFlag"
-                            rules={[{required: true, message: 'Please select MB flag'}]}
-                        >
-                            <Select placeholder="Select MB flag" size="large">
-                                {MB_FLAGS.map(flag => (
-                                    <Option key={flag.value} value={flag.value}>
-                                        {flag.label}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                        <Form.Item
-                            label="Dummy"
-                            name="dummy"
-                        >
-                            <Input
-                                placeholder="Enter dummy value"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Price"
+                            label="Unit Price"
                             name="price"
-                            rules={[{required: true, message: 'Please enter price'}]}
+                            rules={[{required: true, message: 'Please enter unit price'}]}
                         >
                             <InputNumber
                                 placeholder="0.00"
@@ -249,7 +179,8 @@ const UpdateItemModal = ({
                                 step={0.01}
                                 style={{width: '100%'}}
                                 size="large"
-                                prefix="$"
+                                formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => value.replace(/LKR\s?|(,*)/g, '')}
                             />
                         </Form.Item>
                     </Col>
@@ -265,95 +196,45 @@ const UpdateItemModal = ({
                                 step={0.01}
                                 style={{width: '100%'}}
                                 size="large"
-                                prefix="$"
+                                formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => value.replace(/LKR\s?|(,*)/g, '')}
                             />
                         </Form.Item>
                     </Col>
                 </Row>
 
+                {/* Currency and Status */}
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Sales Account"
-                            name="salesAccount"
-                            rules={[{required: true, message: 'Please enter sales account'}]}
+                            label="Currency"
+                            name="currency"
+                            rules={[{required: true, message: 'Please select currency'}]}
                         >
-                            <Input
-                                placeholder="Enter sales account"
-                                size="large"
-                            />
+                            <Select placeholder="Select currency" size="large">
+                                <Option value="LKR">LKR - Sri Lankan Rupee</Option>
+                                <Option value="USD">USD - US Dollar</Option>
+                                <Option value="EUR">EUR - Euro</Option>
+                            </Select>
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
                         <Form.Item
-                            label="Inventory Account"
-                            name="inventoryAccount"
-                            rules={[{required: true, message: 'Please enter inventory account'}]}
+                            label="Status"
+                            name="status"
+                            rules={[{required: true, message: 'Please select status'}]}
                         >
-                            <Input
-                                placeholder="Enter inventory account"
-                                size="large"
-                            />
+                            <Select placeholder="Select status" size="large">
+                                <Option value="Active">Active</Option>
+                                <Option value="Inactive">Inactive</Option>
+                                <Option value="Discontinued">Discontinued</Option>
+                            </Select>
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="COGS Account"
-                            name="cogsAccount"
-                            rules={[{required: true, message: 'Please enter COGS account'}]}
-                        >
-                            <Input
-                                placeholder="Enter COGS account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                        <Form.Item
-                            label="Adjustment Account"
-                            name="adjustmentAccount"
-                            rules={[{required: true, message: 'Please enter adjustment account'}]}
-                        >
-                            <Input
-                                placeholder="Enter adjustment account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="WIP Account"
-                            name="wipAccount"
-                            rules={[{required: true, message: 'Please enter WIP account'}]}
-                        >
-                            <Input
-                                placeholder="Enter WIP account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                        <Form.Item
-                            label="HS Code"
-                            name="hsCode"
-                        >
-                            <Input
-                                placeholder="Enter HS code"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
+                {/* Form Actions */}
                 <div className="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
                     <Button
                         size="large"

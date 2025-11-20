@@ -23,6 +23,7 @@ import {
 import debounce from "lodash.debounce";
 import CreateComplaintModal from "../../Components/Common/modal/Complaint/CreateComplaintModal";
 import ComplaintDetailsModal from "../../Components/Common/modal/Complaint/ComplaintDetailsModal";
+import UpdateComplaintStatusModal from "../../Components/Common/modal/Complaint/UpdateComplaintStatusModal";
 
 
 const {Option} = Select;
@@ -59,11 +60,75 @@ const ComplaintManagement = () => {
     const [detailsModalVisible, setDetailsModalVisible] = useState(false);
     const [selectedComplaint, setSelectedComplaint] = useState(null);
 
+    const [updateStatusModalVisible, setUpdateStatusModalVisible] = useState(false);
+    const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         loadComplaints();
     }, [currentPage, pageSize, filters]);
+
+    const handleUpdateStatus = async (statusData) => {
+        if (!selectedComplaint) return;
+
+        try {
+            setStatusUpdateLoading(true);
+            await complaintService.updateComplaintStatus(selectedComplaint.id, statusData);
+            customToastMsg('Complaint status updated successfully', 'success');
+            setUpdateStatusModalVisible(false);
+
+            // Refresh complaints list and details
+            loadComplaints();
+            if (detailsModalVisible) {
+                const response = await complaintService.getComplaintById(selectedComplaint.id);
+                setSelectedComplaint(response.data);
+            }
+            setStatusUpdateLoading(false);
+        } catch (error) {
+            setStatusUpdateLoading(false);
+            handleError(error);
+        }
+    };
+
+// Update the formatComplaintData function to include status update button
+    const formatComplaintData = (complaintData) => {
+        return complaintData.map((complaint) => ({
+            key: complaint.id,
+            ...complaint,
+            action: (
+                <div className="d-flex gap-2">
+                    <Tooltip title="View Details">
+                        <Button
+                            size="sm"
+                            color="info"
+                            outline
+                            onClick={() => handleViewComplaint(complaint.id)}
+                        >
+                            <Eye size={14}/>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Update Status">
+                        <Button
+                            size="sm"
+                            color="warning"
+                            outline
+                            onClick={() => handleUpdateStatusClick(complaint)}
+                        >
+                            <AlertTriangle size={14}/>
+                        </Button>
+                    </Tooltip>
+                </div>
+            )
+        }));
+    };
+
+// Add this function to handle status update click
+    const handleUpdateStatusClick = (complaint) => {
+        setSelectedComplaint(complaint);
+        setUpdateStatusModalVisible(true);
+    };
+
 
     // Load complaints with filters
     const loadComplaints = () => {
@@ -101,37 +166,6 @@ const ComplaintManagement = () => {
             });
     };
 
-    // Format complaint data with actions
-    const formatComplaintData = (complaintData) => {
-        return complaintData.map((complaint) => ({
-            key: complaint.id,
-            ...complaint,
-            action: (
-                <div className="d-flex gap-2">
-                    <Tooltip title="View Details">
-                        <Button
-                            size="sm"
-                            color="info"
-                            outline
-                            onClick={() => handleViewComplaint(complaint.id)}
-                        >
-                            <Eye size={14}/>
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Edit Complaint">
-                        <Button
-                            size="sm"
-                            color="warning"
-                            outline
-                            onClick={() => handleEditComplaint(complaint)}
-                        >
-                            <Edit size={14}/>
-                        </Button>
-                    </Tooltip>
-                </div>
-            )
-        }));
-    };
 
     // Handle create complaint
     const handleCreateComplaint = async (values) => {
@@ -241,6 +275,25 @@ const ComplaintManagement = () => {
                 <div className="row mt-3">
                     <h4>Complaint Management</h4>
                 </div>
+
+                <Button
+                    type="primary"
+                    onClick={() => {
+                        setDetailsModalVisible(false);
+                        setUpdateStatusModalVisible(true);
+                    }}
+                    className="me-2"
+                >
+                    Update Status
+                </Button>
+
+                <UpdateComplaintStatusModal
+                    visible={updateStatusModalVisible}
+                    complaint={selectedComplaint}
+                    onClose={() => setUpdateStatusModalVisible(false)}
+                    onUpdateStatus={handleUpdateStatus}
+                    loading={statusUpdateLoading}
+                />
 
                 {/* Statistics Cards */}
                 <Row gutter={16} className="mb-4 mt-2">

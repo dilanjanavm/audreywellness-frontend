@@ -1,17 +1,17 @@
 // src/components/item/CreateItemModal.js
 import React, {useState, useEffect} from 'react';
 import {Modal, Form, Input, Select, InputNumber, Button, Row, Col} from 'antd';
-import {Package, DollarSign, FileText, Columns, Hash} from 'react-feather';
+import {Package, FileText, Hash, Columns} from 'react-feather';
 import * as categoryService from "../../../../service/categoryService";
-import {ITEM_TYPES, MB_FLAGS, UNIT_TYPES} from "../../../../common/enum";
+import {UNIT_TYPES} from "../../../../common/enum";
 
 const {Option} = Select;
-const {TextArea} = Input;
 
 const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
     const [form] = Form.useForm();
     const [categories, setCategories] = useState([]);
     const [categoriesLoading, setCategoriesLoading] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
         if (visible) {
@@ -34,7 +34,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
         }
     };
 
-    // Generate item code and stock ID (you can modify this logic as needed)
+    // Generate item code and stock ID
     const generateItemCodes = () => {
         const timestamp = Date.now().toString().slice(-4);
         const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -48,12 +48,25 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
         });
     };
 
+    const handleCategoryChange = (categoryId) => {
+        const category = categories.find(cat => cat.id === categoryId);
+        setSelectedCategory(category);
+    };
+
     const handleSubmit = (values) => {
-        onCreate(values);
+        // Prepare data with both category name and UUID
+        const submitData = {
+            ...values,
+            category: selectedCategory?.categoryName, // Send category name
+            categoryId: values.categoryId // Send UUID
+        };
+
+        onCreate(submitData);
     };
 
     const handleClose = () => {
         form.resetFields();
+        setSelectedCategory(null);
         onClose();
     };
 
@@ -68,7 +81,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
             open={visible}
             onCancel={handleClose}
             footer={null}
-            width={800}
+            width={700}
             className="create-item-modal"
         >
             <Form
@@ -76,16 +89,20 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                 layout="vertical"
                 onFinish={handleSubmit}
                 requiredMark="optional"
+                initialValues={{
+                    currency: 'LKR',
+                    status: 'Active'
+                }}
             >
-                {/* Item Code and Stock ID - Mandatory Fields */}
+                {/* Item Code and Stock ID */}
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Item Code"
                             name="itemCode"
                             rules={[
-                                {required: true, message: 'Item Code is required'},
-                                {min: 2, message: 'Item Code must be at least 2 characters'}
+                                {required: true, message: 'Item code is required'},
+                                {min: 2, message: 'Item code must be at least 2 characters'}
                             ]}
                         >
                             <Input
@@ -134,23 +151,21 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                     </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    {/* Item Type */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="Item Type"
-                            name="type"
-                            rules={[{required: true, message: 'Please select item type'}]}
-                        >
-                            <Select placeholder="Select item type" size="large">
-                                {ITEM_TYPES.map(type => (
-                                    <Option key={type} value={type}>{type}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                {/* Description */}
+                <Form.Item
+                    label="Item Name/Description"
+                    name="description"
+                    rules={[{required: true, message: 'Please enter item description'}]}
+                >
+                    <Input
+                        prefix={<FileText size={16}/>}
+                        placeholder="Enter item description"
+                        size="large"
+                    />
+                </Form.Item>
 
-                    {/* Category */}
+                {/* Category and Units */}
+                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Category"
@@ -164,35 +179,19 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                 showSearch
                                 optionFilterProp="children"
                                 filterOption={(input, option) =>
-                                    option.children.toLowerCase().includes(input.toLowerCase())
+                                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                 }
+                                onChange={handleCategoryChange}
                             >
                                 {categories.map(category => (
-                                    <Option key={category.categoryId} value={category.categoryId}>
+                                    <Option key={category.id} value={category.id}>
                                         {category.categoryName}
                                     </Option>
                                 ))}
                             </Select>
                         </Form.Item>
                     </Col>
-                </Row>
 
-                <Row gutter={16}>
-                    {/* ISBN Number */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="ISBN Number"
-                            name="isbnNo"
-                        >
-                            <Input
-                                prefix={<Columns size={16}/>}
-                                placeholder="Enter ISBN number"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    {/* Units */}
                     <Col span={12}>
                         <Form.Item
                             label="Units"
@@ -208,68 +207,23 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                     </Col>
                 </Row>
 
-                {/* Description */}
-                <Form.Item
-                    label="Name"
-                    name="description"
-                    rules={[{required: true, message: 'Please enter description'}]}
-                >
-                    <Input
-                        placeholder="Enter item description"
-                        size="large"
-                    />
-                </Form.Item>
+                {/* Selected Category Display (Optional - for visual feedback) */}
+                {selectedCategory && (
+                    <div className="mb-3 p-2 border rounded bg-light">
+                        <small className="text-muted">Selected Category:</small>
+                        <div>
+                            <strong>{selectedCategory.categoryName}</strong>
+                            <small className="text-muted ms-2">({selectedCategory.id})</small>
+                        </div>
+                    </div>
+                )}
 
-                {/* Long Description */}
-                <Form.Item
-                    label="Long Description"
-                    name="longDescription"
-                >
-                    <TextArea
-                        rows={3}
-                        placeholder="Enter detailed description"
-                    />
-                </Form.Item>
-
+                {/* Pricing */}
                 <Row gutter={16}>
-                    {/* MB Flag */}
                     <Col span={12}>
                         <Form.Item
-                            label="MB Flag"
-                            name="mbFlag"
-                            rules={[{required: true, message: 'Please select MB flag'}]}
-                        >
-                            <Select placeholder="Select MB flag" size="large">
-                                {MB_FLAGS.map(flag => (
-                                    <Option key={flag.value} value={flag.value}>
-                                        {flag.label}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-
-                    {/* Dummy */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="Dummy"
-                            name="dummy"
-                        >
-                            <Input
-                                placeholder="Enter dummy value"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    {/* Price */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="Price"
+                            label="Unit Price"
                             name="price"
-                            rules={[{required: true, message: 'Please enter price'}]}
                         >
                             <InputNumber
                                 placeholder="0.00"
@@ -277,12 +231,12 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                 step={0.01}
                                 style={{width: '100%'}}
                                 size="large"
-                                prefix={<DollarSign size={16}/>}
+                                formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => value.replace(/LKR\s?|(,*)/g, '')}
                             />
                         </Form.Item>
                     </Col>
 
-                    {/* Alternative Price */}
                     <Col span={12}>
                         <Form.Item
                             label="Alternative Price"
@@ -294,97 +248,38 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                 step={0.01}
                                 style={{width: '100%'}}
                                 size="large"
-                                prefix={<DollarSign size={16}/>}
+                                formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => value.replace(/LKR\s?|(,*)/g, '')}
                             />
                         </Form.Item>
                     </Col>
                 </Row>
 
+                {/* Currency and Status */}
                 <Row gutter={16}>
-                    {/* Sales Account */}
                     <Col span={12}>
                         <Form.Item
-                            label="Sales Account"
-                            name="salesAccount"
-                            rules={[{required: true, message: 'Please enter sales account'}]}
+                            label="Currency"
+                            name="currency"
                         >
-                            <Input
-                                placeholder="Enter sales account"
-                                size="large"
-                            />
+                            <Select placeholder="Select currency" size="large">
+                                <Option value="LKR">LKR - Sri Lankan Rupee</Option>
+                                <Option value="USD">USD - US Dollar</Option>
+                                <Option value="EUR">EUR - Euro</Option>
+                            </Select>
                         </Form.Item>
                     </Col>
 
-                    {/* Inventory Account */}
                     <Col span={12}>
                         <Form.Item
-                            label="Inventory Account"
-                            name="inventoryAccount"
-                            rules={[{required: true, message: 'Please enter inventory account'}]}
+                            label="Status"
+                            name="status"
                         >
-                            <Input
-                                placeholder="Enter inventory account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    {/* COGS Account */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="COGS Account"
-                            name="cogsAccount"
-                            rules={[{required: true, message: 'Please enter COGS account'}]}
-                        >
-                            <Input
-                                placeholder="Enter COGS account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    {/* Adjustment Account */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="Adjustment Account"
-                            name="adjustmentAccount"
-                            rules={[{required: true, message: 'Please enter adjustment account'}]}
-                        >
-                            <Input
-                                placeholder="Enter adjustment account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    {/* WIP Account */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="WIP Account"
-                            name="wipAccount"
-                            rules={[{required: true, message: 'Please enter WIP account'}]}
-                        >
-                            <Input
-                                placeholder="Enter WIP account"
-                                size="large"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    {/* HS Code */}
-                    <Col span={12}>
-                        <Form.Item
-                            label="HS Code"
-                            name="hsCode"
-                        >
-                            <Input
-                                placeholder="Enter HS code"
-                                size="large"
-                            />
+                            <Select placeholder="Select status" size="large">
+                                <Option value="Active">Active</Option>
+                                <Option value="Inactive">Inactive</Option>
+                                <Option value="Discontinued">Discontinued</Option>
+                            </Select>
                         </Form.Item>
                     </Col>
                 </Row>

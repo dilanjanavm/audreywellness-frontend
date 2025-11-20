@@ -39,6 +39,7 @@ import SettingManagement from "../pages/Settings/SettingsManage";
 import ItemManagement from "../pages/ItemManagement/ItemManagement";
 import SupplierManagement from "../pages/SuppliersManagement/SupplierManagement";
 import ComplaintManagement from "../pages/ComplaintManagement/ComplaintManagement";
+import ItemCostCalculator from "../pages/ProductManagement/ItemCostCalculator";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -62,13 +63,15 @@ const authProtectedRoutes = [
   { path: "/update-product", component: <UpdateProduct /> },
   { path: "/product-view", component: <ViewProductDetails /> },
   { path: "/product-management", component: <ItemManagement  /> },
+  { path: "/product-cost-management", component: <ProductManagement  /> },
+  { path: "/product-cost-calculate", component: <ItemCostCalculator  /> },
 
   // { path: "/user-management", component: <UserManagement /> },
 
   { path: "/staff-management", exact: true, component: <StaffManagement /> },
   { path: "/suppliers-management", exact: true, component: <SupplierManagement /> },
   { path: "/complaint-management", exact: true, component: <ComplaintManagement /> },
-  {
+   {
     path: "/customer-management",
     exact: true,
     component: <CustomerManagement />,

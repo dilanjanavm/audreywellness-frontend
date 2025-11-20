@@ -93,9 +93,9 @@ const ComplaintDetailsModal = ({ visible, complaint, onClose, onAddNote, addingN
                                 icon={<User size={20} />}
                             />
                             <div className="flex-grow-1">
-                                <h6 className="mb-1">{complaint.customer?.fullName}</h6>
+                                <h6 className="mb-1">{complaint.customer?.name}</h6>
                                 <div className="text-muted small mb-2">
-                                    <Tag color="green" className="me-2">{complaint.customer?.customerCode}</Tag>
+                                    <Tag color="green" className="me-2">{complaint.customer?.sNo}</Tag>
                                 </div>
                                 <div className="d-flex flex-wrap gap-3">
                                     <div className="d-flex align-items-center">

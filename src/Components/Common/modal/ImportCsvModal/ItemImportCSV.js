@@ -116,9 +116,16 @@ const ItemImportCSV = ({
             const response = res.data
             clearInterval(progressInterval);
             setUploadProgress(100);
-            console.log(response.success)
+            console.log(response)
             if (response.success) {
-                setImportResult(response.data);
+
+                setImportResult(response.data || {
+                    success: response.status,
+                    message: response.message || 'Import failed',
+                    errors: response.errors,
+                    totalImported: response.totalImported,
+                    totalProcessed: response.totalProcessed,
+                });
                 message.success('CSV file imported successfully!');
 
                 // Notify parent component about successful import
@@ -126,10 +133,13 @@ const ItemImportCSV = ({
                     onImportComplete(response.data);
                 }
             } else {
-                setImportResult(response.data || {
-                    success: false,
+                setImportResult( {
+                    success: response.status,
+                    data: response.data,
                     message: response.message || 'Import failed',
-                    errors: []
+                    errors: response.errors,
+                    totalImported: response.totalImported,
+                    totalProcessed: response.totalProcessed,
                 });
                 message.error(response.message || 'Import failed');
             }
@@ -166,7 +176,7 @@ const ItemImportCSV = ({
             setImportResult(null);
         },
     };
-
+    console.log('importResult', importResult)
     return (
         <Modal
             title={
@@ -263,57 +273,70 @@ const ItemImportCSV = ({
                 </div>
             )}
 
-
+            {/* Import Results */}
             {importResult && (
                 <div className="mt-4">
+                    {/* Main Alert */}
                     <Alert
                         message={importResult.success ? 'Import Successful' : 'Import Completed with Issues'}
-                        description={importResult.message || `Processed ${importResult.totalProcessed || 0} records`}
+                        description={
+                            <div>
+                                <div>Processed {importResult.totalProcessed || 0} records</div>
+                                {importResult.message && (
+                                    <div className="mt-1">{importResult.message}</div>
+                                )}
+                            </div>
+                        }
                         type={importResult.success ? 'success' : 'warning'}
                         showIcon
                         icon={importResult.success ? <CheckCircleOutlined/> : <CloseCircleOutlined/>}
                     />
 
                     {/* Import Statistics */}
-                    {(importResult.imported !== undefined || importResult.totalImported !== undefined) && (
-                        <div className="mt-3">
-                            <Space size="large">
-                                <Tag color="green">
-                                    <CheckCircleOutlined/> Imported: {importResult.totalImported || importResult.imported || 0}
-                                </Tag>
-                                <Tag color="blue">
-                                    <FileTextOutlined/> Updated: {importResult.updated || 0}
-                                </Tag>
-                                <Tag color="orange">
-                                    <InfoCircleOutlined/> Skipped: {importResult.skipped || 0}
-                                </Tag>
+                    <div className="mt-3">
+                        <Space size="large" wrap>
+                            <Tag color="blue">
+                                <FileTextOutlined/> Total Processed: {importResult.totalProcessed || 0}
+                            </Tag>
+                            <Tag color="green">
+                                <CheckCircleOutlined/> Successfully Imported: {importResult.totalImported || 0}
+                            </Tag>
+                            {importResult.errors && importResult.errors.length > 0 && (
                                 <Tag color="red">
-                                    <CloseCircleOutlined/> Errors: {importResult.errors?.length || 0}
+                                    <CloseCircleOutlined/> Errors: {importResult.errors.length}
                                 </Tag>
-                                {importResult.totalProcessed !== undefined && (
-                                    <Tag color="purple">
-                                        <FileTextOutlined/> Total Processed: {importResult.totalProcessed}
-                                    </Tag>
-                                )}
-                            </Space>
-                        </div>
-                    )}
+                            )}
+                            {importResult.totalProcessed && importResult.totalImported && (
+                                <Tag color="orange">
+                                    <InfoCircleOutlined/> Failed: {importResult.totalProcessed - importResult.totalImported}
+                                </Tag>
+                            )}
+                        </Space>
+                    </div>
 
                     {/* Error Details */}
                     {importResult.errors && importResult.errors.length > 0 && (
                         <div className="mt-3">
-                            <Text strong>Error Details:</Text>
+                            <Text strong>Error Details ({importResult.errors.length} errors):</Text>
                             <List
                                 size="small"
                                 bordered
                                 dataSource={importResult.errors}
                                 renderItem={(error, index) => (
                                     <List.Item>
-                                        <Text type="danger">{error}</Text>
+                                        <Space direction="vertical" size={0} style={{width: '100%'}}>
+                                            <Text type="danger" style={{fontSize: '12px'}}>
+                                                {error}
+                                            </Text>
+                                        </Space>
                                     </List.Item>
                                 )}
-                                style={{maxHeight: '200px', overflowY: 'auto'}}
-                                className="mt-2"
+                                style={{
+                                    maxHeight: '200px',
+                                    overflowY: 'auto',
+                                    marginTop: '8px'
+                                }}
+                                className="error-list"
                             />
                         </div>
                     )}
@@ -328,19 +351,30 @@ const ItemImportCSV = ({
                                 dataSource={importResult.data.slice(0, 5)} // Show first 5 items as preview
                                 renderItem={(item, index) => (
                                     <List.Item>
-                                        <Space>
-                                            <Text strong>{item.itemCode}</Text>
-                                            <Text>-</Text>
-                                            <Text>{item.description}</Text>
-                                            <Tag size="small">{item.category}</Tag>
+                                        <Space direction="vertical" size={0} style={{width: '100%'}}>
+                                            <Space>
+                                                <Text strong style={{fontSize: '12px'}}>{item.itemCode}</Text>
+                                                <Text style={{fontSize: '12px'}}>-</Text>
+                                                <Text style={{fontSize: '12px'}}>{item.description}</Text>
+                                            </Space>
+                                            <Space size="small">
+                                                <Tag color="blue" size="small">{item.category}</Tag>
+                                                <Tag color="default" size="small">{item.units}</Tag>
+                                                {item.price > 0 && (
+                                                    <Tag color="green" size="small">LKR {item.price}</Tag>
+                                                )}
+                                            </Space>
                                         </Space>
                                     </List.Item>
                                 )}
-                                style={{maxHeight: '150px', overflowY: 'auto'}}
-                                className="mt-2"
+                                style={{
+                                    maxHeight: '150px',
+                                    overflowY: 'auto',
+                                    marginTop: '8px'
+                                }}
                             />
                             {importResult.data.length > 5 && (
-                                <Text type="secondary" className="mt-1">
+                                <Text type="secondary" style={{fontSize: '12px'}} className="mt-1">
                                     ... and {importResult.data.length - 5} more items
                                 </Text>
                             )}

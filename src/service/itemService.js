@@ -92,6 +92,15 @@ export const deleteItem = (itemCode) => {
     return ApiService.callApi(apiObject);
 };
 
+export const findByCategoryIds = (data) => {
+    const apiObject = {};
+    apiObject.method = 'POST';
+    apiObject.authentication = true;
+    apiObject.endpoint = `items/categories/items`;
+    apiObject.body=data
+    return ApiService.callApi(apiObject);
+};
+
 export const bulkDeleteItems = (itemCodes) => {
     const apiObject = {};
     apiObject.method = 'POST';
