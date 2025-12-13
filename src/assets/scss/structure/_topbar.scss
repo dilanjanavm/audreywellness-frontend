@@ -7,7 +7,7 @@
     top: 0;
     right: 0;
     left: 0;
-    z-index: 1002;
+    z-index: 100;
     background-color: var(--#{$prefix}header-bg);
     transition: all 0.1s ease-out;
     border-bottom: 1px solid var(--#{$prefix}header-border);

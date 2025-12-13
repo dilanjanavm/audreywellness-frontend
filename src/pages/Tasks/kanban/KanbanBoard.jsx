@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
 import {
     DndContext,
     DragOverlay,
@@ -14,8 +15,8 @@ import {
     horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {Container, Row, Col} from 'reactstrap';
-import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, MoreOutlined} from '@ant-design/icons';
-import {Tabs, message, Modal, Space, Drawer, Tag, Avatar, Typography, Divider, DatePicker, List, Spin, Empty, Popconfirm, Dropdown, Button} from 'antd';
+import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, MoreOutlined, SwapOutlined, CheckCircleOutlined, AppstoreOutlined, UnorderedListOutlined} from '@ant-design/icons';
+import {Tabs, message, Modal, Space, Drawer, Tag, Avatar, Typography, Divider, DatePicker, List, Spin, Empty, Popconfirm, Dropdown, Button, Radio} from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {kanbanUsers} from './data/users';
@@ -23,6 +24,8 @@ import dayjs from 'dayjs';
 import BreadCrumb from '../../../Components/Common/BreadCrumb';
 import AddPhaseModal from './AddPhaseModal';
 import AddTaskModal from './AddTaskModal';
+import MoveTaskPhaseModal from './MoveTaskPhaseModal';
+import TaskListView from './TaskListView';
 import TaskCard from './TaskCard';
 import {useKanban} from './hooks/useKanban';
 import {updateTask, deleteTask} from '../../../slices/tasks/thunk';
@@ -39,6 +42,7 @@ const {RangePicker} = DatePicker;
 
 const KanbanBoard = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const {
         phases,
         organizedData,
@@ -64,6 +68,10 @@ const KanbanBoard = () => {
     const [taskComments, setTaskComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
     const [submittingComment, setSubmittingComment] = useState(false);
+    const [moveTaskModalVisible, setMoveTaskModalVisible] = useState(false);
+    const [pendingCompletedTask, setPendingCompletedTask] = useState(null);
+    const [pendingTaskUpdate, setPendingTaskUpdate] = useState(null);
+    const [viewMode, setViewMode] = useState('kanban'); // 'kanban' or 'list'
 
     // Set initial tab when phases load
     useEffect(() => {
@@ -167,6 +175,15 @@ const KanbanBoard = () => {
 
         if (!hasChanged) {
             return;
+        }
+
+        // Check if task is being moved to "completed" status
+        if (newStatus === 'completed' && task.status !== 'completed') {
+            // Store the task and update info for the modal
+            setPendingCompletedTask(task);
+            setPendingTaskUpdate({ newPhaseId, newStatus, newOrder, activeId, originalPhaseId: task.phaseId, originalStatus: task.status, originalOrder: task.order });
+            setMoveTaskModalVisible(true);
+            return; // Don't update yet, wait for user decision
         }
 
         // Update task
@@ -344,6 +361,18 @@ const KanbanBoard = () => {
                 // Log final object to console
                 console.log('Final Task Data to be sent to backend (UPDATE):', JSON.stringify(updateData, null, 2));
                 
+                // Check if status is being changed to "completed"
+                const isStatusChangingToCompleted = updateData.status === 'completed' && selectedTask.status !== 'completed';
+                
+                // If status is changing to completed, show modal first
+                if (isStatusChangingToCompleted) {
+                    setPendingCompletedTask(selectedTask);
+                    setPendingTaskUpdate({ updateData, isUpdate: true });
+                    setMoveTaskModalVisible(true);
+                    setAddTaskModalVisible(false); // Close edit modal
+                    return; // Don't update yet, wait for user decision
+                }
+                
                 // Use the task's UUID (id) for the API call
                 const taskUuid = selectedTask.id || selectedTask._id;
                 if (!taskUuid) {
@@ -441,6 +470,62 @@ const KanbanBoard = () => {
         }
     };
 
+    // Handle move task decision from modal
+    const handleMoveTaskDecision = async (movementData) => {
+        if (!pendingCompletedTask) return;
+
+        try {
+            const taskId = pendingCompletedTask.id || pendingCompletedTask._id;
+            
+            if (movementData === null) {
+                // User chose "No" - just update status to completed without moving
+                if (pendingTaskUpdate?.isUpdate) {
+                    // Complete the update that was pending
+                    const updateData = pendingTaskUpdate.updateData;
+                    const response = await taskService.updateTask(taskId, updateData);
+                    
+                    if (response.success || response.data) {
+                        await refreshTasks();
+                        message.success('Task marked as completed');
+                    }
+                } else {
+                    // Complete the drag-drop that was pending
+                    const { newPhaseId, newStatus, newOrder, activeId } = pendingTaskUpdate;
+                    await handleTaskDragEnd(activeId, newPhaseId, newStatus, newOrder);
+                    message.success('Task marked as completed');
+                }
+            } else {
+                // User chose "Yes" - move to another phase
+                const response = await taskService.moveTaskToPhase(taskId, movementData);
+                
+                if (response.success || response.data) {
+                    const updatedTask = response.data?.data || response.data || {};
+                    const targetPhaseId = movementData.toPhaseId;
+                    
+                    // Switch to target phase tab
+                    if (targetPhaseId && phases.find(p => p.id === targetPhaseId)) {
+                        setActiveTab(targetPhaseId);
+                    }
+                    
+                    // Refresh tasks
+                    await refreshTasks();
+                    
+                    message.success(`Task moved to ${phases.find(p => p.id === targetPhaseId)?.name || 'target phase'} successfully`);
+                } else {
+                    message.error(response.message || 'Failed to move task');
+                }
+            }
+        } catch (error) {
+            console.error('Error handling move task decision:', error);
+            message.error(error.response?.data?.message || 'Failed to process task movement');
+            throw error;
+        } finally {
+            setMoveTaskModalVisible(false);
+            setPendingCompletedTask(null);
+            setPendingTaskUpdate(null);
+        }
+    };
+
     const handleDeleteTask = (task) => {
         Modal.confirm({
             title: 'Delete Task',
@@ -513,7 +598,18 @@ const KanbanBoard = () => {
                     )}
                 </div>
             ),
-            children: (
+            children: viewMode === 'list' ? (
+                <TaskListView
+                    phases={phases}
+                    organizedData={organizedData}
+                    activeTab={phase.id}
+                    onViewTask={handleViewTask}
+                    onTaskEdit={handleEditTask}
+                    onTaskDelete={handleDeleteTask}
+                    onAddTask={(status) => handleAddTask(status)}
+                    getAllStatuses={getAllStatuses}
+                />
+            ) : (
                 <div>
                     <div
                         className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center row  gap-3">
@@ -638,25 +734,44 @@ const KanbanBoard = () => {
                                     Kanban Dashboard
                                 </h4>
                             </div>
-                            {selectedPhase && (
-                                <Space>
-                                    <Button
-                                        variant="outlined"
-                                        icon={<EditOutlined/>}
-                                        onClick={() => handleEditPhase(selectedPhase)}
-                                    >
-                                        Edit Phase
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        danger
-                                        icon={<DeleteOutlined/>}
-                                        onClick={() => handleDeletePhase(selectedPhase.id)}
-                                    >
-                                        Delete Phase
-                                    </Button>
-                                </Space>
-                            )}
+                            <Space>
+                                {/* View Mode Toggle */}
+                                <Radio.Group
+                                    value={viewMode}
+                                    onChange={(e) => setViewMode(e.target.value)}
+                                    buttonStyle="solid"
+                                    size="small"
+                                >
+                                    <Radio.Button value="kanban">
+                                        <AppstoreOutlined style={{ marginRight: 4 }} />
+                                        Kanban
+                                    </Radio.Button>
+                                    <Radio.Button value="list">
+                                        <UnorderedListOutlined style={{ marginRight: 4 }} />
+                                        List
+                                    </Radio.Button>
+                                </Radio.Group>
+                                
+                                {selectedPhase && (
+                                    <>
+                                        <Button
+                                            variant="outlined"
+                                            icon={<EditOutlined/>}
+                                            onClick={() => handleEditPhase(selectedPhase)}
+                                        >
+                                            Edit Phase
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            danger
+                                            icon={<DeleteOutlined/>}
+                                            onClick={() => handleDeletePhase(selectedPhase.id)}
+                                        >
+                                            Delete Phase
+                                        </Button>
+                                    </>
+                                )}
+                            </Space>
                         </div>
                     </Col>
                 </Row>
@@ -692,6 +807,22 @@ const KanbanBoard = () => {
                     initialValues={selectedTask}
                 />
 
+                <MoveTaskPhaseModal
+                    visible={moveTaskModalVisible}
+                    onCancel={() => {
+                        // User cancelled - revert the drag operation by refreshing tasks
+                        setMoveTaskModalVisible(false);
+                        setPendingCompletedTask(null);
+                        setPendingTaskUpdate(null);
+                        // Refresh to revert any visual changes
+                        refreshTasks();
+                    }}
+                    onOk={handleMoveTaskDecision}
+                    task={pendingCompletedTask}
+                    phases={phases}
+                    currentPhaseId={pendingCompletedTask?.phaseId}
+                />
+
                 <Drawer
                     title={detailTask ? detailTask.task : 'Task Details'}
                     width={420}
@@ -701,6 +832,16 @@ const KanbanBoard = () => {
                     extra={
                         detailTask ? (
                             <Space>
+                                <Button 
+                                    type="primary"
+                                    onClick={() => {
+                                        navigate('/task-details', { 
+                                            state: { task: detailTask, phases: phases } 
+                                        });
+                                    }}
+                                >
+                                    See More
+                                </Button>
                                 <Button onClick={() => handleEditTask(detailTask)}>
                                     <EditOutlined className="me-1"/>
                                     Edit

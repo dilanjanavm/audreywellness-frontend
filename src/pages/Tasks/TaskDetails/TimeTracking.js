@@ -1,255 +1,176 @@
 import React from 'react';
-import { Card, CardBody, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown } from "reactstrap";
+import { Card, CardBody } from "reactstrap";
+import { Tag, Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
-import avatar10 from "../../../assets/images/users/avatar-10.jpg";
-import avatar8 from "../../../assets/images/users/avatar-8.jpg";
-import avatar2 from "../../../assets/images/users/avatar-2.jpg";
-import { Link } from 'react-router-dom';
-
-const TimeTracking = () => {
-    return (
-        <React.Fragment>
-
+const TimeTracking = ({ task }) => {
+    if (!task) {
+        return (
             <Card>
                 <CardBody className="text-center">
-                    <h6 className="card-title mb-3 flex-grow-1 text-start">Time Tracking</h6>
-                    <div className="mb-2">
-                        <lord-icon src="https://cdn.lordicon.com/kbtmbyzy.json" trigger="loop"
-                            colors="primary:#687cfe,secondary:#ff7f5d" style={{ width: "90px", height: "90px" }}>
-                        </lord-icon>
-                    </div>
-                    <h3 className="mb-1">9 hrs 13 min</h3>
-                    <h5 className="fs-14 mb-4">Profile Page Satructure</h5>
-                    <div className="hstack gap-2 justify-content-center">
-                        <button className="btn btn-danger btn-sm"><i className="ri-stop-circle-line align-bottom me-1"></i> Stop</button>
-                        <button className="btn btn-primary btn-sm"><i className="ri-play-circle-line align-bottom me-1"></i> Start</button>
-                    </div>
+                    <h6 className="card-title mb-3 flex-grow-1 text-start">Task Information</h6>
+                    <p className="text-muted">No task data available</p>
                 </CardBody>
             </Card>
-            <Card className="mb-3">
+        );
+    }
+
+    const getStatusColor = (status) => {
+        const colors = {
+            pending: '#d9d9d9',
+            ongoing: '#1890ff',
+            review: '#fa8c16',
+            completed: '#52c41a',
+            failed: '#ff4d4f',
+        };
+        return colors[status] || '#1890ff';
+    };
+
+    const getPriorityColor = (priority) => {
+        const colors = {
+            low: 'default',
+            medium: 'blue',
+            high: 'orange',
+            urgent: 'red',
+        };
+        return colors[priority] || 'default';
+    };
+
+    const getPriorityLabel = (priority) => {
+        const labels = {
+            low: 'Low',
+            medium: 'Medium',
+            high: 'High',
+            urgent: 'Urgent',
+        };
+        return labels[priority] || priority || 'Not Set';
+    };
+
+    return (
+        <React.Fragment>
+            <Card>
                 <CardBody>
-                    <div className="mb-4">
-                        <select className="form-control" name="choices-single-default" data-choices data-choices-search-false>
-                            <option value="">Select Task board</option>
-                            <option value="Unassigned">Unassigned</option>
-                            <option value="To Do">To Do</option>
-                            <option value="Inprogress">Inprogress</option>
-                            <option defaultValue="In Reviews">In Reviews</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
+                    <h6 className="card-title mb-3 flex-grow-1 text-start">Task Information</h6>
+                    
                     <div className="table-card">
                         <table className="table mb-0">
                             <tbody>
                                 <tr>
-                                    <td className="fw-medium">Tasks No</td>
-                                    <td>#VLZ456</td>
+                                    <td className="fw-medium">Task ID</td>
+                                    <td>{task.taskId || task.id || 'N/A'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="fw-medium">Tasks Title</td>
-                                    <td>Profile Page Satructure</td>
-                                </tr>
-                                <tr>
-                                    <td className="fw-medium">Project Name</td>
-                                    <td>Velzon - Admin Dashboard</td>
-                                </tr>
-                                <tr>
-                                    <td className="fw-medium">Priority</td>
-                                    <td><span className="badge bg-danger-subtle text-danger">High</span></td>
+                                    <td className="fw-medium">Task Title</td>
+                                    <td>{task.task || 'Untitled Task'}</td>
                                 </tr>
                                 <tr>
                                     <td className="fw-medium">Status</td>
-                                    <td><span className="badge bg-secondary-subtle text-secondary">Inprogress</span></td>
+                                    <td>
+                                        <Tag color={getStatusColor(task.status)}>
+                                            {(task.status || '').toUpperCase()}
+                                        </Tag>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td className="fw-medium">Due Date</td>
-                                    <td>05 Jan, 2022</td>
+                                    <td className="fw-medium">Priority</td>
+                                    <td>
+                                        <Tag color={getPriorityColor(task.priority)}>
+                                            {getPriorityLabel(task.priority)}
+                                        </Tag>
+                                    </td>
+                                </tr>
+                                {task.dueDate && (
+                                    <tr>
+                                        <td className="fw-medium">Due Date</td>
+                                        <td>{dayjs(task.dueDate).format('MMM DD, YYYY')}</td>
+                                    </tr>
+                                )}
+                                <tr>
+                                    <td className="fw-medium">Created</td>
+                                    <td>{dayjs(task.createdAt).format('MMM DD, YYYY')}</td>
+                                </tr>
+                                <tr>
+                                    <td className="fw-medium">Last Updated</td>
+                                    <td>{dayjs(task.updatedAt).format('MMM DD, YYYY')}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </CardBody>
             </Card>
-            <div className="card mb-3">
-                <div className="card-body">
-                    <div className="d-flex mb-3">
-                        <h6 className="card-title mb-0 flex-grow-1">Assigned To</h6>
-                        <div className="flex-shrink-0">
-                            <button type="button" className="btn btn-soft-danger btn-sm" data-bs-toggle="modal" data-bs-target="#inviteMembersModal"><i className="ri-share-line me-1 align-bottom"></i> Assigned Member</button>
-                        </div>
-                    </div>
-                    <ul className="list-unstyled vstack gap-3 mb-0">
-                        <li>
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                    <img src={avatar10} alt="" className="avatar-xs rounded-circle" />
-                                </div>
-                                <div className="flex-grow-1 ms-2">
-                                    <h6 className="mb-1"><Link to="/pages-profile" className='text-reset'>Tonya Noble</Link></h6>
-                                    <p className="text-muted mb-0">Full Stack Developer</p>
-                                </div>
-                                <div className="flex-shrink-0">
-                                    <UncontrolledDropdown>
-                                        <DropdownToggle tag="button" className="btn btn-icon btn-sm fs-16 text-muted dropdown" type="button">
-                                            <i className="ri-more-fill"></i>
-                                        </DropdownToggle>
-                                        <DropdownMenu>
-                                            <div><DropdownItem><i className="ri-eye-fill text-muted me-2 align-bottom"></i>View</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-star-fill text-muted me-2 align-bottom"></i>Favourite</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete</DropdownItem></div>
-                                        </DropdownMenu>
-                                    </UncontrolledDropdown>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                    <img src={avatar8} alt="" className="avatar-xs rounded-circle" />
-                                </div>
-                                <div className="flex-grow-1 ms-2">
-                                    <h6 className="mb-1"><Link to="/pages-profile" className='text-reset'>Thomas Taylor</Link></h6>
-                                    <p className="text-muted mb-0">UI/UX Designer</p>
-                                </div>
-                                <div className="flex-shrink-0">
-                                    <UncontrolledDropdown>
-                                        <DropdownToggle tag="button" className="btn btn-icon btn-sm fs-16 text-muted dropdown" type="button">
-                                            <i className="ri-more-fill"></i>
-                                        </DropdownToggle>
-                                        <DropdownMenu>
-                                            <div><DropdownItem><i className="ri-eye-fill text-muted me-2 align-bottom"></i>View</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-star-fill text-muted me-2 align-bottom"></i>Favourite</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete</DropdownItem></div>
-                                        </DropdownMenu>
-                                    </UncontrolledDropdown>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                    <img src={avatar2} alt="" className="avatar-xs rounded-circle" />
-                                </div>
-                                <div className="flex-grow-1 ms-2">
-                                    <h6 className="mb-1"><Link to="/pages-profile" className='text-reset'>Nancy Martino</Link></h6>
-                                    <p className="text-muted mb-0">Web Designer</p>
-                                </div>
-                                <div className="flex-shrink-0">
-                                    <UncontrolledDropdown>
-                                        <DropdownToggle tag="button" className="btn btn-icon btn-sm fs-16 text-muted dropdown" type="button">
-                                            <i className="ri-more-fill"></i>
-                                        </DropdownToggle>
-                                        <DropdownMenu>
-                                            <div><DropdownItem><i className="ri-eye-fill text-muted me-2 align-bottom"></i>View</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-star-fill text-muted me-2 align-bottom"></i>Favourite</DropdownItem></div>
-                                            <div><DropdownItem><i className="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete</DropdownItem></div>
-                                        </DropdownMenu>
-                                    </UncontrolledDropdown>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <Card>
-                <CardBody>
-                    <h5 className="card-title mb-3">Attachments</h5>
-                    <div className="vstack gap-2">
-                        <div className="border rounded border-dashed p-2">
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm">
-                                        <div className="avatar-title bg-light text-secondary rounded fs-24">
-                                            <i className="ri-folder-zip-line"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1 overflow-hidden">
-                                    <h5 className="fs-13 mb-1"><Link to="#" className="text-body text-truncate d-block">App pages.zip</Link></h5>
-                                    <div>2.2MB</div>
-                                </div>
-                                <div className="flex-shrink-0 ms-2">
-                                    <div className="d-flex gap-1">
-                                        <button type="button" className="btn btn-icon text-muted btn-sm fs-18"><i className="ri-download-2-line"></i></button>
-                                        <UncontrolledDropdown>
-                                            <DropdownToggle tag="button" className="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button">
-                                                <i className="ri-more-fill"></i>
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                <li><DropdownItem><i className="ri-pencil-fill align-bottom me-2 text-muted"></i> Rename</DropdownItem></li>
-                                                <li><DropdownItem><i className="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</DropdownItem></li>
-                                            </DropdownMenu>
-                                        </UncontrolledDropdown>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="border rounded border-dashed p-2">
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm">
-                                        <div className="avatar-title bg-light text-secondary rounded fs-24">
-                                            <i className="ri-file-ppt-2-line"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1 overflow-hidden">
-                                    <h5 className="fs-13 mb-1"><Link to="#" className="text-body text-truncate d-block">Velzon admin.ppt</Link></h5>
-                                    <div>2.4MB</div>
-                                </div>
-                                <div className="flex-shrink-0 ms-2">
-                                    <div className="d-flex gap-1">
-                                        <button type="button" className="btn btn-icon text-muted btn-sm fs-18"><i className="ri-download-2-line"></i></button>
-                                        <UncontrolledDropdown>
-                                            <DropdownToggle tag="button" className="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button">
-                                                <i className="ri-more-fill"></i>
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                <li><DropdownItem><i className="ri-pencil-fill align-bottom me-2 text-muted"></i> Rename</DropdownItem></li>
-                                                <li><DropdownItem><i className="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</DropdownItem></li>
-                                            </DropdownMenu>
-                                        </UncontrolledDropdown>
-                                    </div>
-                                </div>
-                            </div>
+            {/* Assigned User Card */}
+            {(task.assignedUser || task.assignee) && (
+                <Card className="mb-3">
+                    <CardBody>
+                        <h6 className="card-title mb-3 flex-grow-1 text-start">Assigned To</h6>
+                        <div className="text-center">
+                            <Avatar
+                                src={
+                                    (task.assignedUser?.avatar || task.assignee?.avatar)
+                                        ? `${process.env.REACT_APP_API_URL || ''}/images/users/${task.assignedUser?.avatar || task.assignee?.avatar}`
+                                        : undefined
+                                }
+                                icon={!task.assignedUser?.avatar && !task.assignee?.avatar ? <UserOutlined /> : undefined}
+                                size={64}
+                                style={{ marginBottom: 12 }}
+                            />
+                            <h5 className="mb-1">
+                                {task.assignedUser?.userName || task.assignedUser?.name || task.assignee?.name || 'Unknown'}
+                            </h5>
+                            {(task.assignedUser?.email || task.assignee?.email) && (
+                                <p className="text-muted mb-1" style={{ fontSize: '13px' }}>
+                                    {task.assignedUser?.email || task.assignee?.email}
+                                </p>
+                            )}
+                            {(task.assignee?.role || task.assignedUser?.role) && (
+                                <p className="text-muted mb-0" style={{ fontSize: '12px' }}>
+                                    {task.assignee?.role || task.assignedUser?.role?.name || 'Team Member'}
+                                </p>
+                            )}
                         </div>
+                    </CardBody>
+                </Card>
+            )}
 
-                        <div className="border rounded border-dashed p-2">
-                            <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm">
-                                        <div className="avatar-title bg-light text-secondary rounded fs-24">
-                                            <i className="ri-folder-zip-line"></i>
-                                        </div>
-                                    </div>
+            {/* Associated Product Card */}
+            {task.costing && (
+                <Card className="mb-3">
+                    <CardBody>
+                        <h6 className="card-title mb-3 flex-grow-1 text-start">Associated Product</h6>
+                        <div>
+                            <h6 className="mb-2">{task.costing.itemName || 'Unnamed Product'}</h6>
+                            {task.costing.itemCode && (
+                                <p className="text-muted mb-2" style={{ fontSize: '13px' }}>
+                                    Code: {task.costing.itemCode}
+                                </p>
+                            )}
+                            {task.costing.version && (
+                                <Tag color="blue" style={{ marginBottom: 8 }}>
+                                    Version {task.costing.version}
+                                </Tag>
+                            )}
+                            {task.batchSize && (
+                                <div>
+                                    <span className="text-muted" style={{ fontSize: '13px' }}>Batch Size: </span>
+                                    <Tag color="green">
+                                        {(() => {
+                                            const batchSize = task.batchSize;
+                                            const match = batchSize.match(/batch(\d+(?:\.\d+)?)kg/);
+                                            if (match) {
+                                                const kg = match[1].replace('_', '.');
+                                                return `${kg} kg`;
+                                            }
+                                            return batchSize.replace('batch', '').replace(/([A-Z])/g, ' $1').trim();
+                                        })()}
+                                    </Tag>
                                 </div>
-                                <div className="flex-grow-1 overflow-hidden">
-                                    <h5 className="fs-13 mb-1"><Link to="#" className="text-body text-truncate d-block">Images.zip</Link></h5>
-                                    <div>1.2MB</div>
-                                </div>
-                                <div className="flex-shrink-0 ms-2">
-                                    <div className="d-flex gap-1">
-                                        <button type="button" className="btn btn-icon text-muted btn-sm fs-18"><i className="ri-download-2-line"></i></button>
-                                        <UncontrolledDropdown>
-                                            <DropdownToggle tag="button" className="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button">
-                                                <i className="ri-more-fill"></i>
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                <li><DropdownItem><i className="ri-pencil-fill align-bottom me-2 text-muted"></i> Rename</DropdownItem></li>
-                                                <li><DropdownItem><i className="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</DropdownItem></li>
-                                            </DropdownMenu>
-                                        </UncontrolledDropdown>
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                         </div>
-                        <div className="mt-2 text-center">
-                            <button type="button" className="btn btn-primary">View more</button>
-                        </div>
-                    </div>
-                </CardBody>
-            </Card>
+                    </CardBody>
+                </Card>
+            )}
         </React.Fragment>
     );
 };

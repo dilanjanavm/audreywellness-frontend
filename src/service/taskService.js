@@ -91,6 +91,18 @@ export async function deleteTask(taskId) {
 }
 
 /**
+ * Get task by ID
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function getTaskById(taskId) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}`;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
  * Update task position (for drag and drop)
  */
 export async function updateTaskPosition(taskId, positionData) {
@@ -242,5 +254,48 @@ export async function deleteTaskComment(commentId) {
     apiObject.method = "DELETE";
     apiObject.authentication = true;
     apiObject.endpoint = `tasks/comments/${commentId}`;
+    return await ApiService.callApi(apiObject);
+}
+
+// ========== TASK PHASE MOVEMENT ==========
+
+/**
+ * Move a task to another phase
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {Object} movementData - Movement data:
+ *   - toPhaseId (string, required): UUID of target phase
+ *   - toStatus (string, optional): Status in new phase (defaults to first status of target phase)
+ *   - order (number, optional): Target order position (defaults to next available)
+ *   - reason (string, optional): Reason/notes for movement
+ *   - movedBy (string, optional): User UUID or name who initiated the move
+ */
+export async function moveTaskToPhase(taskId, movementData) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/move`;
+    apiObject.body = movementData;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Get task movement history
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {Object} options - Query options:
+ *   - limit (number, optional): Maximum number of records (default: 50, max: 100)
+ *   - offset (number, optional): Number of records to skip (default: 0)
+ */
+export async function getTaskMovementHistory(taskId, options = {}) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    
+    // Build query string
+    const queryParams = new URLSearchParams();
+    if (options.limit) queryParams.append('limit', options.limit.toString());
+    if (options.offset) queryParams.append('offset', options.offset.toString());
+    
+    const queryString = queryParams.toString();
+    apiObject.endpoint = `tasks/${taskId}/movement-history${queryString ? `?${queryString}` : ''}`;
     return await ApiService.callApi(apiObject);
 }
