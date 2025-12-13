@@ -56,9 +56,9 @@ const CategoryManagement = () => {
         categoryService.getAllCategories()
             .then((res) => {
                 console.log(res)
-                const categoryData = res.data.data || [];
-                console.log(categoryData.data)
-                const formattedData = formatCategoryData(categoryData.data);
+                const categoryData = res.data || [];
+                console.log(categoryData )
+                const formattedData = formatCategoryData(categoryData);
 
                 setCategoryTableList(formattedData);
                 setLoading(false);

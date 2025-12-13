@@ -46,6 +46,9 @@ import CostingHistory from "../pages/ProductManagement/CostingHistory";
 import TaskList from "../pages/Tasks/TaskList";
 import TaskDetails from "../pages/Tasks/TaskDetails";
 import KanbanBoard from "../pages/Tasks/kanban";
+import UserManagement from "../pages/UserManagement/UserManagement";
+import RoleManagement from "../pages/RoleAndPermission/RoleManagementNew";
+import PermissionManagement from "../pages/PermissionManagement/PermissionManagement";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -150,6 +153,21 @@ const authProtectedRoutes = [
     path: "/kanban-board",
     exact: true,
     component: <KanbanBoard />,
+  },
+  {
+    path: "/user-management",
+    exact: true,
+    component: <UserManagement />,
+  },
+  {
+    path: "/role-management",
+    exact: true,
+    component: <RoleManagement />,
+  },
+  {
+    path: "/permission-management",
+    exact: true,
+    component: <PermissionManagement />,
   },
 ];
 

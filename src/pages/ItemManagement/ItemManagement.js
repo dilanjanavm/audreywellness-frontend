@@ -14,6 +14,7 @@ import {Table, Tag, Tooltip, Select, Pagination, Upload} from "antd";
 import {Plus, Search, Edit, Trash2, Download} from "react-feather";
 import {ItemTableColumns} from "../../common/tableColumns";
 import * as itemService from "../../service/itemService";
+import * as categoryService from "../../service/categoryService";
 import {useDispatch} from "react-redux";
 import {
     customToastMsg,
@@ -37,6 +38,8 @@ const ItemManagement = () => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
 
     // Modal States
     const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -53,31 +56,56 @@ const ItemManagement = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadAllItems(currentPage, pageSize);
+        loadAllItems(currentPage, pageSize, searchTerm, selectedCategory);
+        loadCategories();
     }, []);
 
+    // Load categories for filter dropdown
+    const loadCategories = () => {
+        setLoadingCategories(true);
+        categoryService.getAllCategories()
+            .then((res) => {
+                const categoryData = res.data?.data || res.data || [];
+                setCategories(categoryData);
+                setLoadingCategories(false);
+            })
+            .catch((err) => {
+                setLoadingCategories(false);
+                console.error('Error loading categories:', err);
+            });
+    };
+
     // Load all items with pagination
-    const loadAllItems = (page = 1, limit = 10, searchTerm = '') => {
+    const loadAllItems = (page = 1, limit = 10, searchTerm = '', category = '') => {
         setLoading(true);
         popUploader(dispatch, true);
-        console.log(searchTerm)
-        itemService.getAllItems(page, limit, searchTerm, selectedCategory)
+        itemService.getAllItems(page, limit, searchTerm, category)
             .then((res) => {
-                const itemData = res.data?.data || [];
+                // Handle API response structure: { statusCode: 200, data: { data: [...], total, page, limit, totalPages } }
+                const responseData = res.data?.data || res.data || {};
+                const itemData = responseData.data || responseData || [];
                 const formattedData = formatItemData(itemData);
 
                 setItemTableList(formattedData);
-                setCurrentPage(res.data?.page || page);
-                setPageSize(res.data?.limit || limit);
-                setTotalRecords(res.data?.total || 0);
-                setTotalPages(res.data?.totalPages || 0);
+                setCurrentPage(responseData.page || page);
+                setPageSize(responseData.limit || limit);
+                setTotalRecords(responseData.total || 0);
+                setTotalPages(responseData.totalPages || 0);
                 setLoading(false);
                 popUploader(dispatch, false);
             })
             .catch((err) => {
                 setLoading(false);
                 popUploader(dispatch, false);
-                handleError(err);
+                // Handle specific error cases
+                if (err.response?.status === 404 && err.response?.data?.message?.includes('Category')) {
+                    customToastMsg('Selected category not found. Please select a different category.', 'error');
+                    // Clear the category filter if it's invalid
+                    setSelectedCategory("");
+                    loadAllItems(page, limit, searchTerm, "");
+                } else {
+                    handleError(err);
+                }
             });
     };
 
@@ -85,16 +113,7 @@ const ItemManagement = () => {
     const handleSearch = (value) => {
         setSearchTerm(value);
         setCurrentPage(1); // Reset to first page when searching
-        console.log(value)
-        if (!value.trim()) {
-            // If search is cleared, load all items
-            loadAllItems(1, pageSize, value);
-
-        } else {
-            loadAllItems(1, pageSize, value);
-        }
-
-
+        loadAllItems(1, pageSize, value, selectedCategory);
     };
 
     // Debounced search function
@@ -113,6 +132,9 @@ const ItemManagement = () => {
 
     // Format item data with actions
     const formatItemData = (itemData) => {
+        if (!Array.isArray(itemData)) {
+            return [];
+        }
         return itemData.map((item) => ({
             key: item.id,
             id: item.id,
@@ -127,6 +149,7 @@ const ItemManagement = () => {
             mbFlag: item.mbFlag,
             price: item.price,
             altPrice: item.altPrice,
+            currency: item.currency,
             status: item.status,
             salesAccount: item.salesAccount,
             inventoryAccount: item.inventoryAccount,
@@ -135,6 +158,7 @@ const ItemManagement = () => {
             wipAccount: item.wipAccount,
             hsCode: item.hsCode,
             longDescription: item.longDescription,
+            suppliers: item.suppliers || [],
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
             action: (
@@ -171,7 +195,7 @@ const ItemManagement = () => {
             await itemService.createItem(values);
             customToastMsg('Item created successfully', 'success');
             setCreateModalVisible(false);
-            loadAllItems(currentPage, pageSize);
+            loadAllItems(currentPage, pageSize, searchTerm, selectedCategory);
             setModalLoading(false);
         } catch (error) {
             setModalLoading(false);
@@ -192,7 +216,7 @@ const ItemManagement = () => {
             await itemService.updateItem(selectedItem.itemCode, values);
             customToastMsg('Item updated successfully', 'success');
             setUpdateModalVisible(false);
-            loadAllItems(currentPage, pageSize);
+            loadAllItems(currentPage, pageSize, searchTerm, selectedCategory);
             setModalLoading(false);
         } catch (error) {
             setModalLoading(false);
@@ -214,7 +238,7 @@ const ItemManagement = () => {
             popUploader(dispatch, true);
             await itemService.deleteItem(itemCode);
             customToastMsg("Item deleted successfully", 1);
-            loadAllItems(currentPage, pageSize);
+            loadAllItems(currentPage, pageSize, searchTerm, selectedCategory);
         } catch (error) {
             handleError(error);
         }
@@ -245,17 +269,24 @@ const ItemManagement = () => {
             });
     };
 
+    // Handle category filter change
+    const handleCategoryChange = (categoryId) => {
+        setSelectedCategory(categoryId || "");
+        setCurrentPage(1); // Reset to first page when filtering
+        loadAllItems(1, pageSize, searchTerm, categoryId || "");
+    };
+
     // Handle pagination changes
     const handlePaginationChange = (page, pageSize) => {
         setCurrentPage(page);
         setPageSize(pageSize);
-        loadAllItems(page, pageSize);
+        loadAllItems(page, pageSize, searchTerm, selectedCategory);
     };
 
 
     const handleImportComplete = (result) => {
         if (result.success) {
-            loadAllItems(currentPage, pageSize);
+            loadAllItems(currentPage, pageSize, searchTerm, selectedCategory);
         }
     };
 
@@ -292,7 +323,7 @@ const ItemManagement = () => {
                     <Card>
                         {/* Search and Action Section */}
                         <Row className="mt-4 mx-2">
-                            <Col sm={12} md={6} lg={4}>
+                            <Col sm={12} md={6} lg={3}>
                                 <FormGroup>
                                     <Label for="search">
                                         <Search size={16} className="me-1"/>
@@ -304,6 +335,34 @@ const ItemManagement = () => {
                                         value={searchTerm}
                                         onChange={(e) => handleSearchChange(e.target.value)}
                                     />
+                                </FormGroup>
+                            </Col>
+
+                            <Col sm={12} md={6} lg={3}>
+                                <FormGroup>
+                                    <Label for="category">
+                                        Filter by Category
+                                    </Label>
+                                    <Select
+                                    size="large"
+                                        id="category"
+                                        placeholder="Select category"
+                                        allowClear
+                                        showSearch
+                                        value={selectedCategory || undefined}
+                                        onChange={handleCategoryChange}
+                                        loading={loadingCategories}
+                                        style={{ width: '100%' }}
+                                        filterOption={(input, option) =>
+                                            (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    >
+                                        {categories.map((category) => (
+                                            <Option key={category.id} value={category.id}>
+                                                {category.categoryName || category.name || 'Unnamed Category'}
+                                            </Option>
+                                        ))}
+                                    </Select>
                                 </FormGroup>
                             </Col>
 

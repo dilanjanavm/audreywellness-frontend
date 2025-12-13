@@ -166,12 +166,12 @@ const Navdata = () => {
             label: "Users",
             isHeader: true,
         },
-        //================Customer Management=========================
+        //================Users and Customer Management=========================
         {
-            id: "userManagement",
-            label: "Users & Customers",
+            id: "usersAndCustomers",
+            label: "Users and Customer",
             icon: <FeatherIcon icon="users" className="icon-dual"/>,
-            link: "/user-management",
+            link: "#",
             click: function (e) {
                 e.preventDefault();
                 setIsApps(!isApps);
@@ -180,19 +180,6 @@ const Navdata = () => {
             },
             stateVariables: isApps,
             subItems: [
-                {
-                    id: "staffManagement",
-                    label: "Staff Management",
-                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
-                    link: "/staff-management",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsApps(!isApps);
-                        setIscurrentState("Apps");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isApps,
-                },
                 {
                     id: "customerManagement",
                     label: "Customer Management",
@@ -206,26 +193,47 @@ const Navdata = () => {
                     },
                     stateVariables: isApps,
                 },
+                {
+                    id: "userManagement",
+                    label: "User Management",
+                    icon: <FeatherIcon icon="user" className="icon-dual"/>,
+                    link: "/user-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },
+                {
+                    id: "roleManagement",
+                    label: "Role Management",
+                    icon: <FeatherIcon icon="shield" className="icon-dual"/>,
+                    link: "/role-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },
+                {
+                    id: "permissionManagement",
+                    label: "Permission Management",
+                    icon: <FeatherIcon icon="key" className="icon-dual"/>,
+                    link: "/permission-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },
             ],
         },
-        //===============Role And Permissions=========================
-        // {
-        //     label: "Role and Permission",
-        //     isHeader: true,
-        // },
-        // {
-        //     id: "apps",
-        //     label: "Role and Permissions",
-        //     icon: <FeatherIcon icon="shield" className="icon-dual"/>,
-        //     link: "/role-permission-management",
-        //     click: function (e) {
-        //         e.preventDefault();
-        //         setIsApps(!isApps);
-        //         setIscurrentState("Apps");
-        //         updateIconSidebar(e);
-        //     },
-        //     stateVariables: isApps,
-        // },
         {
             label: "Other",
             isHeader: true,

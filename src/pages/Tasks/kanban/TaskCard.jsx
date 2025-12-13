@@ -9,7 +9,8 @@ import {
   EyeOutlined,
   MoreOutlined,
   EditOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
 import { TASK_STATUS_COLORS, TASK_PRIORITY_COLORS, TASK_PRIORITY_LABELS } from './types';
 import dayjs from 'dayjs';
@@ -248,6 +249,23 @@ const TaskCard = ({ task, onView, onEdit, onDelete }) => {
             )}
           </div>
         </div>
+
+        {/* Costing Badge */}
+        {task.costing && (
+          <div className="mb-2">
+            <Tag 
+              icon={<DollarOutlined />}
+              color="green"
+              style={{ 
+                borderRadius: '6px',
+                fontSize: '11px',
+                margin: 0,
+              }}
+            >
+              {task.costing.itemName || task.costing.itemCode || 'Product'}
+            </Tag>
+          </div>
+        )}
 
         {/* Comments and Views */}
         <Space size="middle">

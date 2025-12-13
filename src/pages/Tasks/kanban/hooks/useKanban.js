@@ -21,44 +21,83 @@ export const useKanban = () => {
 
     // Transform task from API to frontend format
     const transformTask = (apiTask) => {
-        // Handle assignees - could be array, string (ID), or object
+        // Handle assigned user - NEW API structure
+        // Priority: assignedUser (new) > assignee (legacy) > assignedUserId (ID only)
         let assignees = [];
-        const assigneeData = apiTask.assignees || apiTask.assignee; // Support both assignees (array) and assignee (single)
+        let assignedUserId = apiTask.assignedUserId;
         
-        if (assigneeData) {
-            // If it's an array, process each assignee
-            if (Array.isArray(assigneeData)) {
-                assignees = assigneeData.map((assigneeItem) => {
-                    if (typeof assigneeItem === 'string') {
-                        const foundUser = findKanbanUser(assigneeItem);
-                        return foundUser || { id: assigneeItem };
-                    } else if (typeof assigneeItem === 'object' && assigneeItem !== null) {
-                        return {
-                            id: assigneeItem.id || assigneeItem._id || assigneeItem.userId,
-                            name: assigneeItem.name || assigneeItem.username || assigneeItem.fullName || 'Unknown',
-                            avatar: assigneeItem.avatar || assigneeItem.profilePicture || assigneeItem.image,
-                            role: assigneeItem.role || assigneeItem.position || assigneeItem.jobTitle,
-                        };
-                    }
-                    return null;
-                }).filter(Boolean);
-            } else if (typeof assigneeData === 'string') {
-                // Single assignee as string ID
-                const foundUser = findKanbanUser(assigneeData);
-                assignees = foundUser ? [foundUser] : [{ id: assigneeData }];
-            } else if (typeof assigneeData === 'object' && assigneeData !== null) {
-                // Single assignee as object
+        if (apiTask.assignedUser) {
+            // NEW: Use assignedUser object from API
+            const assignedUser = apiTask.assignedUser;
+            assignees = [{
+                id: assignedUser.id || assignedUserId,
+                name: assignedUser.userName || assignedUser.name || assignedUser.email || 'Unknown',
+                email: assignedUser.email,
+                avatar: assignedUser.avatar || assignedUser.profilePicture || assignedUser.image,
+                role: assignedUser.role?.name || assignedUser.role?.code || assignedUser.role || null,
+            }];
+        } else if (apiTask.assignee) {
+            // Legacy: Support assignee field (could be object or string)
+            if (typeof apiTask.assignee === 'object' && apiTask.assignee !== null) {
                 assignees = [{
-                    id: assigneeData.id || assigneeData._id || assigneeData.userId,
-                    name: assigneeData.name || assigneeData.username || assigneeData.fullName || 'Unknown',
-                    avatar: assigneeData.avatar || assigneeData.profilePicture || assigneeData.image,
-                    role: assigneeData.role || assigneeData.position || assigneeData.jobTitle,
+                    id: apiTask.assignee.id || apiTask.assignee._id || assignedUserId,
+                    name: apiTask.assignee.name || apiTask.assignee.userName || 'Unknown',
+                    email: apiTask.assignee.email,
+                    avatar: apiTask.assignee.avatar || apiTask.assignee.profilePicture,
+                    role: apiTask.assignee.role || null,
                 }];
+            } else if (typeof apiTask.assignee === 'string') {
+                // Legacy string assignee - try to find in kanbanUsers
+                const foundUser = findKanbanUser(apiTask.assignee);
+                assignees = foundUser ? [foundUser] : [{ id: apiTask.assignee }];
             }
+        } else if (assignedUserId) {
+            // Only ID available - create minimal assignee object
+            const foundUser = findKanbanUser(assignedUserId);
+            assignees = foundUser ? [foundUser] : [{ id: assignedUserId }];
+        }
+        
+        // Handle assignees array (if present for backward compatibility)
+        if (apiTask.assignees && Array.isArray(apiTask.assignees) && apiTask.assignees.length > 0) {
+            assignees = apiTask.assignees.map((assigneeItem) => {
+                if (typeof assigneeItem === 'string') {
+                    const foundUser = findKanbanUser(assigneeItem);
+                    return foundUser || { id: assigneeItem };
+                } else if (typeof assigneeItem === 'object' && assigneeItem !== null) {
+                    return {
+                        id: assigneeItem.id || assigneeItem._id || assigneeItem.userId,
+                        name: assigneeItem.name || assigneeItem.userName || assigneeItem.username || assigneeItem.fullName || 'Unknown',
+                        email: assigneeItem.email,
+                        avatar: assigneeItem.avatar || assigneeItem.profilePicture || assigneeItem.image,
+                        role: assigneeItem.role?.name || assigneeItem.role?.code || assigneeItem.role || null,
+                    };
+                }
+                return null;
+            }).filter(Boolean);
         }
         
         // For backward compatibility, also set assignee to first assignee
         const assignee = assignees.length > 0 ? assignees[0] : null;
+
+        // Handle costing - NEW API structure
+        let costing = null;
+        if (apiTask.costing) {
+            costing = {
+                id: apiTask.costing.id || apiTask.costingId,
+                itemName: apiTask.costing.itemName,
+                itemCode: apiTask.costing.itemCode,
+                version: apiTask.costing.version,
+                isActive: apiTask.costing.isActive,
+            };
+        } else if (apiTask.costingId) {
+            costing = {
+                id: apiTask.costingId,
+            };
+        }
+
+        // Preserve batchSize and rawMaterials from API response
+        const batchSize = apiTask.batchSize || null;
+        const rawMaterials = apiTask.rawMaterials && Array.isArray(apiTask.rawMaterials) ? apiTask.rawMaterials : null;
 
         // Ensure we use the backend UUID as the primary ID
         const taskId = apiTask.id || apiTask._id;
@@ -73,7 +112,13 @@ export const useKanban = () => {
             status: apiTask.status || 'pending',
             priority: apiTask.priority || 'medium',
             dueDate: apiTask.dueDate || null,
-            assignees: assignees, // Array of assignees
+            assignedUserId: assignedUserId, // NEW: Store assignedUserId
+            assignedUser: apiTask.assignedUser || null, // NEW: Store assignedUser object
+            costingId: apiTask.costingId || null, // NEW: Store costingId
+            costing: costing, // NEW: Store costing object
+            batchSize: batchSize, // NEW: Store batchSize
+            rawMaterials: rawMaterials, // NEW: Store rawMaterials array
+            assignees: assignees, // Array of assignees (for display)
             assignee: assignee, // For backward compatibility - first assignee
             comments: apiTask.comments || 0,
             views: apiTask.views || 0,

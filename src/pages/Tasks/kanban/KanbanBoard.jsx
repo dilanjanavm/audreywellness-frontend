@@ -14,9 +14,8 @@ import {
     horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {Container, Row, Col} from 'reactstrap';
-import {Button} from 'antd';
-import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined} from '@ant-design/icons';
-import {Tabs, message, Modal, Space, Drawer, Tag, Avatar, Typography, Divider, DatePicker, List} from 'antd';
+import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, MoreOutlined} from '@ant-design/icons';
+import {Tabs, message, Modal, Space, Drawer, Tag, Avatar, Typography, Divider, DatePicker, List, Spin, Empty, Popconfirm, Dropdown, Button} from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {kanbanUsers} from './data/users';
@@ -63,6 +62,8 @@ const KanbanBoard = () => {
     const [phaseFilters, setPhaseFilters] = useState({});
     const [commentContent, setCommentContent] = useState('');
     const [taskComments, setTaskComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
+    const [submittingComment, setSubmittingComment] = useState(false);
 
     // Set initial tab when phases load
     useEffect(() => {
@@ -230,17 +231,60 @@ const KanbanBoard = () => {
         setIsDetailDrawerOpen(false);
     };
 
-    const handleViewTask = (task) => {
+    const handleViewTask = async (task) => {
         setDetailTask(task);
         setIsDetailDrawerOpen(true);
-        // Load comments for this task (you can fetch from API here)
-        setTaskComments([]);
         setCommentContent('');
+        // Load comments for this task from API
+        await loadTaskComments(task.id || task._id);
+    };
+
+    // Load comments for a task
+    const loadTaskComments = async (taskId) => {
+        if (!taskId) return;
+        
+        try {
+            setLoadingComments(true);
+            const response = await taskService.getTaskComments(taskId);
+            
+            // Handle response structure
+            let comments = [];
+            if (response.data) {
+                if (Array.isArray(response.data)) {
+                    comments = response.data;
+                } else if (response.data.data && Array.isArray(response.data.data)) {
+                    comments = response.data.data;
+                }
+            }
+            
+            // Transform comments for display
+            const transformedComments = comments.map(comment => ({
+                id: comment.id,
+                comment: comment.comment,
+                ownerId: comment.ownerId,
+                owner: comment.owner || null,
+                ownerName: comment.ownerName || comment.owner?.userName || comment.owner?.name || 'Unknown',
+                ownerEmail: comment.ownerEmail || comment.owner?.email || '',
+                commentedDate: comment.commentedDate || comment.createdAt,
+                createdAt: comment.createdAt,
+                updatedAt: comment.updatedAt,
+            }));
+            
+            setTaskComments(transformedComments);
+        } catch (error) {
+            console.error('Error loading comments:', error);
+            message.error('Failed to load comments');
+            setTaskComments([]);
+        } finally {
+            setLoadingComments(false);
+        }
     };
 
     const handleCloseDrawer = () => {
         setIsDetailDrawerOpen(false);
         setDetailTask(null);
+        setTaskComments([]);
+        setCommentContent('');
     };
 
     const handleEditTask = (task) => {
@@ -254,32 +298,51 @@ const KanbanBoard = () => {
         try {
             if (selectedTask) {
                 // Update existing task
-                // Build clean request body - only include allowed fields, exclude taskId
+                // Build clean request body according to API structure
                 const updateData = {
                     task: taskData.task,
                     phaseId: taskData.phaseId || selectedTask.phaseId,
                     status: taskData.status,
+                    comments: taskData.comments !== undefined && taskData.comments !== null ? taskData.comments : (selectedTask?.comments || 0),
+                    views: taskData.views !== undefined && taskData.views !== null ? taskData.views : (selectedTask?.views || 0),
+                    order: taskData.order !== undefined && taskData.order !== null ? taskData.order : (selectedTask?.order || 0),
                 };
 
                 // Add optional fields only if they exist
-                if (taskData.description !== undefined) updateData.description = taskData.description;
-                if (taskData.priority !== undefined) updateData.priority = taskData.priority;
-                if (taskData.dueDate !== undefined) updateData.dueDate = taskData.dueDate;
-                if (taskData.assignees !== undefined) {
-                    updateData.assignees = taskData.assignees;
-                } else if (taskData.assignee !== undefined) {
-                    // Legacy support: convert single assignee to array
-                    updateData.assignees = Array.isArray(taskData.assignee) ? taskData.assignee : [taskData.assignee];
+                if (taskData.description !== undefined && taskData.description !== null && taskData.description !== '') {
+                    updateData.description = taskData.description;
                 }
-                if (taskData.comments !== undefined) updateData.comments = taskData.comments;
-                if (taskData.views !== undefined) updateData.views = taskData.views;
-                if (taskData.order !== undefined) updateData.order = taskData.order;
-                if (taskData.updatedBy) updateData.updatedBy = taskData.updatedBy;
+                if (taskData.priority !== undefined && taskData.priority !== null) {
+                    updateData.priority = taskData.priority;
+                }
+                if (taskData.dueDate !== undefined && taskData.dueDate !== null) {
+                    updateData.dueDate = taskData.dueDate;
+                }
+                // Use assignedUserId (UUID)
+                if (taskData.assignedUserId !== undefined && taskData.assignedUserId !== null) {
+                    updateData.assignedUserId = taskData.assignedUserId;
+                }
+                // Add costingId if provided
+                if (taskData.costingId !== undefined && taskData.costingId !== null) {
+                    updateData.costingId = taskData.costingId;
+                }
+                // Add batchSize if provided
+                if (taskData.batchSize !== undefined && taskData.batchSize !== null) {
+                    updateData.batchSize = taskData.batchSize;
+                }
+                // Add rawMaterials if provided
+                if (taskData.rawMaterials !== undefined && Array.isArray(taskData.rawMaterials) && taskData.rawMaterials.length > 0) {
+                    updateData.rawMaterials = taskData.rawMaterials;
+                }
                 
-                // Ensure taskId is never included (explicit check)
-                if ('taskId' in updateData) {
-                    delete updateData.taskId;
-                }
+                // Ensure taskId, id, _id, and updatedBy are never included
+                if ('taskId' in updateData) delete updateData.taskId;
+                if ('id' in updateData) delete updateData.id;
+                if ('_id' in updateData) delete updateData._id;
+                if ('updatedBy' in updateData) delete updateData.updatedBy;
+
+                // Log final object to console
+                console.log('Final Task Data to be sent to backend (UPDATE):', JSON.stringify(updateData, null, 2));
                 
                 // Use the task's UUID (id) for the API call
                 const taskUuid = selectedTask.id || selectedTask._id;
@@ -311,32 +374,51 @@ const KanbanBoard = () => {
                 }
             } else {
                 // Create new task
-                // Build clean request body - only include allowed fields, exclude taskId
+                // Build clean request body according to API structure
                 const createData = {
                     task: taskData.task,
                     phaseId: taskData.phaseId || selectedPhaseId || activeTab || phases[0]?.id,
                     status: taskData.status || TASK_STATUS.PENDING,
+                    comments: taskData.comments !== undefined && taskData.comments !== null ? taskData.comments : 0,
+                    views: taskData.views !== undefined && taskData.views !== null ? taskData.views : 0,
+                    order: taskData.order !== undefined && taskData.order !== null ? taskData.order : 0,
                 };
 
                 // Add optional fields only if they exist
-                if (taskData.description) createData.description = taskData.description;
-                if (taskData.priority) createData.priority = taskData.priority;
-                if (taskData.dueDate) createData.dueDate = taskData.dueDate;
-                if (taskData.assignees && taskData.assignees.length > 0) {
-                    createData.assignees = taskData.assignees;
-                } else if (taskData.assignee) {
-                    // Legacy support: convert single assignee to array
-                    createData.assignees = Array.isArray(taskData.assignee) ? taskData.assignee : [taskData.assignee];
+                if (taskData.description !== undefined && taskData.description !== null && taskData.description !== '') {
+                    createData.description = taskData.description;
                 }
-                if (taskData.comments !== undefined) createData.comments = taskData.comments || 0;
-                if (taskData.views !== undefined) createData.views = taskData.views || 0;
-                if (taskData.order !== undefined) createData.order = taskData.order || 0;
-                if (taskData.updatedBy) createData.updatedBy = taskData.updatedBy;
+                if (taskData.priority !== undefined && taskData.priority !== null) {
+                    createData.priority = taskData.priority;
+                }
+                if (taskData.dueDate !== undefined && taskData.dueDate !== null) {
+                    createData.dueDate = taskData.dueDate;
+                }
+                // Use assignedUserId (UUID)
+                if (taskData.assignedUserId !== undefined && taskData.assignedUserId !== null) {
+                    createData.assignedUserId = taskData.assignedUserId;
+                }
+                // Add costingId if provided
+                if (taskData.costingId !== undefined && taskData.costingId !== null) {
+                    createData.costingId = taskData.costingId;
+                }
+                // Add batchSize if provided
+                if (taskData.batchSize !== undefined && taskData.batchSize !== null) {
+                    createData.batchSize = taskData.batchSize;
+                }
+                // Add rawMaterials if provided
+                if (taskData.rawMaterials !== undefined && Array.isArray(taskData.rawMaterials) && taskData.rawMaterials.length > 0) {
+                    createData.rawMaterials = taskData.rawMaterials;
+                }
                 
-                // Ensure taskId is never included (explicit check)
-                if ('taskId' in createData) {
-                    delete createData.taskId;
-                }
+                // Ensure taskId, id, _id, and updatedBy are never included
+                if ('taskId' in createData) delete createData.taskId;
+                if ('id' in createData) delete createData.id;
+                if ('_id' in createData) delete createData._id;
+                if ('updatedBy' in createData) delete createData.updatedBy;
+
+                // Log final object to console
+                console.log('Final Task Data to be sent to backend (CREATE):', JSON.stringify(createData, null, 2));
                 
                 const response = await taskService.createTask(createData);
                 
@@ -705,6 +787,9 @@ const KanbanBoard = () => {
                                                 />
                                                 <div>
                                                     <div style={{fontWeight: 600, fontSize: 16}}>{assignee.name}</div>
+                                                    {assignee.email && (
+                                                        <div style={{fontSize: 12, color: '#8c8c8c'}}>{assignee.email}</div>
+                                                    )}
                                                     <div style={{fontSize: 13, color: '#8c8c8c'}}>{assignee.role || 'Team Member'}</div>
                                                 </div>
                                             </div>
@@ -724,6 +809,9 @@ const KanbanBoard = () => {
                                         />
                                         <div>
                                             <div style={{fontWeight: 600, fontSize: 16}}>{detailTask.assignee.name}</div>
+                                            {detailTask.assignee.email && (
+                                                <div style={{fontSize: 12, color: '#8c8c8c'}}>{detailTask.assignee.email}</div>
+                                            )}
                                             <div style={{fontSize: 13, color: '#8c8c8c'}}>{detailTask.assignee.role}</div>
                                         </div>
                                     </div>
@@ -731,6 +819,111 @@ const KanbanBoard = () => {
                                     <div>Unassigned</div>
                                 )}
                             </div>
+
+                            {/* NEW: Costing Information */}
+                            {detailTask.costing && (
+                                <>
+                                    <Divider/>
+                                    <div className="kanban-task-drawer-section">
+                                        <h5>Associated Product</h5>
+                                        <div className="mt-2">
+                                            <div style={{fontWeight: 600, fontSize: 16, marginBottom: 4}}>
+                                                {detailTask.costing.itemName || 'Unnamed Product'}
+                                            </div>
+                                            {detailTask.costing.itemCode && (
+                                                <div style={{fontSize: 13, color: '#8c8c8c', marginBottom: 4}}>
+                                                    Code: {detailTask.costing.itemCode}
+                                                </div>
+                                            )}
+                                            {detailTask.costing.version && (
+                                                <Tag color="blue" style={{marginTop: 4, marginBottom: 8}}>
+                                                    Version {detailTask.costing.version}
+                                                </Tag>
+                                            )}
+                                            
+                                            {/* Batch Size */}
+                                            {detailTask.batchSize && (
+                                                <div style={{marginTop: 12, marginBottom: 12}}>
+                                                    <div style={{fontSize: 13, color: '#8c8c8c', marginBottom: 4}}>Batch Size:</div>
+                                                    <Tag color="green" style={{fontSize: 13}}>
+                                                        {(() => {
+                                                            const batchSize = detailTask.batchSize;
+                                                            const match = batchSize.match(/batch(\d+(?:\.\d+)?)kg/);
+                                                            if (match) {
+                                                                const kg = match[1].replace('_', '.');
+                                                                return `${kg} kg`;
+                                                            }
+                                                            return batchSize.replace('batch', '').replace(/([A-Z])/g, ' $1').trim();
+                                                        })()}
+                                                    </Tag>
+                                                </div>
+                                            )}
+
+                                            {/* Raw Materials */}
+                                            {detailTask.rawMaterials && Array.isArray(detailTask.rawMaterials) && detailTask.rawMaterials.length > 0 && (
+                                                <div style={{marginTop: 16}}>
+                                                    <div style={{fontSize: 13, fontWeight: 600, marginBottom: 8, color: '#595959'}}>
+                                                        Raw Materials Required:
+                                                    </div>
+                                                    <div style={{maxHeight: '300px', overflowY: 'auto', border: '1px solid #f0f0f0', borderRadius: '4px', padding: '8px'}}>
+                                                        <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '12px'}}>
+                                                            <thead>
+                                                                <tr style={{borderBottom: '1px solid #f0f0f0', fontWeight: 600, backgroundColor: '#fafafa'}}>
+                                                                    <th style={{padding: '6px 8px', textAlign: 'left'}}>Material</th>
+                                                                    <th style={{padding: '6px 8px', textAlign: 'right'}}>%</th>
+                                                                    <th style={{padding: '6px 8px', textAlign: 'right'}}>Amount</th>
+                                                                    <th style={{padding: '6px 8px', textAlign: 'right'}}>Cost</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {detailTask.rawMaterials.map((material, index) => (
+                                                                    <tr key={material.rawMaterialId || index} style={{borderBottom: '1px solid #f0f0f0'}}>
+                                                                        <td style={{padding: '6px 8px'}}>
+                                                                            <div>
+                                                                                <div style={{fontWeight: 500}}>{material.rawMaterialName || 'N/A'}</div>
+                                                                                {material.category && (
+                                                                                    <div style={{fontSize: '10px', color: '#8c8c8c'}}>
+                                                                                        {material.category}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{padding: '6px 8px', textAlign: 'right'}}>
+                                                                            {parseFloat(material.percentage || 0).toFixed(2)}%
+                                                                        </td>
+                                                                        <td style={{padding: '6px 8px', textAlign: 'right'}}>
+                                                                            {parseFloat(material.kg || 0).toFixed(2)} {material.units || 'kg'}
+                                                                        </td>
+                                                                        <td style={{padding: '6px 8px', textAlign: 'right', fontWeight: 500}}>
+                                                                            LKR {parseFloat(material.cost || 0).toLocaleString('en-US', { 
+                                                                                minimumFractionDigits: 2, 
+                                                                                maximumFractionDigits: 2 
+                                                                            })}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                                <tr style={{borderTop: '2px solid #1890ff', fontWeight: 600, backgroundColor: '#f0f8ff'}}>
+                                                                    <td colSpan={3} style={{padding: '6px 8px', textAlign: 'right'}}>
+                                                                        Total Cost:
+                                                                    </td>
+                                                                    <td style={{padding: '6px 8px', textAlign: 'right', color: '#1890ff'}}>
+                                                                        LKR {detailTask.rawMaterials
+                                                                            .reduce((sum, m) => sum + parseFloat(m.cost || 0), 0)
+                                                                            .toLocaleString('en-US', { 
+                                                                                minimumFractionDigits: 2, 
+                                                                                maximumFractionDigits: 2 
+                                                                            })}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
                             <div className="kanban-task-drawer-section">
                                 <h5>Activity</h5>
@@ -745,7 +938,7 @@ const KanbanBoard = () => {
                                     </li>
                                     <li>
                                         <span>Comments</span>
-                                        <span>{detailTask.comments || 0}</span>
+                                        <span>{taskComments.length || detailTask.comments || 0}</span>
                                     </li>
                                     <li>
                                         <span>Views</span>
@@ -757,37 +950,169 @@ const KanbanBoard = () => {
                             <Divider/>
 
                             <div className="kanban-task-drawer-section">
-                                <h5>Comments</h5>
+                                <h5>Comments ({taskComments.length})</h5>
                                 
                                 {/* Comments List */}
-                                {taskComments.length > 0 && (
+                                {loadingComments ? (
+                                    <div style={{textAlign: 'center', padding: '20px'}}>
+                                        <Spin size="large" />
+                                    </div>
+                                ) : taskComments.length > 0 ? (
                                     <List
                                         className="comment-list"
                                         itemLayout="horizontal"
                                         dataSource={taskComments}
-                                        renderItem={(comment) => (
-                                            <List.Item>
-                                                <List.Item.Meta
-                                                    avatar={comment.avatar}
-                                                    title={
-                                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                                            <span style={{fontWeight: 600}}>{comment.author}</span>
-                                                            <span style={{fontSize: '12px', color: '#8c8c8c'}}>{comment.datetime}</span>
-                                                        </div>
-                                                    }
-                                                    description={
-                                                        <div 
-                                                            dangerouslySetInnerHTML={{__html: comment.content}}
-                                                            style={{marginTop: '8px'}}
-                                                        />
-                                                    }
-                                                />
-                                            </List.Item>
-                                        )}
+                                        style={{marginTop: 16, marginBottom: 16}}
+                                        renderItem={(comment) => {
+                                            // Get current user for delete permission
+                                            const currentUser = JSON.parse(sessionStorage.getItem('authUser') || '{}');
+                                            const currentUserId = currentUser.user?.id || currentUser.user?._id || currentUser.id || currentUser._id;
+                                            const canDelete = comment.ownerId === currentUserId;
+                                            
+                                            // Handle delete action
+                                            const handleDeleteComment = async () => {
+                                                try {
+                                                    await taskService.deleteTaskComment(comment.id);
+                                                    message.success('Comment deleted successfully');
+                                                    // Reload comments
+                                                    await loadTaskComments(detailTask.id || detailTask._id);
+                                                    // Refresh task to update comment count
+                                                    await refreshTasks();
+                                                } catch (error) {
+                                                    console.error('Error deleting comment:', error);
+                                                    message.error(error.response?.data?.message || 'Failed to delete comment');
+                                                }
+                                            };
+                                            
+                                            // Menu items for the dot menu
+                                            const menuItems = canDelete ? [
+                                                {
+                                                    key: 'delete',
+                                                    label: (
+                                                        <span style={{ color: '#ff4d4f' }}>
+                                                            <DeleteOutlined style={{ marginRight: 8 }} />
+                                                            Delete
+                                                        </span>
+                                                    ),
+                                                    danger: true,
+                                                    onClick: () => {
+                                                        Modal.confirm({
+                                                            title: 'Delete comment',
+                                                            content: 'Are you sure you want to delete this comment? This action cannot be undone.',
+                                                            okText: 'Yes, Delete',
+                                                            okType: 'danger',
+                                                            cancelText: 'Cancel',
+                                                            onOk: handleDeleteComment,
+                                                        });
+                                                    },
+                                                },
+                                            ] : [];
+                                            
+                                            return (
+                                                <List.Item
+                                                    style={{
+                                                        padding: '12px 0',
+                                                        borderBottom: '1px solid #f0f0f0',
+                                                        position: 'relative',
+                                                    }}
+                                                    actions={canDelete ? [
+                                                        <Space key="actions" size="small">
+                                                            <Popconfirm
+                                                                title="Delete comment"
+                                                                description="Are you sure you want to delete this comment?"
+                                                                onConfirm={handleDeleteComment}
+                                                                okText="Yes"
+                                                                cancelText="No"
+                                                                okButtonProps={{ danger: true }}
+                                                            >
+                                                                <Button
+                                                                    type="text"
+                                                                    danger
+                                                                    size="small"
+                                                                    icon={<DeleteOutlined />}
+                                                                    style={{
+                                                                        color: '#ff4d4f',
+                                                                    }}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    Delete
+                                                                </Button>
+                                                            </Popconfirm>
+                                                            <Dropdown
+                                                                menu={{ items: menuItems }}
+                                                                trigger={['click']}
+                                                                placement="bottomRight"
+                                                            >
+                                                                <Button
+                                                                    type="text"
+                                                                    icon={<MoreOutlined />}
+                                                                    size="small"
+                                                                    style={{
+                                                                        color: '#8c8c8c',
+                                                                        border: 'none',
+                                                                        boxShadow: 'none',
+                                                                    }}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+                                                            </Dropdown>
+                                                        </Space>
+                                                    ] : []}
+                                                >
+                                                    <List.Item.Meta
+                                                        avatar={
+                                                            <Avatar 
+                                                                src={
+                                                                    comment.owner?.avatar 
+                                                                        ? `${process.env.REACT_APP_API_URL || ''}/images/users/${comment.owner.avatar}`
+                                                                        : undefined
+                                                                }
+                                                                icon={!comment.owner?.avatar ? <UserOutlined/> : undefined}
+                                                                style={{backgroundColor: '#1890ff'}}
+                                                            >
+                                                                {!comment.owner?.avatar && comment.ownerName ? comment.ownerName.charAt(0).toUpperCase() : null}
+                                                            </Avatar>
+                                                        }
+                                                        title={
+                                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
+                                                                <div>
+                                                                    <span style={{fontWeight: 600, fontSize: 14}}>{comment.ownerName}</span>
+                                                                    {comment.ownerEmail && (
+                                                                        <span style={{fontSize: '12px', color: '#8c8c8c', marginLeft: 8}}>
+                                                                            {comment.ownerEmail}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <span style={{fontSize: '12px', color: '#8c8c8c'}}>
+                                                                    {dayjs(comment.commentedDate || comment.createdAt).format('MMM DD, YYYY HH:mm')}
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                        description={
+                                                            <div 
+                                                                dangerouslySetInnerHTML={{__html: comment.comment}}
+                                                                style={{
+                                                                    marginTop: '8px',
+                                                                    fontSize: '14px',
+                                                                    lineHeight: '1.6',
+                                                                    color: '#595959'
+                                                                }}
+                                                            />
+                                                        }
+                                                    />
+                                                </List.Item>
+                                            );
+                                        }}
+                                    />
+                                ) : (
+                                    <Empty 
+                                        description="No comments yet" 
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        style={{margin: '20px 0'}}
                                     />
                                 )}
 
                                 {/* Comment Editor */}
+                                <Divider style={{margin: '16px 0'}} />
                                 <div className="mt-3">
                                     <div className="mb-2">
                                         <ReactQuill
@@ -804,17 +1129,17 @@ const KanbanBoard = () => {
                                                     ['clean']
                                                 ],
                                             }}
-                                            style={{minHeight: '150px'}}
+                                            style={{minHeight: '120px', marginBottom: '8px'}}
                                         />
                                     </div>
                                     
                                     {/* Mention Helper - Show assigned users */}
                                     {detailTask.assignees && detailTask.assignees.length > 0 && (
-                                        <div className="mb-2" style={{fontSize: '12px', color: '#8c8c8c'}}>
+                                        <div className="mb-2" style={{fontSize: '12px', color: '#8c8c8c', marginBottom: '8px'}}>
                                             <Text type="secondary">Mention: </Text>
                                             {detailTask.assignees.map((assignee, idx) => (
                                                 <span key={assignee.id || idx}>
-                                                    <Text code style={{fontSize: '11px'}}>@{assignee.name}</Text>
+                                                    <Text code style={{fontSize: '11px'}}>@{assignee.name || assignee.userName}</Text>
                                                     {idx < detailTask.assignees.length - 1 && ', '}
                                                 </span>
                                             ))}
@@ -823,41 +1148,52 @@ const KanbanBoard = () => {
                                     
                                     <Button 
                                         type="primary" 
+                                        loading={submittingComment}
                                         onClick={async () => {
-                                            if (!commentContent.trim()) {
+                                            if (!commentContent.trim() || !commentContent.replace(/<[^>]*>/g, '').trim()) {
                                                 message.warning('Please enter a comment');
                                                 return;
                                             }
                                             
-                                            // Extract mentions from comment
-                                            const mentionRegex = /@(\w+)/g;
-                                            const mentions = [];
-                                            let match;
-                                            while ((match = mentionRegex.exec(commentContent)) !== null) {
-                                                mentions.push(match[1]);
+                                            try {
+                                                setSubmittingComment(true);
+                                                
+                                                // Get current user
+                                                const currentUser = JSON.parse(sessionStorage.getItem('authUser') || '{}');
+                                                const currentUserId = currentUser.user?.id || currentUser.user?._id || currentUser.id || currentUser._id;
+                                                
+                                                // Prepare comment data
+                                                const commentData = {
+                                                    comment: commentContent,
+                                                };
+                                                
+                                                // Add ownerId if available
+                                                if (currentUserId) {
+                                                    commentData.ownerId = currentUserId;
+                                                }
+                                                
+                                                // Get task ID
+                                                const taskId = detailTask.id || detailTask._id;
+                                                
+                                                // Submit comment
+                                                await taskService.addTaskComment(taskId, commentData);
+                                                
+                                                // Clear editor
+                                                setCommentContent('');
+                                                
+                                                // Reload comments
+                                                await loadTaskComments(taskId);
+                                                
+                                                // Refresh task to update comment count
+                                                await refreshTasks();
+                                                
+                                                message.success('Comment added successfully');
+                                            } catch (error) {
+                                                console.error('Error adding comment:', error);
+                                                message.error(error.response?.data?.message || 'Failed to add comment');
+                                            } finally {
+                                                setSubmittingComment(false);
                                             }
-                                            
-                                            // Get current user
-                                            const currentUser = JSON.parse(sessionStorage.getItem('authUser') || '{}');
-                                            const currentUserName = currentUser.user?.name || currentUser.name || 'Current User';
-                                            
-                                            // Create comment object
-                                            const newComment = {
-                                                id: Date.now().toString(),
-                                                author: currentUserName,
-                                                avatar: <Avatar icon={<UserOutlined/>}/>,
-                                                content: commentContent,
-                                                datetime: dayjs().format('YYYY-MM-DD HH:mm'),
-                                                mentions: mentions,
-                                            };
-                                            
-                                            // Add to comments list
-                                            setTaskComments([...taskComments, newComment]);
-                                            
-                                            // Clear editor
-                                            setCommentContent('');
-                                            
-                                            message.success('Comment added successfully');
                                         }}
                                     >
                                         Add Comment

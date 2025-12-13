@@ -2,7 +2,7 @@
 
 import ApiService from "./apiService";
 
-export const getAllItems = (page = 1, limit = 50, search, category) => {
+export const getAllItems = (page = 1, limit = 50, search, category, includeSuppliers = false) => {
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
@@ -12,13 +12,17 @@ export const getAllItems = (page = 1, limit = 50, search, category) => {
         page: page.toString(),
         limit: limit.toString()
     });
-    console.log(search)
+    
     if (search) {
         queryParams.append('search', search);
     }
 
     if (category) {
         queryParams.append('category', category);
+    }
+
+    if (includeSuppliers) {
+        queryParams.append('includeSuppliers', 'true');
     }
 
     apiObject.endpoint = `items?${queryParams.toString()}`;

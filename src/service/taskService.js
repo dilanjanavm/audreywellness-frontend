@@ -11,7 +11,9 @@ import ApiService from "./apiService";
  *   - status (string, required): "pending"|"ongoing"|"review"|"completed"|"failed"
  *   - priority (string, optional): "low"|"medium"|"high"|"urgent"
  *   - dueDate (string, ISO date, optional)
- *   - assignee (string|null, optional)
+ *   - assignedUserId (uuid, optional) - NEW: User UUID to assign task to
+ *   - costingId (uuid, optional) - NEW: Costing UUID to associate with task
+ *   - assignee (string|null, optional) - Legacy field for backward compatibility
  *   - comments (number, optional, default: 0)
  *   - views (number, optional, default: 0)
  *   - order (number, optional)
@@ -25,6 +27,15 @@ export async function createTask(taskBody) {
     delete cleanTaskBody._id;
     delete cleanTaskBody.id;
     
+    // Remove assignees array if present (API only supports single assignedUserId)
+    if (cleanTaskBody.assignees && Array.isArray(cleanTaskBody.assignees)) {
+        // If assignees array exists, use first one as assignedUserId
+        if (cleanTaskBody.assignees.length > 0 && !cleanTaskBody.assignedUserId) {
+            cleanTaskBody.assignedUserId = cleanTaskBody.assignees[0];
+        }
+        delete cleanTaskBody.assignees;
+    }
+    
     const apiObject = {};
     apiObject.method = "POST";
     apiObject.authentication = true;
@@ -37,6 +48,8 @@ export async function createTask(taskBody) {
  * Update an existing task
  * @param {string} taskId - The UUID of the task to update
  * @param {Object} taskBody - Task data to update (taskId should not be included)
+ *   - assignedUserId (uuid|null, optional) - Update assigned user (null to unassign)
+ *   - costingId (uuid|null, optional) - Update costing (null to unassign)
  */
 export async function updateTask(taskId, taskBody) {
     // Ensure taskId is never sent in the body (it's in the URL)
@@ -44,6 +57,18 @@ export async function updateTask(taskId, taskBody) {
     delete cleanTaskBody.taskId;
     delete cleanTaskBody._id;
     delete cleanTaskBody.id;
+    
+    // Remove assignees array if present (API only supports single assignedUserId)
+    if (cleanTaskBody.assignees && Array.isArray(cleanTaskBody.assignees)) {
+        // If assignees array exists, use first one as assignedUserId
+        if (cleanTaskBody.assignees.length > 0 && !cleanTaskBody.assignedUserId) {
+            cleanTaskBody.assignedUserId = cleanTaskBody.assignees[0];
+        } else if (cleanTaskBody.assignees.length === 0) {
+            // Empty array means unassign
+            cleanTaskBody.assignedUserId = null;
+        }
+        delete cleanTaskBody.assignees;
+    }
     
     const apiObject = {};
     apiObject.method = "PUT";
@@ -171,6 +196,51 @@ export async function getTaskStatuses() {
     const apiObject = {};
     apiObject.method = "GET";
     apiObject.authentication = true;
-    apiObject.endpoint = `tasks/reference/statuses`;
+    apiObject.endpoint = `tasks/status-reference`;
+    return await ApiService.callApi(apiObject);
+}
+
+// ========== TASK COMMENT MANAGEMENT ==========
+
+/**
+ * Add a comment to a task
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {Object} commentData - Comment data:
+ *   - comment (string, required): The comment text
+ *   - ownerId (string, optional): User UUID (if provided, ownerName/ownerEmail will be auto-filled)
+ *   - ownerName (string, optional): Owner name (if ownerId not provided)
+ *   - ownerEmail (string, optional): Owner email (if ownerId not provided)
+ */
+export async function addTaskComment(taskId, commentData) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/comments`;
+    apiObject.body = commentData;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Get all comments for a task
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @returns {Promise} Array of comments ordered by most recent first
+ */
+export async function getTaskComments(taskId) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/comments`;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Delete a comment
+ * @param {string} commentId - Comment ID (UUID)
+ */
+export async function deleteTaskComment(commentId) {
+    const apiObject = {};
+    apiObject.method = "DELETE";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/comments/${commentId}`;
     return await ApiService.callApi(apiObject);
 }
