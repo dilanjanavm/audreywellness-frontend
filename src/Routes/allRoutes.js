@@ -40,6 +40,12 @@ import ItemManagement from "../pages/ItemManagement/ItemManagement";
 import SupplierManagement from "../pages/SuppliersManagement/SupplierManagement";
 import ComplaintManagement from "../pages/ComplaintManagement/ComplaintManagement";
 import ItemCostCalculator from "../pages/ProductManagement/ItemCostCalculator";
+import CostingManagement from "../pages/ProductManagement/CostingManagement";
+import CostedProducts from "../pages/ProductManagement/CostedProducts";
+import CostingHistory from "../pages/ProductManagement/CostingHistory";
+import TaskList from "../pages/Tasks/TaskList";
+import TaskDetails from "../pages/Tasks/TaskDetails";
+import KanbanBoard from "../pages/Tasks/kanban";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -65,6 +71,9 @@ const authProtectedRoutes = [
   { path: "/product-management", component: <ItemManagement  /> },
   { path: "/product-cost-management", component: <ProductManagement  /> },
   { path: "/product-cost-calculate", component: <ItemCostCalculator  /> },
+  { path: "/costing-management", exact: true, component: <CostingManagement  /> },
+  { path: "/costed-products", exact: true, component: <CostedProducts  /> },
+  { path: "/costing-history", exact: true, component: <CostingHistory  /> },
 
   // { path: "/user-management", component: <UserManagement /> },
 
@@ -121,6 +130,26 @@ const authProtectedRoutes = [
     path: "/settings",
     exact: true,
     component: <SettingManagement />,
+  },
+  {
+    path: "/task-management",
+    exact: true,
+    component: <TaskList />,
+  },
+  {
+    path: "/task-details",
+    exact: true,
+    component: <TaskDetails />,
+  },
+  {
+    path: "/apps-tasks-details",
+    exact: true,
+    component: <TaskDetails />,
+  },
+  {
+    path: "/kanban-board",
+    exact: true,
+    component: <KanbanBoard />,
   },
 ];
 

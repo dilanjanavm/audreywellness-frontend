@@ -53,8 +53,10 @@ const ProductManagement = () => {
     const loadCategories = async () => {
         try {
             setLoading(true);
+            console.log('loadCategories');
+            
             const response = await categoryService.getAllCategories();
-            const categoriesData = response.data?.data.data || [];
+            const categoriesData = response.data || [];
             setCategories(categoriesData);
             console.log(categoriesData);
 
@@ -81,8 +83,8 @@ const ProductManagement = () => {
         try {
             setItemsLoading(true);
             const response = await itemService.findByCategoryIds({categoryIds});
-            const itemsData = response.data?.data || [];
-
+            const itemsData = response.data || [];
+console.log(itemsData);
             const itemsWithActions = itemsData.map(item => ({
                 ...item,
                 action: (
@@ -166,7 +168,7 @@ const ProductManagement = () => {
                         title={
                             <Space>
                                 <FileTextOutlined/>
-                                Products Range ({categoryItems.length})
+                                Products Range  ({categoryItems.length})
                             </Space>
                         }
                         loading={itemsLoading}
@@ -181,7 +183,7 @@ const ProductManagement = () => {
                                     size="small"
                                     loading={itemsLoading}
                                 >
-                                    Reload Items
+                                    Reload Items 1
                                 </Button>
                             </Space>
                         }

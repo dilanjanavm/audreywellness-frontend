@@ -103,7 +103,7 @@ const ProductCostCalculate = () => {
         try {
             setSearchLoading(true);
             const response = await itemService.getAllItems(1, 50, query);
-            const items = response.data?.data || [];
+            const items = response.data || [];
             setItemsData(items);
         } catch (error) {
             console.error('Error searching items:', error);
@@ -632,7 +632,7 @@ const ProductCostCalculate = () => {
             // Call the API to save costing data
             const response = await costService.createCosting(costData);
 
-            if (response.success) {
+            if (response.statusCode === 201) {
                 message.success('Cost calculation saved successfully!');
                 console.log('Cost data saved:', response.data);
 

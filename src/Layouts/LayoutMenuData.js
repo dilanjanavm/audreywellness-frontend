@@ -124,6 +124,9 @@ const Navdata = () => {
         if (isProduct === "Product") {
             setIsProduct(false);
         }
+        if (iscurrentState !== "Tasks") {
+            setIsTasks(false);
+        }
     }, [
         history,
         iscurrentState,
@@ -271,7 +274,7 @@ const Navdata = () => {
             stateVariables: isProduct,
             subItems: [
                 {
-                    id: "product-cost-calculate",
+                    id: "product-cost-management",
                     label: "Cost Management",
                     icon: <FeatherIcon icon="grid" className="icon-dual"/>,
                     link: "/product-cost-management",
@@ -282,10 +285,11 @@ const Navdata = () => {
                         updateIconSidebar(e);
                     },
                     stateVariables: isApps,
-                },{
-                    id: "productCostManagement",
+                },
+                {
+                    id: "product-cost-calculate",
                     label: "Cost Calculator",
-                    icon: <FeatherIcon icon="grid" className="icon-dual"/>,
+                    icon: <FeatherIcon icon="calculator" className="icon-dual"/>,
                     link: "/product-cost-calculate",
                     click: function (e) {
                         e.preventDefault();
@@ -294,7 +298,34 @@ const Navdata = () => {
                         updateIconSidebar(e);
                     },
                     stateVariables: isApps,
-                },]
+                },
+                {
+                    id: "costing-management",
+                    label: "Costing Management",
+                    icon: <FeatherIcon icon="file-text" className="icon-dual"/>,
+                    link: "/costing-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },
+                {
+                    id: "costed-products",
+                    label: "Costed Products",
+                    icon: <FeatherIcon icon="package" className="icon-dual"/>,
+                    link: "/costed-products",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsApps(!isApps);
+                        setIscurrentState("Apps");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isApps,
+                },
+            ]
         },
         //================Suppliers Management========================
         {
@@ -324,6 +355,64 @@ const Navdata = () => {
             },
             stateVariables: isProduct,
 
+        },
+        {
+            label: "Task Management",
+            isHeader: true,
+        },
+        {
+            id: "taskManagement",
+            label: "Task Management",
+            icon: <FeatherIcon icon="check-square" className="icon-dual"/>,
+            link: "/task-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsTasks(!isTasks);
+                setIscurrentState("Tasks");
+                updateIconSidebar(e);
+            },
+            stateVariables: isTasks,
+            subItems: [
+                {
+                    id: "taskList",
+                    label: "Task List",
+                    icon: <FeatherIcon icon="list" className="icon-dual"/>,
+                    link: "/task-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsTasks(!isTasks);
+                        setIscurrentState("Tasks");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isTasks,
+                },
+                {
+                    id: "taskDetails",
+                    label: "Task Details",
+                    icon: <FeatherIcon icon="file-text" className="icon-dual"/>,
+                    link: "/task-details",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsTasks(!isTasks);
+                        setIscurrentState("Tasks");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isTasks,
+                },
+                {
+                    id: "kanbanBoard",
+                    label: "Kanban Board",
+                    icon: <FeatherIcon icon="layout" className="icon-dual"/>,
+                    link: "/kanban-board",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsTasks(!isTasks);
+                        setIscurrentState("Tasks");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isTasks,
+                },
+            ],
         },
 
 
