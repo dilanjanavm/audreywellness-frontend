@@ -24,6 +24,8 @@ import debounce from "lodash.debounce";
 import CreateComplaintModal from "../../Components/Common/modal/Complaint/CreateComplaintModal";
 import ComplaintDetailsModal from "../../Components/Common/modal/Complaint/ComplaintDetailsModal";
 import UpdateComplaintStatusModal from "../../Components/Common/modal/Complaint/UpdateComplaintStatusModal";
+import PermissionWrapper from "../../Components/Common/PermissionWrapper";
+import {hasPermission} from "../../helpers/permissionHelper";
 
 
 const {Option} = Select;
@@ -72,6 +74,12 @@ const ComplaintManagement = () => {
     const handleUpdateStatus = async (statusData) => {
         if (!selectedComplaint) return;
 
+        // Permission check
+        if (!hasPermission('COMPLAINT_UPDATE')) {
+            customToastMsg('You do not have permission to update complaints', 'error');
+            return;
+        }
+
         try {
             setStatusUpdateLoading(true);
             await complaintService.updateComplaintStatus(selectedComplaint.id, statusData);
@@ -98,26 +106,30 @@ const ComplaintManagement = () => {
             ...complaint,
             action: (
                 <div className="d-flex gap-2">
-                    <Tooltip title="View Details">
-                        <Button
-                            size="sm"
-                            color="info"
-                            outline
-                            onClick={() => handleViewComplaint(complaint.id)}
-                        >
-                            <Eye size={14}/>
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Update Status">
-                        <Button
-                            size="sm"
-                            color="warning"
-                            outline
-                            onClick={() => handleUpdateStatusClick(complaint)}
-                        >
-                            <AlertTriangle size={14}/>
-                        </Button>
-                    </Tooltip>
+                    <PermissionWrapper permission="COMPLAINT_VIEW">
+                        <Tooltip title="View Details">
+                            <Button
+                                size="sm"
+                                color="info"
+                                outline
+                                onClick={() => handleViewComplaint(complaint.id)}
+                            >
+                                <Eye size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
+                    <PermissionWrapper permission="COMPLAINT_UPDATE">
+                        <Tooltip title="Update Status">
+                            <Button
+                                size="sm"
+                                color="warning"
+                                outline
+                                onClick={() => handleUpdateStatusClick(complaint)}
+                            >
+                                <AlertTriangle size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
                 </div>
             )
         }));
@@ -169,6 +181,11 @@ const ComplaintManagement = () => {
 
     // Handle create complaint
     const handleCreateComplaint = async (values) => {
+        // Permission check
+        if (!hasPermission('COMPLAINT_CREATE')) {
+            customToastMsg('You do not have permission to create complaints', 'error');
+            return;
+        }
         try {
             setModalLoading(true);
             await complaintService.createComplaint(values);
@@ -276,16 +293,7 @@ const ComplaintManagement = () => {
                     <h4>Complaint Management</h4>
                 </div>
 
-                <Button
-                    type="primary"
-                    onClick={() => {
-                        setDetailsModalVisible(false);
-                        setUpdateStatusModalVisible(true);
-                    }}
-                    className="me-2"
-                >
-                    Update Status
-                </Button>
+              
 
                 <UpdateComplaintStatusModal
                     visible={updateStatusModalVisible}
@@ -421,15 +429,17 @@ const ComplaintManagement = () => {
                         </Col>
 
                         <Col sm={12} md={6} lg={1}>
-                            <Label className='opacity-0'>Date Range</Label> <Button
-
-                            color="primary"
-                            className="w-100"
-                            onClick={() => setCreateModalVisible(true)}
-                        >
-                            <Plus size={16} className="me-1"/>
-                            Add
-                        </Button>
+                            <Label className='opacity-0'>Date Range</Label>
+                            <PermissionWrapper permission="COMPLAINT_CREATE">
+                                <Button
+                                    color="primary"
+                                    className="w-100"
+                                    onClick={() => setCreateModalVisible(true)}
+                                >
+                                    <Plus size={16} className="me-1"/>
+                                    Add
+                                </Button>
+                            </PermissionWrapper>
                         </Col>
                     </Row>
 

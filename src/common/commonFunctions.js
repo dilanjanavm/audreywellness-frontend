@@ -201,9 +201,12 @@ export const customSweetAlertResolve = (
 
 export const handleError = (c) => {
     console.log(c.response)
-    c?.response?.data?.message
-        ? customToastMsg(c?.response?.data?.message[0], 0)
-        : customToastMsg("Sorry! Try again later", 0);
+    const errorMessage = c?.response?.data?.message
+        ? (Array.isArray(c.response.data.message)
+            ? c.response.data.message[0]
+            : c.response.data.message)
+        : null;
+    customToastMsg(errorMessage || "Sorry! Try again later", 0);
     // message.error(c?.response?.data?.message[0]);
 };
 

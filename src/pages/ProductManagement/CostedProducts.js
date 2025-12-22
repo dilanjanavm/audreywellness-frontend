@@ -88,8 +88,8 @@ const CostedProducts = () => {
         navigate('/costing-history', { state: { itemId } });
     };
 
-    const handleViewCosting = (itemId) => {
-        navigate('/costing-management', { state: { itemId } });
+    const handleViewCosting = (record) => {
+        navigate('/costed-product-view', { state: { product: record } });
     };
 
     const handleTableChange = (newPagination) => {
@@ -182,7 +182,7 @@ const CostedProducts = () => {
                         <Button
                             type="link"
                             icon={<DollarOutlined />}
-                            onClick={() => handleViewCosting(record.itemId)}
+                            onClick={() => handleViewCosting(record)}
                         >
                             Costings
                         </Button>

@@ -77,20 +77,39 @@ const ProductCostCalculate = () => {
     const loadSuppliers = async (search = '') => {
         try {
             setSupplierSearchLoading(true);
-            const response = await supplierService.getAllSuppliers(1, 50, search, true, false);
-            const suppliersData = response.data?.data || [];
+            const response = await supplierService.getAllSuppliers(1, 100, search, true, false);
+            
+            // Handle different response structures
+            let suppliersData = [];
+            if (response.data) {
+                if (Array.isArray(response.data)) {
+                    suppliersData = response.data;
+                } else if (response.data.data && Array.isArray(response.data.data)) {
+                    suppliersData = response.data.data;
+                } else if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
+                    suppliersData = response.data.suppliers;
+                }
+            }
+            
             setSuppliers(suppliersData);
         } catch (error) {
             console.error('Error loading suppliers:', error);
             message.error('Failed to load suppliers');
+            setSuppliers([]);
         } finally {
             setSupplierSearchLoading(false);
         }
     };
 
-    // Search suppliers function
+    // Search suppliers function - debounced search
     const searchSuppliers = async (query) => {
-        await loadSuppliers(query);
+        if (!query || query.trim() === '') {
+            // If empty, load all suppliers
+            await loadSuppliers('');
+        } else {
+            // Search with query
+            await loadSuppliers(query.trim());
+        }
     };
 
     // Search items function
@@ -187,7 +206,30 @@ const ProductCostCalculate = () => {
                     return {
                         ...material,
                         supplier: selectedSupplier.name,
-                        supplierId: selectedSupplier.id // Store supplier UUID
+                        supplierId: selectedSupplier.id, // Store supplier UUID
+                        supplierData: {
+                            id: selectedSupplier.id,
+                            name: selectedSupplier.name,
+                            contactPerson: selectedSupplier.contactPerson || '',
+                            email: selectedSupplier.email || '',
+                            phone: selectedSupplier.phone || '',
+                            address: selectedSupplier.address || '',
+                            reference: selectedSupplier.reference || ''
+                        }
+                    };
+                }
+                return material;
+            });
+            setRawMaterials(updatedMaterials);
+        } else if (value === null || value === undefined) {
+            // Handle clear/remove supplier
+            const updatedMaterials = rawMaterials.map(material => {
+                if (material.id === recordId) {
+                    return {
+                        ...material,
+                        supplier: '',
+                        supplierId: '',
+                        supplierData: null
                     };
                 }
                 return material;
@@ -303,42 +345,66 @@ const ProductCostCalculate = () => {
             title: 'Supplier',
             dataIndex: 'supplier',
             key: 'supplier',
-            width: 150,
+            width: 200,
             render: (value, record) => (
                 <Select
                     showSearch
-                    placeholder="Select supplier"
+                    placeholder="Search and select supplier"
                     value={record.supplierId || undefined} // Use supplierId as value
                     onChange={(value, option) => handleSupplierSelect(value, option, record.id)} // Use new handler
                     onSearch={searchSuppliers}
+                    onFocus={() => {
+                        // Load suppliers when dropdown is opened if not already loaded
+                        if (suppliers.length === 0) {
+                            loadSuppliers('');
+                        }
+                    }}
                     filterOption={false}
-                    notFoundContent={supplierSearchLoading ? <Spin size="small"/> : null}
+                    notFoundContent={supplierSearchLoading ? <Spin size="small"/> : (suppliers.length === 0 ? 'No suppliers found' : null)}
                     loading={supplierSearchLoading}
                     style={{width: '100%'}}
                     allowClear
+                    optionLabelProp="label"
                 >
-                    {suppliers.map(supplier => (
-                        <Option key={supplier.id} value={supplier.id}> {/* Use supplier.id as value */}
-                            <div>
-                                <div style={{fontWeight: 'bold'}}>{supplier.name}</div>
-                                {supplier.contactPerson && (
-                                    <div style={{fontSize: '11px', color: '#666'}}>
-                                        Contact: {supplier.contactPerson}
-                                    </div>
-                                )}
-                                {supplier.email && (
-                                    <div style={{fontSize: '11px', color: '#666'}}>
-                                        Email: {supplier.email}
-                                    </div>
-                                )}
-                                {supplier.phone && (
-                                    <div style={{fontSize: '11px', color: '#666'}}>
-                                        Phone: {supplier.phone}
-                                    </div>
-                                )}
+                    {suppliers.length > 0 ? (
+                        suppliers.map(supplier => (
+                            <Option 
+                                key={supplier.id} 
+                                value={supplier.id}
+                                label={supplier.name}
+                            >
+                                <div>
+                                    <div style={{fontWeight: 'bold', fontSize: '13px'}}>{supplier.name}</div>
+                                    {supplier.reference && (
+                                        <div style={{fontSize: '11px', color: '#999'}}>
+                                            Ref: {supplier.reference}
+                                        </div>
+                                    )}
+                                    {supplier.contactPerson && (
+                                        <div style={{fontSize: '11px', color: '#666'}}>
+                                            Contact: {supplier.contactPerson}
+                                        </div>
+                                    )}
+                                    {supplier.email && (
+                                        <div style={{fontSize: '11px', color: '#666'}}>
+                                            {supplier.email}
+                                        </div>
+                                    )}
+                                    {supplier.phone && (
+                                        <div style={{fontSize: '11px', color: '#666'}}>
+                                            {supplier.phone}
+                                        </div>
+                                    )}
+                                </div>
+                            </Option>
+                        ))
+                    ) : (
+                        <Option disabled value="no-suppliers">
+                            <div style={{textAlign: 'center', color: '#999'}}>
+                                {supplierSearchLoading ? 'Loading...' : 'No suppliers available'}
                             </div>
                         </Option>
-                    ))}
+                    )}
                 </Select>
             ),
         },
@@ -600,8 +666,13 @@ const ProductCostCalculate = () => {
                         rawMaterialName: material.rawMaterial,
                         percentage: material.percentage,
                         unitPrice: material.unitPrice,
-                        supplier: material.supplier,
-                        supplierId: material.supplierId,
+                        supplier: material.supplier || '',
+                        supplierId: material.supplierId || null,
+                        // Include complete supplier data if available
+                        supplierData: material.supplierData || (material.supplierId ? {
+                            id: material.supplierId,
+                            name: material.supplier
+                        } : null),
                         category: material.category,
                         categoryId: material.categoryId,
                         units: material.units,

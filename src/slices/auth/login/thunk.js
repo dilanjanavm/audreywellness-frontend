@@ -7,7 +7,6 @@ import {
   apiError,
   reset_login_flag,
 } from "./reducer";
-import { loginService } from "../../../service/auth";
 import * as authService from "../../../service/auth";
 import * as constant from "../../../common/constants";
 import Cookies from "js-cookie";
@@ -23,33 +22,64 @@ export const loginUser = (user, history) => async (dispatch) => {
     authService
       .login(userDetails)
       .then((res) => {
-        console.log('call')
-        console.log(res);
+        console.log('Login response:', res);
+        
+        // Store tokens
         Cookies.set(constant.ACCESS_TOKEN, res.data.access_token);
-         Cookies.set(constant.REFRESH_TOKEN, res.data.refresh_token);
-        // Cookies.set(constant.Expire_time, res.expire_time);
-         window.location.href = "/dashboard";
-        // console.log(res);
-        sessionStorage.setItem("authUser", JSON.stringify(res.data.user));
-        // dispatch(loginSuccess(tempVariable));
+        Cookies.set(constant.REFRESH_TOKEN, res.data.refresh_token);
+        
+        // Store user data with permissions in sessionStorage
+        const userData = res.data.user || {};
+        sessionStorage.setItem("authUser", JSON.stringify(userData));
+        
+        // Dispatch login success with user and permissions
+        dispatch(loginSuccess({
+          user: userData,
+          permissions: userData.permissions || []
+        }));
+        
+        // Check if there's a saved redirect path
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectPath && redirectPath !== '/login') {
+          sessionStorage.removeItem('redirectAfterLogin');
+          window.location.href = redirectPath;
+        } else {
+          // Redirect to dashboard
+          window.location.href = "/dashboard";
+        }
       })
-      .catch((c) => {
-        console.log(c.response)
-        console.log(c.response.data.message[0]);
-        customToastMsg(c.response.data.message[0], 0);
+      .catch((error) => {
+        console.log(error?.response);
+        const errorMessage = error?.response?.data?.message 
+          ? (Array.isArray(error.response.data.message) 
+              ? error.response.data.message[0] 
+              : error.response.data.message)
+          : "Login failed. Please check your credentials.";
+        customToastMsg(errorMessage, 0);
       });
   } catch (error) {
     console.log(error);
-    customToastMsg(c.response.data.message, 0);
+    const errorMessage = error?.response?.data?.message 
+      ? (Array.isArray(error.response.data.message) 
+          ? error.response.data.message[0] 
+          : error.response.data.message)
+      : "Login failed. Please try again.";
+    customToastMsg(errorMessage, 0);
     // dispatch(apiError(error));
   }
 };
 
 export const logoutUser = () => async (dispatch) => {
   try {
+    // Clear cookies
     Cookies.remove(constant.ACCESS_TOKEN);
     Cookies.remove(constant.REFRESH_TOKEN);
     Cookies.remove(constant.Expire_time);
+    
+    // Clear sessionStorage (including user data and permissions)
+    sessionStorage.removeItem("authUser");
+    
+    // Update Redux state
     dispatch(logoutUserSuccess(true));
   } catch (error) {
     dispatch(apiError(error));

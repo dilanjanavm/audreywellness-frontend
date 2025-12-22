@@ -42,6 +42,7 @@ import ComplaintManagement from "../pages/ComplaintManagement/ComplaintManagemen
 import ItemCostCalculator from "../pages/ProductManagement/ItemCostCalculator";
 import CostingManagement from "../pages/ProductManagement/CostingManagement";
 import CostedProducts from "../pages/ProductManagement/CostedProducts";
+import CostedProductView from "../pages/ProductManagement/CostedProductView";
 import CostingHistory from "../pages/ProductManagement/CostingHistory";
 import TaskList from "../pages/Tasks/TaskList";
 import TaskDetails from "../pages/Tasks/TaskDetails";
@@ -49,6 +50,10 @@ import KanbanBoard from "../pages/Tasks/kanban";
 import UserManagement from "../pages/UserManagement/UserManagement";
 import RoleManagement from "../pages/RoleAndPermission/RoleManagementNew";
 import PermissionManagement from "../pages/PermissionManagement/PermissionManagement";
+import RecipesManagement from "../pages/RecipesManagement/RecipesManagement";
+import CreateRecipe from "../pages/RecipesManagement/CreateRecipe";
+import SelectProductForRecipe from "../pages/RecipesManagement/SelectProductForRecipe";
+import ViewRecipe from "../pages/RecipesManagement/ViewRecipe";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -76,6 +81,7 @@ const authProtectedRoutes = [
   { path: "/product-cost-calculate", component: <ItemCostCalculator  /> },
   { path: "/costing-management", exact: true, component: <CostingManagement  /> },
   { path: "/costed-products", exact: true, component: <CostedProducts  /> },
+  { path: "/costed-product-view", exact: true, component: <CostedProductView  /> },
   { path: "/costing-history", exact: true, component: <CostingHistory  /> },
 
   // { path: "/user-management", component: <UserManagement /> },
@@ -168,6 +174,31 @@ const authProtectedRoutes = [
     path: "/permission-management",
     exact: true,
     component: <PermissionManagement />,
+  },
+  {
+    path: "/recipes-management",
+    exact: true,
+    component: <RecipesManagement />,
+  },
+  {
+    path: "/recipes/select-product",
+    exact: true,
+    component: <SelectProductForRecipe />,
+  },
+  {
+    path: "/recipes/create",
+    exact: true,
+    component: <CreateRecipe />,
+  },
+  {
+    path: "/recipes/edit/:id",
+    exact: true,
+    component: <CreateRecipe />,
+  },
+  {
+    path: "/recipes/view/:id",
+    exact: true,
+    component: <ViewRecipe />,
   },
 ];
 

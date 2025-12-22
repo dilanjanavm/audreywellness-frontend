@@ -6,8 +6,18 @@ export const getAllComplaints = (filters = {}) => {
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
-    apiObject.endpoint = `complaints`;
-    apiObject.params = filters;
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            queryParams.append(key, filters[key]);
+        }
+    });
+    
+    const queryString = queryParams.toString();
+    apiObject.endpoint = `complaints${queryString ? `?${queryString}` : ''}`;
+    
     return ApiService.callApi(apiObject);
 };
 

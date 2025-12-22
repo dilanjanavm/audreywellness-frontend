@@ -80,10 +80,27 @@ export const callApi = async (apiObject) => {
                         message: "Your connection was interrupted"
                     }
                 } else if (error.response.status === 401) {
-
-                    // customToastMsg("Your session expired! Please login again..", 3)
-                    // result = await renewTokenHandler(apiObject);
-
+                    // Save current location for redirect after login
+                    const currentPath = window.location.pathname + window.location.search;
+                    if (currentPath !== '/login' && currentPath !== '/') {
+                        sessionStorage.setItem('redirectAfterLogin', currentPath);
+                    }
+                    
+                    // Clear authentication data
+                    Cookies.remove(constants.ACCESS_TOKEN);
+                    Cookies.remove(constants.REFRESH_TOKEN);
+                    Cookies.remove(constants.Expire_time);
+                    sessionStorage.removeItem("authUser");
+                    
+                    // Redirect to login
+                    if (window.location.pathname !== '/login') {
+                        window.location.href = '/login';
+                    }
+                    
+                    result = {
+                        success: false, status: 401, data: null,
+                        message: "Your session has expired. Please login again."
+                    };
                 } else if (error.response.status === 403) {
                     result = {
                         success: false, status: 2, data: null,
@@ -162,7 +179,62 @@ const handleMultipartRequest = async (apiObject, body, headers, method) => {
         };
     })
         .catch(async error => {
-            result = handleApiError(error);
+            console.log(error.response);
+            if (error !== undefined) {
+                if (error.response === undefined) {
+                    result = {
+                        success: false, status: 2, data: null,
+                        message: "Your connection was interrupted"
+                    };
+                } else if (error.response.status === 401) {
+                    // Save current location for redirect after login
+                    const currentPath = window.location.pathname + window.location.search;
+                    if (currentPath !== '/login' && currentPath !== '/') {
+                        sessionStorage.setItem('redirectAfterLogin', currentPath);
+                    }
+                    
+                    // Clear authentication data
+                    Cookies.remove(constants.ACCESS_TOKEN);
+                    Cookies.remove(constants.REFRESH_TOKEN);
+                    Cookies.remove(constants.Expire_time);
+                    sessionStorage.removeItem("authUser");
+                    
+                    // Redirect to login
+                    if (window.location.pathname !== '/login') {
+                        window.location.href = '/login';
+                    }
+                    
+                    result = {
+                        success: false, status: 401, data: null,
+                        message: "Your session has expired. Please login again."
+                    };
+                } else if (error.response.status === 403) {
+                    result = {
+                        success: false, status: 2, data: null,
+                        message: "Access is denied."
+                    };
+                } else if (error.response.status === 417) {
+                    result = {
+                        success: false, status: 2, data: null,
+                        message: "Oops! Something went wrong."
+                    };
+                } else if (error.response.data !== undefined) {
+                    result = {
+                        success: false, status: 0, data: null,
+                        message: error.response.data.result ? error.response.data.result : 'Sorry, something went wrong'
+                    };
+                } else {
+                    result = {
+                        success: false, status: 2, data: null,
+                        message: "Sorry, something went wrong."
+                    };
+                }
+            } else {
+                result = {
+                    success: false, status: 2, data: null,
+                    message: "Your connection was interrupted!"
+                };
+            }
             throw result;
         });
 

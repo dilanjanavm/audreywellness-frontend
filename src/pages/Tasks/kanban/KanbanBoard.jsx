@@ -15,7 +15,7 @@ import {
     horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {Container, Row, Col} from 'reactstrap';
-import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, MoreOutlined, SwapOutlined, CheckCircleOutlined, AppstoreOutlined, UnorderedListOutlined} from '@ant-design/icons';
+import {PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, MoreOutlined, SwapOutlined, CheckCircleOutlined, AppstoreOutlined, UnorderedListOutlined, CloseOutlined} from '@ant-design/icons';
 import {Tabs, message, Modal, Space, Drawer, Tag, Avatar, Typography, Divider, DatePicker, List, Spin, Empty, Popconfirm, Dropdown, Button, Radio} from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -36,6 +36,7 @@ import {TASK_STATUS} from './types';
 import {getAllStatuses} from './services/kanbanService';
 import './KanbanBoard.css';
 import StatusColumn from './StatusColumn';
+import AssigneeFilterDrawer from './AssigneeFilterDrawer';
 
 const {Title, Text} = Typography;
 const {RangePicker} = DatePicker;
@@ -72,6 +73,8 @@ const KanbanBoard = () => {
     const [pendingCompletedTask, setPendingCompletedTask] = useState(null);
     const [pendingTaskUpdate, setPendingTaskUpdate] = useState(null);
     const [viewMode, setViewMode] = useState('kanban'); // 'kanban' or 'list'
+    const [assigneeFilterVisible, setAssigneeFilterVisible] = useState(false);
+    const [selectedAssigneeIds, setSelectedAssigneeIds] = useState([]);
 
     // Set initial tab when phases load
     useEffect(() => {
@@ -568,6 +571,50 @@ const KanbanBoard = () => {
 
     const statuses = getAllStatuses();
 
+    // Filter tasks by selected assignees
+    const filterTasksByAssignees = (tasks) => {
+        if (!selectedAssigneeIds || selectedAssigneeIds.length === 0) {
+            return tasks;
+        }
+
+        return tasks.filter(task => {
+            // Check for unassigned
+            if (selectedAssigneeIds.includes('unassigned')) {
+                const hasAssignees = (
+                    (task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0) ||
+                    task.assignedUser ||
+                    task.assignee ||
+                    task.assignedUserId
+                );
+                if (!hasAssignees) {
+                    return true;
+                }
+            }
+
+            // Check if task is assigned to any selected user
+            const taskAssigneeIds = [];
+            
+            if (task.assignees && Array.isArray(task.assignees)) {
+                task.assignees.forEach(assignee => {
+                    const id = assignee.id || assignee._id || assignee;
+                    if (id) taskAssigneeIds.push(id);
+                });
+            } else if (task.assignedUser) {
+                const id = task.assignedUser.id || task.assignedUser._id || task.assignedUserId;
+                if (id) taskAssigneeIds.push(id);
+            } else if (task.assignee) {
+                const id = typeof task.assignee === 'object' 
+                    ? (task.assignee.id || task.assignee._id) 
+                    : task.assignee;
+                if (id) taskAssigneeIds.push(id);
+            } else if (task.assignedUserId) {
+                taskAssigneeIds.push(task.assignedUserId);
+            }
+
+            return taskAssigneeIds.some(id => selectedAssigneeIds.includes(id));
+        });
+    };
+
     // Tab items with dropdown menu for phase actions
     const tabItems = phases.map((phase) => {
         const phaseData = organizedData[phase.id];
@@ -601,7 +648,24 @@ const KanbanBoard = () => {
             children: viewMode === 'list' ? (
                 <TaskListView
                     phases={phases}
-                    organizedData={organizedData}
+                    organizedData={(() => {
+                        // Apply assignee filter to organizedData for list view
+                        if (!selectedAssigneeIds || selectedAssigneeIds.length === 0) {
+                            return organizedData;
+                        }
+                        
+                        const filteredOrganizedData = { ...organizedData };
+                        if (filteredOrganizedData[phase.id]) {
+                            filteredOrganizedData[phase.id] = {
+                                ...filteredOrganizedData[phase.id],
+                                statuses: Object.keys(filteredOrganizedData[phase.id].statuses).reduce((acc, status) => {
+                                    acc[status] = filterTasksByAssignees(filteredOrganizedData[phase.id].statuses[status]);
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                        return filteredOrganizedData;
+                    })()}
                     activeTab={phase.id}
                     onViewTask={handleViewTask}
                     onTaskEdit={handleEditTask}
@@ -659,8 +723,11 @@ const KanbanBoard = () => {
                                 >
                                     {statusesForPhase.map((statusItem) => {
                                         const rawTasks = phaseData?.statuses[statusItem.id] || [];
-                                        const tasks = filterRange && filterRange[0] && filterRange[1]
-                                            ? rawTasks.filter((task) => {
+                                        let tasks = rawTasks;
+
+                                        // Apply date filter
+                                        if (filterRange && filterRange[0] && filterRange[1]) {
+                                            tasks = tasks.filter((task) => {
                                                 if (!task.dueDate) return false;
                                                 const taskDate = dayjs(task.dueDate, 'DD MMM, YYYY');
                                                 if (!taskDate.isValid()) return false;
@@ -671,8 +738,11 @@ const KanbanBoard = () => {
                                                     taskDate.isSame(end, 'day') ||
                                                     (taskDate.isAfter(start) && taskDate.isBefore(end))
                                                 );
-                                            })
-                                            : rawTasks;
+                                            });
+                                        }
+
+                                        // Apply assignee filter
+                                        tasks = filterTasksByAssignees(tasks);
                                         return (
                                             <StatusColumn
                                                 key={statusItem.id}
@@ -735,6 +805,128 @@ const KanbanBoard = () => {
                                 </h4>
                             </div>
                             <Space>
+                                {/* Assignee Filter Button */}
+                                <Button
+                                    icon={<UserOutlined />}
+                                    onClick={() => setAssigneeFilterVisible(true)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8
+                                    }}
+                                >
+                                    Assignee
+                                    {selectedAssigneeIds.length > 0 && (
+                                        <span style={{
+                                            marginLeft: 4,
+                                            backgroundColor: '#1890ff',
+                                            color: 'white',
+                                            borderRadius: '50%',
+                                            width: 20,
+                                            height: 20,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 12,
+                                            fontWeight: 600
+                                        }}>
+                                            {selectedAssigneeIds.length}
+                                        </span>
+                                    )}
+                                </Button>
+
+                                {/* Selected Assignee Badges */}
+                                {selectedAssigneeIds.length > 0 && selectedAssigneeIds.slice(0, 3).map((assigneeId) => {
+                                    if (assigneeId === 'unassigned') {
+                                        return (
+                                            <Tag
+                                                key={assigneeId}
+                                                closable
+                                                onClose={() => {
+                                                    setSelectedAssigneeIds(selectedAssigneeIds.filter(id => id !== assigneeId));
+                                                }}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 4,
+                                                    padding: '4px 8px'
+                                                }}
+                                            >
+                                                Unassigned
+                                            </Tag>
+                                        );
+                                    }
+                                    
+                                    // Find user info from taskList
+                                    let assignee = null;
+                                    for (const task of taskList) {
+                                        if (task.assignees && Array.isArray(task.assignees)) {
+                                            assignee = task.assignees.find(a => {
+                                                const id = a.id || a._id;
+                                                return id === assigneeId;
+                                            });
+                                            if (assignee) break;
+                                        }
+                                        if (task.assignedUser && (task.assignedUser.id === assigneeId || task.assignedUserId === assigneeId)) {
+                                            assignee = task.assignedUser;
+                                            break;
+                                        }
+                                        if (task.assignee) {
+                                            const assigneeObj = typeof task.assignee === 'object' ? task.assignee : null;
+                                            if (assigneeObj && (assigneeObj.id === assigneeId || assigneeObj._id === assigneeId)) {
+                                                assignee = assigneeObj;
+                                                break;
+                                            }
+                                        }
+                                        if (task.assignedUserId === assigneeId) {
+                                            // Only ID available, create minimal object
+                                            assignee = { id: assigneeId, name: 'User' };
+                                            break;
+                                        }
+                                    }
+                                    
+                                    const userName = assignee?.name || assignee?.userName || assignee?.email || 'User';
+                                    const userInitial = userName.charAt(0).toUpperCase();
+                                    
+                                    return (
+                                        <Tag
+                                            key={assigneeId}
+                                            closable
+                                            onClose={() => {
+                                                setSelectedAssigneeIds(selectedAssigneeIds.filter(id => id !== assigneeId));
+                                            }}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 4,
+                                                padding: '4px 8px'
+                                            }}
+                                        >
+                                            <Avatar
+                                                size={16}
+                                                src={
+                                                    assignee?.avatar
+                                                        ? `${process.env.REACT_APP_API_URL || ''}/images/users/${assignee.avatar}`
+                                                        : undefined
+                                                }
+                                                style={{
+                                                    backgroundColor: assignee?.avatar ? undefined : '#1890ff',
+                                                    color: 'white',
+                                                    fontSize: 10
+                                                }}
+                                            >
+                                                {!assignee?.avatar && userInitial}
+                                            </Avatar>
+                                            {userName}
+                                        </Tag>
+                                    );
+                                })}
+                                {selectedAssigneeIds.length > 3 && (
+                                    <Tag style={{ padding: '4px 8px' }}>
+                                        +{selectedAssigneeIds.length - 3} more
+                                    </Tag>
+                                )}
+
                                 {/* View Mode Toggle */}
                                 <Radio.Group
                                     value={viewMode}
@@ -791,7 +983,13 @@ const KanbanBoard = () => {
                         setAddPhaseModalVisible(false);
                         setEditingPhase(null);
                     }}
-                    onOk={editingPhase ? handleUpdatePhase : handleAddPhase}
+                    onOk={async (phaseData) => {
+                        if (editingPhase) {
+                            await handleUpdatePhase(phaseData);
+                        } else {
+                            await handleAddPhase(phaseData);
+                        }
+                    }}
                     initialValues={editingPhase}
                 />
 
@@ -821,6 +1019,14 @@ const KanbanBoard = () => {
                     task={pendingCompletedTask}
                     phases={phases}
                     currentPhaseId={pendingCompletedTask?.phaseId}
+                />
+
+                <AssigneeFilterDrawer
+                    visible={assigneeFilterVisible}
+                    onClose={() => setAssigneeFilterVisible(false)}
+                    selectedAssignees={selectedAssigneeIds}
+                    onSelectAssignees={setSelectedAssigneeIds}
+                    tasks={taskList}
                 />
 
                 <Drawer

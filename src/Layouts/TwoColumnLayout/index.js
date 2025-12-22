@@ -132,6 +132,7 @@ const TwoColumnLayout = (props) => {
             };
         }
     });
+    console.log('navData', navData);
     
     return (
         <React.Fragment>

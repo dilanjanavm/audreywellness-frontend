@@ -20,6 +20,7 @@ const Navdata = () => {
     const [isMaps, setIsMaps] = useState(false);
     const [isMultiLevel, setIsMultiLevel] = useState(false);
     const [isProduct, setIsProduct] = useState(false);
+    const [isRecipes, setIsRecipes] = useState(false);
 
     // Apps
     const [isEmail, setEmail] = useState(false);
@@ -127,6 +128,9 @@ const Navdata = () => {
         if (iscurrentState !== "Tasks") {
             setIsTasks(false);
         }
+        if (iscurrentState !== "Recipes") {
+            setIsRecipes(false);
+        }
     }, [
         history,
         iscurrentState,
@@ -142,6 +146,8 @@ const Navdata = () => {
         isIcons,
         isMaps,
         isMultiLevel,
+        isTasks,
+        isRecipes,
     ]);
 
     const menuItems = [
@@ -363,6 +369,48 @@ const Navdata = () => {
             },
             stateVariables: isProduct,
 
+        },
+        //================Recipes Management========================
+        {
+            id: "recipesManagement",
+            label: "Recipes Management",
+            icon: <FeatherIcon icon="book-open" className="icon-dual"/>,
+            link: "#",
+            click: function (e) {
+                e.preventDefault();
+                setIsRecipes(!isRecipes);
+                setIscurrentState("Recipes");
+                updateIconSidebar(e);
+            },
+            stateVariables: isRecipes,
+            subItems: [
+                {
+                    id: "viewAllRecipes",
+                    label: "View All Recipes",
+                    icon: <FeatherIcon icon="list" className="icon-dual"/>,
+                    link: "/recipes-management",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsRecipes(!isRecipes);
+                        setIscurrentState("Recipes");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isRecipes,
+                },
+                {
+                    id: "createRecipe",
+                    label: "Create Recipe",
+                    icon: <FeatherIcon icon="plus-circle" className="icon-dual"/>,
+                    link: "/recipes/select-product",
+                    click: function (e) {
+                        e.preventDefault();
+                        setIsRecipes(!isRecipes);
+                        setIscurrentState("Recipes");
+                        updateIconSidebar(e);
+                    },
+                    stateVariables: isRecipes,
+                },
+            ],
         },
         {
             label: "Task Management",

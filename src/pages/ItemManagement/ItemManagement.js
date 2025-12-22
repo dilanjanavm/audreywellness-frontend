@@ -26,6 +26,8 @@ import debounce from "lodash.debounce";
 import CreateItemModal from "../../Components/Common/modal/Items/CreateItemModal";
 import UpdateItemModal from "../../Components/Common/modal/Items/UpdateItemModal";
 import ItemImportCSV from "../../Components/Common/modal/ImportCsvModal/ItemImportCSV";
+import PermissionWrapper from "../../Components/Common/PermissionWrapper";
+import {hasPermission} from "../../helpers/permissionHelper";
 
 const {Option} = Select;
 
@@ -163,26 +165,30 @@ const ItemManagement = () => {
             updatedAt: item.updatedAt,
             action: (
                 <div className="d-flex gap-2">
-                    <Tooltip title="Edit Item">
-                        <Button
-                            size="sm"
-                            color="warning"
-                            outline
-                            onClick={() => handleEditItem(item)}
-                        >
-                            <Edit size={14}/>
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Delete Item">
-                        <Button
-                            size="sm"
-                            color="danger"
-                            outline
-                            onClick={() => handleDeleteItem(item)}
-                        >
-                            <Trash2 size={14}/>
-                        </Button>
-                    </Tooltip>
+                    <PermissionWrapper permission="ITEM_UPDATE">
+                        <Tooltip title="Edit Item">
+                            <Button
+                                size="sm"
+                                color="warning"
+                                outline
+                                onClick={() => handleEditItem(item)}
+                            >
+                                <Edit size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
+                    <PermissionWrapper permission="ITEM_DELETE">
+                        <Tooltip title="Delete Item">
+                            <Button
+                                size="sm"
+                                color="danger"
+                                outline
+                                onClick={() => handleDeleteItem(item)}
+                            >
+                                <Trash2 size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
                 </div>
             )
         }));
@@ -190,6 +196,12 @@ const ItemManagement = () => {
 
     // Handle create item
     const handleCreateItem = async (values) => {
+        // Permission check
+        if (!hasPermission('ITEM_CREATE')) {
+            customToastMsg('You do not have permission to create items', 'error');
+            return;
+        }
+        
         try {
             setModalLoading(true);
             await itemService.createItem(values);
@@ -211,6 +223,12 @@ const ItemManagement = () => {
 
     // Handle update item
     const handleUpdateItem = async (values) => {
+        // Permission check
+        if (!hasPermission('ITEM_UPDATE')) {
+            customToastMsg('You do not have permission to update items', 'error');
+            return;
+        }
+        
         try {
             setModalLoading(true);
             await itemService.updateItem(selectedItem.itemCode, values);
@@ -234,6 +252,12 @@ const ItemManagement = () => {
     };
 
     const deleteItem = async (itemCode) => {
+        // Permission check
+        if (!hasPermission('ITEM_DELETE')) {
+            customToastMsg('You do not have permission to delete items', 'error');
+            return;
+        }
+        
         try {
             popUploader(dispatch, true);
             await itemService.deleteItem(itemCode);
@@ -371,14 +395,16 @@ const ItemManagement = () => {
                                     <Search size={16} className="me-1"/>
                                     Action
                                 </Label>
-                                <Button
-                                    color="primary"
-                                    className="w-100"
-                                    onClick={() => setCreateModalVisible(true)}
-                                >
-                                    <Plus size={16} className="me-1"/>
-                                    Add Item
-                                </Button>
+                                <PermissionWrapper permission="ITEM_CREATE">
+                                    <Button
+                                        color="primary"
+                                        className="w-100"
+                                        onClick={() => setCreateModalVisible(true)}
+                                    >
+                                        <Plus size={16} className="me-1"/>
+                                        Add Item
+                                    </Button>
+                                </PermissionWrapper>
                             </Col>
 
 

@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export const initialState = {
   user: {},
+  permissions: [], // Array of permission objects
   error: "", // for error message
   loading: false,
   isUserLogout: false,
@@ -19,12 +20,15 @@ const loginSlice = createSlice({
       state.errorMsg = true;
     },
     loginSuccess(state, action) {
-      state.user = action.payload
+      state.user = action.payload.user || action.payload;
+      state.permissions = action.payload.permissions || action.payload.user?.permissions || [];
       state.loading = false;
       state.errorMsg = false;
     },
     logoutUserSuccess(state, action) {
-      state.isUserLogout = true
+      state.isUserLogout = true;
+      state.user = {};
+      state.permissions = [];
     },
     reset_login_flag(state) {
       state.error = null

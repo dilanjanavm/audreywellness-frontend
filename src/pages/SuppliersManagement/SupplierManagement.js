@@ -24,6 +24,8 @@ import {
 import debounce from "lodash.debounce";
 import CreateSupplierModal from "../../Components/Common/modal/Supplier/CreateSupplierModal";
 import UpdateSupplierModal from "../../Components/Common/modal/Supplier/UpdateSupplierModal";
+import PermissionWrapper from "../../Components/Common/PermissionWrapper";
+import {hasPermission} from "../../helpers/permissionHelper";
 import './style.scss'
 
 const {Option} = Select;
@@ -62,11 +64,11 @@ const SupplierManagement = () => {
 
         supplierService.getAllSuppliers(currentPage, pageSize, searchTerm, activeFilter, true)
             .then((res) => {
-                const supplierData = res.data?.data || [];
+                const supplierData = res.data || [];
                 const formattedData = formatSupplierData(supplierData);
 
                 setSupplierTableList(formattedData);
-                setTotalRecords(res.data?.total || 0);
+                setTotalRecords(res.data?.total || 0);  
                 setLoading(false);
                 popUploader(dispatch, false);
             })
@@ -124,26 +126,30 @@ const SupplierManagement = () => {
                     {/*        <Eye size={14}/>*/}
                     {/*    </Button>*/}
                     {/*</Tooltip>*/}
-                    <Tooltip title="Edit Supplier">
-                        <Button
-                            size="sm"
-                            color="warning"
-                            outline
-                            onClick={() => handleEditSupplier(supplier)}
-                        >
-                            <Edit size={14}/>
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Delete Supplier">
-                        <Button
-                            size="sm"
-                            color="danger"
-                            outline
-                            onClick={() => handleDeleteSupplier(supplier)}
-                        >
-                            <Trash2 size={14}/>
-                        </Button>
-                    </Tooltip>
+                    <PermissionWrapper permission="SUPPLIER_UPDATE">
+                        <Tooltip title="Edit Supplier">
+                            <Button
+                                size="sm"
+                                color="warning"
+                                outline
+                                onClick={() => handleEditSupplier(supplier)}
+                            >
+                                <Edit size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
+                    <PermissionWrapper permission="SUPPLIER_DELETE">
+                        <Tooltip title="Delete Supplier">
+                            <Button
+                                size="sm"
+                                color="danger"
+                                outline
+                                onClick={() => handleDeleteSupplier(supplier)}
+                            >
+                                <Trash2 size={14}/>
+                            </Button>
+                        </Tooltip>
+                    </PermissionWrapper>
                 </div>
             )
         }));
@@ -151,6 +157,12 @@ const SupplierManagement = () => {
 
     // Handle create supplier
     const handleCreateSupplier = async (values) => {
+        // Permission check
+        if (!hasPermission('SUPPLIER_CREATE')) {
+            customToastMsg('You do not have permission to create suppliers', 'error');
+            return;
+        }
+        
         try {
             setModalLoading(true);
             await supplierService.createSupplier(values);
@@ -188,6 +200,12 @@ const SupplierManagement = () => {
 
     // Handle update supplier
     const handleUpdateSupplier = async (values) => {
+        // Permission check
+        if (!hasPermission('SUPPLIER_UPDATE')) {
+            customToastMsg('You do not have permission to update suppliers', 'error');
+            return;
+        }
+        
         try {
             setModalLoading(true);
             await supplierService.updateSupplier(selectedSupplier.id, values);
@@ -211,6 +229,12 @@ const SupplierManagement = () => {
     };
 
     const deleteSupplier = async (supplierId) => {
+        // Permission check
+        if (!hasPermission('SUPPLIER_DELETE')) {
+            customToastMsg('You do not have permission to delete suppliers', 'error');
+            return;
+        }
+        
         try {
             popUploader(dispatch, true);
             await supplierService.deleteSupplier(supplierId);
@@ -402,14 +426,16 @@ const SupplierManagement = () => {
 
                         <Col sm={12} md={6} lg={3} className="">
                             <Label className='opacity-0'>Status Filter</Label>
-                            <Button
-                                color="primary"
-                                className="w-100"
-                                onClick={() => setCreateModalVisible(true)}
-                            >
-                                <Plus size={16} className="me-1"/>
-                                Add Supplier
-                            </Button>
+                            <PermissionWrapper permission="SUPPLIER_CREATE">
+                                <Button
+                                    color="primary"
+                                    className="w-100"
+                                    onClick={() => setCreateModalVisible(true)}
+                                >
+                                    <Plus size={16} className="me-1"/>
+                                    Add Supplier
+                                </Button>
+                            </PermissionWrapper>
                         </Col>
 
                         {/*<Col sm={12} md={6} lg={2} >*/}

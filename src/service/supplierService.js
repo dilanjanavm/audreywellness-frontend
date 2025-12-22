@@ -6,14 +6,18 @@ export const getAllSuppliers = (page = 1, limit = 10, search = '', active = true
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
-    apiObject.endpoint = `suppliers`;
-    apiObject.params = {
-        page,
-        limit,
-        search,
-        active,
-        includeItems
-    };
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    if (page) queryParams.append('page', page.toString());
+    if (limit) queryParams.append('limit', limit.toString());
+    if (search) queryParams.append('search', search);
+    if (active !== undefined && active !== null) queryParams.append('active', active.toString());
+    if (includeItems) queryParams.append('includeItems', 'true');
+    
+    const queryString = queryParams.toString();
+    apiObject.endpoint = `suppliers${queryString ? `?${queryString}` : ''}`;
+    
     return ApiService.callApi(apiObject);
 };
 
@@ -21,8 +25,8 @@ export const getSupplierById = (id, includeItems = false) => {
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
-    apiObject.endpoint = `suppliers/${id}`;
-    apiObject.params = { includeItems };
+    const queryParam = includeItems ? '?includeItems=true' : '';
+    apiObject.endpoint = `suppliers/${id}${queryParam}`;
     return ApiService.callApi(apiObject);
 };
 
@@ -30,8 +34,8 @@ export const getSupplierByReference = (reference, includeItems = false) => {
     const apiObject = {};
     apiObject.method = 'GET';
     apiObject.authentication = true;
-    apiObject.endpoint = `suppliers/reference/${reference}`;
-    apiObject.params = { includeItems };
+    const queryParam = includeItems ? '?includeItems=true' : '';
+    apiObject.endpoint = `suppliers/reference/${reference}${queryParam}`;
     return ApiService.callApi(apiObject);
 };
 
@@ -107,9 +111,11 @@ export const importSuppliersCSV = (file) => {
     const apiObject = {};
     apiObject.method = 'POST';
     apiObject.authentication = true;
-    apiObject.endpoint = `suppliers/import`;
-    apiObject.isFormData = true;
-    apiObject.body = { file };
+    apiObject.endpoint = `suppliers/import-csv`;
+    apiObject.isMultipart = true;
+    const formData = new FormData();
+    formData.append('file', file.originFileObj || file);
+    apiObject.body = formData;
     return ApiService.callApi(apiObject);
 };
 
@@ -118,6 +124,5 @@ export const exportSuppliersCSV = () => {
     apiObject.method = 'GET';
     apiObject.authentication = true;
     apiObject.endpoint = `suppliers/export/csv`;
-    apiObject.responseType = 'blob';
     return ApiService.callApi(apiObject);
 };

@@ -252,7 +252,7 @@ export const getItemsWithCosting = (filters = {}) => {
     if (filters.limit) queryParams.append('limit', filters.limit.toString());
     
     const queryString = queryParams.toString();
-    apiObject.endpoint = `costing/items/co${queryString ? `?${queryString}` : ''}`;
+    apiObject.endpoint = `costing/items/costed${queryString ? `?${queryString}` : ''}`;
     return ApiService.callApi(apiObject);
 };
 
@@ -351,6 +351,17 @@ export const getProductCostHistory = (itemId) => {
     apiObject.method = 'GET';
     apiObject.authentication = true;
     apiObject.endpoint = `costing/products/${itemId}/cost-history`;
+    return ApiService.callApi(apiObject);
+};
+
+/**
+ * Get single costed product with all versions by itemId
+ */
+export const getCostedProductByItemId = (itemId) => {
+    const apiObject = {};
+    apiObject.method = 'GET';
+    apiObject.authentication = true;
+    apiObject.endpoint = `costing/products/costed?itemId=${itemId}`;
     return ApiService.callApi(apiObject);
 };
 

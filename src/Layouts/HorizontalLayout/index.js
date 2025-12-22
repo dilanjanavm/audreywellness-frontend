@@ -105,6 +105,8 @@ const HorizontalLayout = (props) => {
     return (
         <React.Fragment>
             {(menuItems || []).map((item, key) => {
+                console.log('item', item);
+                
                 return (
                     <React.Fragment key={key}>
                         {/* Main Header */}
