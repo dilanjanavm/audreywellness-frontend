@@ -107,7 +107,7 @@ const CustomerManagement = () => {
 
         customerService.getAllCustomers(page, limit, filters)
             .then((res) => {
-                const customerData = res.data?.data || [];
+                const customerData = res.data || [];
                 const formattedData = formatCustomerData(customerData);
 
                 setCurrentPage(res.data?.page || page);

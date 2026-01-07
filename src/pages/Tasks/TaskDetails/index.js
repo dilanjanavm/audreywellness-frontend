@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, message, Spin, Tag, Avatar, Space, Descriptions, Card, Divider } from 'antd';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Button, message, Spin, Tag, Avatar, Space, Descriptions, Card, Divider, Tabs } from 'antd';
 import { 
     ArrowLeftOutlined, 
     UserOutlined, 
@@ -11,50 +11,96 @@ import {
     ShoppingOutlined,
     TeamOutlined,
     MessageOutlined,
-    EyeOutlined
+    EyeOutlined,
+    PlayCircleOutlined,
+    BookOutlined
 } from '@ant-design/icons';
 import BreadCrumb from '../../../Components/Common/BreadCrumb';
 import Comments from './Comments';
 import * as taskService from '../../../service/taskService';
 import dayjs from 'dayjs';
+import StartRecipe from './StartRecipe';
 
 const TaskDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { id } = useParams();
     const [task, setTask] = useState(null);
+    const [recipe, setRecipe] = useState(null);
+    const [costedProduct, setCostedProduct] = useState(null);
+    const [recipeExecution, setRecipeExecution] = useState(null);
     const [loading, setLoading] = useState(false);
     const [phases, setPhases] = useState([]);
+    const [activeTab, setActiveTab] = useState('details');
 
     document.title = "Tasks Details | Velzon - React Admin & Dashboard Template";
 
     useEffect(() => {
-        // Get task from location state or fetch by ID
+        // Get task from location state, params, or fetch by ID
+        const taskId = id || location.state?.taskId || location.state?.task?.id || location.state?.task?.taskId;
+        
         if (location.state?.task) {
+            // Set initial task data from state
             setTask(location.state.task);
             if (location.state?.phases) {
                 setPhases(location.state.phases);
             }
-        } else if (location.state?.taskId) {
-            loadTaskById(location.state.taskId);
+            // Always fetch full details with recipe information
+            if (taskId) {
+                loadTaskDetails(taskId);
+            }
+        } else if (taskId) {
+            loadTaskDetails(taskId);
         } else {
             message.warning('No task data provided');
             navigate('/kanban-board');
         }
-    }, [location]);
+    }, [location, id]);
 
-    const loadTaskById = async (taskId) => {
+    const loadTaskDetails = async (taskId) => {
         try {
             setLoading(true);
-            const response = await taskService.getTaskById(taskId);
+            // Use the new details endpoint that includes recipe information
+            const response = await taskService.getTaskDetails(taskId);
             if (response.data) {
-                const taskData = response.data?.data || response.data;
-                setTask(taskData);
+                // Response structure: { statusCode: 200, data: { task, recipe, costedProduct, comments } }
+                const responseData = response.data?.data || response.data;
+                
+                // Extract task data
+                if (responseData.task) {
+                    setTask(responseData.task);
+                } else if (responseData.id || responseData.taskId) {
+                    // Fallback: if data is directly the task object
+                    setTask(responseData);
+                }
+                
+                // Extract recipe data
+                if (responseData.recipe) {
+                    setRecipe(responseData.recipe);
+                } else if (responseData.activeRecipe) {
+                    setRecipe(responseData.activeRecipe);
+                }
+                
+                // Extract costed product data
+                if (responseData.costedProduct) {
+                    setCostedProduct(responseData.costedProduct);
+                }
+                
+                // Extract recipe execution data
+                if (responseData.recipeExecution) {
+                    setRecipeExecution(responseData.recipeExecution);
+                }
+                
+                // Extract phases if available
+                if (responseData.phases) {
+                    setPhases(responseData.phases);
+                }
             } else {
                 message.error('Failed to load task details');
                 navigate('/kanban-board');
             }
         } catch (error) {
-            console.error('Error loading task:', error);
+            console.error('Error loading task details:', error);
             message.error('Failed to load task details');
             navigate('/kanban-board');
         } finally {
@@ -201,8 +247,33 @@ const TaskDetails = () => {
                     </div>
                 </div>
 
-                <Row gutter={[24, 24]}>
-                <Col xxl={6} lg={12} md={24}>
+                {/* Tabs Section */}
+                <Card 
+                    style={{ 
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        marginBottom: 24
+                    }}
+                    bodyStyle={{ padding: 0 }}
+                >
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={setActiveTab}
+                        type="card"
+                        size="large"
+                        items={[
+                            {
+                                key: 'details',
+                                label: (
+                                    <span>
+                                        <FileTextOutlined style={{ marginRight: 8 }} />
+                                        Task Details
+                                    </span>
+                                ),
+                                children: (
+                                    <div style={{ padding: 24 }}>
+                                        <Row gutter={[24, 24]}>
+                                            <Col xxl={6} lg={12} md={24}>
                         {/* Task Description */}
                         <Card 
                             title={
@@ -375,7 +446,7 @@ const TaskDetails = () => {
 
                      <Col xxl={6} lg={12} md={24}>
                         {/* Associated Product */}
-                        {task.costing && (
+                        {(task.costing || costedProduct) && (
                             <Card 
                                 title={
                                     <span>
@@ -388,22 +459,27 @@ const TaskDetails = () => {
                             >
                                 <div style={{ marginBottom: 16 }}>
                                     <h4 style={{ margin: 0, marginBottom: 8, fontSize: 18, fontWeight: 600 }}>
-                                        {task.costing.itemName || 'Unnamed Product'}
+                                        {(costedProduct?.itemName || task.costing?.itemName) || 'Unnamed Product'}
                                     </h4>
-                                    {task.costing.itemCode && (
+                                    {(costedProduct?.itemCode || task.costing?.itemCode) && (
                                         <div style={{ fontSize: 14, color: '#8c8c8c', marginBottom: 12 }}>
-                                            Code: <strong>{task.costing.itemCode}</strong>
+                                            Code: <strong>{costedProduct?.itemCode || task.costing?.itemCode}</strong>
                                         </div>
                                     )}
                                     <Space size="middle">
-                                        {task.costing.version && (
+                                        {(costedProduct?.activeCostingVersion || task.costing?.version) && (
                                             <Tag color="blue" style={{ fontSize: 13, padding: '4px 12px' }}>
-                                                Version {task.costing.version}
+                                                Version {costedProduct?.activeCostingVersion || task.costing?.version}
                                             </Tag>
                                         )}
                                         {task.batchSize && (
                                             <Tag color="green" style={{ fontSize: 13, padding: '4px 12px' }}>
                                                 Batch Size: {formatBatchSize(task.batchSize)}
+                                            </Tag>
+                                        )}
+                                        {costedProduct?.status && (
+                                            <Tag color={costedProduct.status === 'Active' ? 'green' : 'default'} style={{ fontSize: 13, padding: '4px 12px' }}>
+                                                {costedProduct.status}
                                             </Tag>
                                         )}
                                     </Space>
@@ -556,10 +632,33 @@ const TaskDetails = () => {
 
                         {/* Comments Section */}
                         <Comments task={task} />
-                    </Col>
-
-                    
-                </Row>
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                ),
+                            },
+                            ...(recipe ? [{
+                                key: 'recipe',
+                                label: (
+                                    <span>
+                                        <PlayCircleOutlined style={{ marginRight: 8 }} />
+                                        Start Recipe
+                                    </span>
+                                ),
+                                children: (
+                                    <div style={{ padding: 24 }}>
+                                        <StartRecipe 
+                                            task={task} 
+                                            recipe={recipe}
+                                            costedProduct={costedProduct}
+                                            recipeExecution={recipeExecution}
+                                        />
+                                    </div>
+                                ),
+                            }] : []),
+                        ]}
+                    />
+                </Card>
             </Container>
         </div>
     );

@@ -103,6 +103,18 @@ export async function getTaskById(taskId) {
 }
 
 /**
+ * Get task details with recipe information
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function getTaskDetails(taskId) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/details`;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
  * Update task position (for drag and drop)
  */
 export async function updateTaskPosition(taskId, positionData) {
@@ -297,5 +309,108 @@ export async function getTaskMovementHistory(taskId, options = {}) {
     
     const queryString = queryParams.toString();
     apiObject.endpoint = `tasks/${taskId}/movement-history${queryString ? `?${queryString}` : ''}`;
+    return await ApiService.callApi(apiObject);
+}
+
+// ========== RECIPE EXECUTION MANAGEMENT ==========
+
+/**
+ * Start recipe execution for a task
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {string} recipeId - Optional recipe ID (will auto-find from costed product if not provided)
+ */
+export async function startRecipeExecution(taskId, recipeId = null) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/start`;
+    apiObject.body = recipeId ? { recipeId } : {};
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Pause recipe execution
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function pauseRecipeExecution(taskId) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/pause`;
+    apiObject.body = {};
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Resume paused recipe execution
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function resumeRecipeExecution(taskId) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/resume`;
+    apiObject.body = {};
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Update step progress
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {number} stepOrder - Step order number (1, 2, 3, ...)
+ * @param {Object} progressData - Progress data:
+ *   - progress (number, required): 0-100
+ *   - actualTemperature (number, optional)
+ *   - notes (string, optional)
+ */
+export async function updateStepProgress(taskId, stepOrder, progressData) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/steps/${stepOrder}/progress`;
+    apiObject.body = progressData;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Complete a step
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ * @param {number} stepOrder - Step order number (1, 2, 3, ...)
+ * @param {Object} completionData - Completion data:
+ *   - actualDuration (number, optional): Actual duration in minutes
+ *   - actualTemperature (number, optional)
+ *   - notes (string, optional)
+ */
+export async function completeStep(taskId, stepOrder, completionData = {}) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/steps/${stepOrder}/complete`;
+    apiObject.body = completionData;
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Cancel recipe execution
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function cancelRecipeExecution(taskId) {
+    const apiObject = {};
+    apiObject.method = "POST";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/cancel`;
+    apiObject.body = {};
+    return await ApiService.callApi(apiObject);
+}
+
+/**
+ * Get recipe execution status
+ * @param {string} taskId - Task ID (UUID or taskId string)
+ */
+export async function getRecipeExecutionStatus(taskId) {
+    const apiObject = {};
+    apiObject.method = "GET";
+    apiObject.authentication = true;
+    apiObject.endpoint = `tasks/${taskId}/recipe/status`;
     return await ApiService.callApi(apiObject);
 }

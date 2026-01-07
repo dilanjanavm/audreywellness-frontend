@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import {Modal, Form, Input, DatePicker, Button, Row, Col, Tag, Alert, Spin} from 'antd';
+import {Modal, Form, Input, DatePicker, Button, Row, Col, Tag, Alert, Spin, message} from 'antd';
 import Select from 'antd/lib/select';
 
 const {Option} = Select;
-import {User, Mail, Phone, AlertTriangle, Calendar} from 'react-feather';
+import {User, Mail, Phone, AlertTriangle, Calendar, Plus} from 'react-feather';
 import debounce from 'lodash/debounce';
 
 import {CKEditor} from "@ckeditor/ckeditor5-react";
@@ -21,15 +21,22 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [customerDetailsVisible, setCustomerDetailsVisible] = useState(false);
+    const [customerSearchValue, setCustomerSearchValue] = useState('');
+    const [isNewCustomer, setIsNewCustomer] = useState(false);
+    const [creatingCustomer, setCreatingCustomer] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (visible) {
-
-            getAllCustomers();
             form.setFieldsValue({
                 priority: 'medium'
             });
+            // Reset states
+            setSelectedCustomer(null);
+            setCustomerDetailsVisible(false);
+            setIsNewCustomer(false);
+            setCustomerSearchValue('');
+            setCustomerOptions([]);
         }
     }, [visible]);
 
@@ -49,7 +56,6 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
 
             const response = await customerService.getAllCustomers(1, 100, filters);
             const customerData = response.data?.data || [];
-            console.log(response.data.data)
             // Create options for Select component
             const options = customerData.map((customer) => ({
                 value: customer.id,
@@ -68,47 +74,30 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
     }, 500); // 500ms debounce
 
 
-    // Debounced customer search function
-    const getAllCustomers = debounce(async () => {
-
-
-        try {
-
-
-            const response = await customerService.getAllCustomers(1, 100);
-            const customerData = response.data?.data || [];
-            console.log(response.data.data)
-            // Create options for Select component
-            const options = customerData.map((customer) => ({
-                value: customer.id,
-                label: `${customer.name} - ${customer.shortName} (${customer.email || 'No email'})`,
-                customer: customer // Store the full customer object in the option
-            }));
-
-            setCustomerOptions(options);
-        } catch (error) {
-            console.error('Error laoding customers ');
-            setCustomerOptions([]);
-
-        } finally {
-            setCustomerSearchLoading(false);
-        }
-    }, 500); // 500ms debounce
 
     // Handle customer search input
     const handleCustomerSearch = (value) => {
+        setCustomerSearchValue(value);
+        if (!value || value.trim().length < 2) {
+            setCustomerOptions([]);
+            setIsNewCustomer(false);
+            return;
+        }
         searchCustomers(value);
     };
 
     const handleCustomerSelect = (value, option) => {
         // Get the full customer object from the option
-        const customer = option.customer;
+        const customer = option?.customer;
         if (customer) {
             setSelectedCustomer(customer);
             setCustomerDetailsVisible(true);
+            setIsNewCustomer(false);
+            setCustomerSearchValue('');
 
-            // Auto-fill customer details
+            // Set customer ID in form (hidden field for existing customer)
             form.setFieldsValue({
+                customerId: customer.id,
                 customerName: customer.name,
                 customerPhone: customer.smsPhone || customer.phone,
                 customerEmail: customer.email
@@ -119,30 +108,95 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
     const handleCustomerDeselect = () => {
         setSelectedCustomer(null);
         setCustomerDetailsVisible(false);
+        setIsNewCustomer(false);
         setCustomerOptions([]);
+        setCustomerSearchValue('');
 
         // Clear customer details fields
         form.setFieldsValue({
+            customerId: undefined,
             customerName: undefined,
             customerPhone: undefined,
             customerEmail: undefined
         });
     };
 
-    const handleSubmit = (values) => {
-        const complaintData = {
-            customerEmail: values.customerEmail,
-            customerName: values.customerName,
-            customerPhone: values.customerPhone,
-            headline: values.headline,
-            description: values.description,
-            category: values.category,
-            priority: values.priority,
-            assignedToId: values.assignedToId,
-            targetResolutionDate: values.targetResolutionDate?.toISOString(),
-        };
+    // Handle "Add New Customer" button
+    const handleAddNewCustomer = () => {
+        setIsNewCustomer(true);
+        setSelectedCustomer(null);
+        setCustomerDetailsVisible(false);
+        setCustomerOptions([]);
+        
+        // Clear customer ID but keep search value for pre-filling
+        form.setFieldsValue({
+            customerId: undefined,
+            customerName: customerSearchValue || undefined,
+            customerPhone: undefined,
+            customerEmail: undefined
+        });
+    };
 
-        onCreate(complaintData);
+    const handleSubmit = async (values) => {
+        try {
+            let customerId = values.customerId;
+            
+            // If it's a new customer, create the customer first
+            if (isNewCustomer || !customerId) {
+                setCreatingCustomer(true);
+                
+                // Create minimal customer data for complaint
+                // Generate a short name from the customer name
+                const shortName = values.customerName?.substring(0, 10).toUpperCase() || 'CUST';
+                const customerData = {
+                    name: values.customerName,
+                    shortName: shortName,
+                    smsPhone: values.customerPhone,
+                    email: values.customerEmail || '',
+                    branchName: 'Main', // Default branch
+                    cityArea: 'Colombo', // Default city
+                    currency: 'LKR',
+                    salesType: 'Retail',
+                    paymentTerms: 'COD-IML',
+                    status: 'Active',
+                    customerType: 'INDIVIDUAL',
+                    salesGroup: 'General'
+                };
+
+                const customerResponse = await customerService.createCustomer(customerData);
+                customerId = customerResponse.data?.data?.id || customerResponse.data?.id;
+                
+                if (!customerId) {
+                    message.error('Failed to create customer. Please try again.');
+                    setCreatingCustomer(false);
+                    return;
+                }
+                
+                message.success('Customer created successfully');
+                setCreatingCustomer(false);
+            }
+
+            // Create complaint with customer ID
+            const complaintData = {
+                customerId: customerId,
+                customerEmail: values.customerEmail || selectedCustomer?.email,
+                customerName: values.customerName || selectedCustomer?.name,
+                customerPhone: values.customerPhone || selectedCustomer?.smsPhone || selectedCustomer?.phone,
+                headline: values.headline,
+                description: values.description,
+                category: values.category,
+                priority: values.priority,
+                assignedToId: values.assignedToId,
+                targetResolutionDate: values.targetResolutionDate?.toISOString(),
+            };
+
+            onCreate(complaintData);
+        } catch (error) {
+            setCreatingCustomer(false);
+            console.error('Error creating customer:', error);
+            handleError(error);
+            message.error('Failed to create customer. Please try again.');
+        }
     };
 
     const handleClose = () => {
@@ -150,13 +204,18 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
         setSelectedCustomer(null);
         setCustomerDetailsVisible(false);
         setCustomerOptions([]);
+        setIsNewCustomer(false);
+        setCustomerSearchValue('');
         onClose();
     };
-    console.log(customerOptions)
-    useEffect(() => {
-        console.log(customerOptions)
 
-    }, [customerOptions]);
+    // Hidden field to store customer ID
+    useEffect(() => {
+        if (!visible) {
+            return;
+        }
+        form.setFieldsValue({ customerId: undefined });
+    }, [visible, form]);
     return (
         <Modal
             title={
@@ -177,6 +236,11 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                 onFinish={handleSubmit}
                 requiredMark="optional"
             >
+                {/* Hidden field for customer ID */}
+                <Form.Item name="customerId" hidden>
+                    <Input />
+                </Form.Item>
+
                 {/* Customer Search Section */}
                 <div className="mb-4 p-3 border rounded">
                     <h5 className="mb-3">
@@ -184,41 +248,82 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                         Customer Information
                     </h5>
 
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                label="Search Customer"
-                                name="customerEmail"
-                                rules={[
-                                    {required: true, message: 'Please select customer'},
-                                ]}
-                            >
-                                <Select
-                                    showSearch
-                                    placeholder="Type customer name, short name, or email to search..."
-                                    size="large"
-                                    filterOption={false} // Disable default filtering as we're using API
-                                    onSearch={handleCustomerSearch}
-                                    onChange={handleCustomerSelect}
-                                    onClear={handleCustomerDeselect}
-                                    allowClear
-                                    loading={customerSearchLoading}
-                                    notFoundContent={
-                                        customerSearchLoading ?
-                                            <div className="text-center p-2"><Spin size="small"/> Searching...</div> :
-                                            "Type at least 2 characters to search customers"
-                                    }
-                                    options={customerOptions}
-                                />
-                                {/*{customerOptions.map(option => (*/}
-                                {/*    <Option key={option.value} value={option.value}>*/}
-                                {/*        {option.label}*/}
-                                {/*    </Option>*/}
-                                {/*))}*/}
-                                {/*</Select>*/}
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    {!isNewCustomer && (
+                        <Row gutter={16}>
+                            <Col span={24}>
+                                <Form.Item
+                                    label="Search Customer"
+                                    rules={[
+                                        {required: !isNewCustomer, message: 'Please search and select customer or add new customer'},
+                                    ]}
+                                >
+                                    <Select
+                                        showSearch
+                                        placeholder="Type customer name, short name, or email to search..."
+                                        size="large"
+                                        filterOption={false}
+                                        onSearch={handleCustomerSearch}
+                                        onChange={handleCustomerSelect}
+                                        onClear={handleCustomerDeselect}
+                                        allowClear
+                                        loading={customerSearchLoading}
+                                        value={selectedCustomer?.id ? selectedCustomer.id : undefined}
+                                        notFoundContent={
+                                            customerSearchLoading ? (
+                                                <div className="text-center p-2">
+                                                    <Spin size="small"/> Searching...
+                                                </div>
+                                            ) : customerSearchValue && customerSearchValue.length >= 2 ? (
+                                                <div className="text-center p-2">
+                                                    <div className="mb-2">No customer found</div>
+                                                    <Button
+                                                        type="primary"
+                                                        size="small"
+                                                        icon={<Plus size={14} />}
+                                                        onClick={handleAddNewCustomer}
+                                                    >
+                                                        Add as New Customer
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                "Type at least 2 characters to search customers"
+                                            )
+                                        }
+                                        options={customerOptions}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    )}
+
+                    {isNewCustomer && (
+                        <Alert
+                            message="Adding New Customer"
+                            description={
+                                <div className="d-flex justify-content-between align-items-center mt-2">
+                                    <span>Fill in the customer details below. The customer will be created when you submit the complaint.</span>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            setIsNewCustomer(false);
+                                            setCustomerSearchValue('');
+                                            form.setFieldsValue({
+                                                customerId: undefined,
+                                                customerName: undefined,
+                                                customerPhone: undefined,
+                                                customerEmail: undefined
+                                            });
+                                        }}
+                                    >
+                                        Back to Search
+                                    </Button>
+                                </div>
+                            }
+                            type="info"
+                            showIcon
+                            className="mb-3"
+                        />
+                    )}
 
                     {/* Customer Details */}
                     {customerDetailsVisible && selectedCustomer && (
@@ -258,8 +363,8 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                         />
                     )}
 
-                    {/* Customer Creation Fields (shown when no customer selected) */}
-                    {!selectedCustomer && (
+                    {/* Customer Creation Fields (shown when adding new customer) */}
+                    {isNewCustomer && (
                         <>
                             <Row gutter={16}>
                                 <Col span={12}>
@@ -289,12 +394,21 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Alert
-                                message="New Customer Notice"
-                                description="A new customer record will be created automatically with the provided information."
-                                type="info"
-                                showIcon
-                            />
+                            <Row gutter={16}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        label="Customer Email (Optional)"
+                                        name="customerEmail"
+                                        rules={[{type: 'email', message: 'Please enter a valid email'}]}
+                                    >
+                                        <Input
+                                            prefix={<Mail size={16}/>}
+                                            placeholder="Enter customer email (optional)"
+                                            size="large"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                         </>
                     )}
                 </div>
@@ -406,10 +520,10 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                         type="primary"
                         htmlType="submit"
                         size="large"
-                        loading={loading}
+                        loading={loading || creatingCustomer}
                         className="px-4"
                     >
-                        Create Complaint
+                        {creatingCustomer ? 'Creating Customer...' : isNewCustomer ? 'Create Customer & Complaint' : 'Create Complaint'}
                     </Button>
                 </div>
             </Form>

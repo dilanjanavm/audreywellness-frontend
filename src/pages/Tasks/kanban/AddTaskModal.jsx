@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Modal, Form, Input, Select, DatePicker, message, Row, Col, Spin, Radio, Alert, Divider, Typography } from 'antd';
+import { Modal, Form, Input, Select, DatePicker, message, Row, Col, Spin, Radio, Alert, Divider, Typography, Tag } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 import { TASK_STATUS, TASK_PRIORITY, TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from './types';
 import * as userService from '../../../service/userService';
 import * as costingService from '../../../service/costingService';
-import { UserOutlined, DollarOutlined } from '@ant-design/icons';
+import { UserOutlined, DollarOutlined, BookOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -662,6 +662,41 @@ const AddTaskModal = ({ visible, onCancel, onOk, phaseId, initialValues }) => {
             </Form.Item>
           </Col>
         </Row>
+
+        {/* Active Recipe Version Display - Show when costing has activeRecipe */}
+        {selectedCosting && selectedCosting.activeRecipe && (
+          <div style={{ 
+            marginBottom: 16,
+            padding: '12px 16px',
+            background: '#fff1f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '6px',
+          }}>
+            <Row align="middle" gutter={8}>
+              <Col>
+                <BookOutlined style={{ color: '#ff4d4f', fontSize: '16px' }} />
+              </Col>
+              <Col flex="auto">
+                <Text strong style={{ color: '#ff4d4f', fontSize: '14px' }}>
+                  Active Recipe Version: {selectedCosting.activeRecipe.name || 'Recipe'} 
+                </Text>
+                <div style={{ marginTop: 4 }}>
+                  <Tag color="green" style={{ marginRight: 8 }}>
+                    Version {selectedCosting.activeRecipe.version}
+                  </Tag>
+                  {selectedCosting.activeRecipe.isActiveVersion && (
+                    <Tag color="green">Active</Tag>
+                  )}
+                  {selectedCosting.activeRecipe.batchSize && (
+                    <Tag color="blue" style={{ marginLeft: 8 }}>
+                      Batch: {formatBatchSizeLabel(selectedCosting.activeRecipe.batchSize)}
+                    </Tag>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
 
         {/* Batch Size Selection - Show only when a costing is selected */}
         {selectedCosting && batchSizes.length > 0 && (
