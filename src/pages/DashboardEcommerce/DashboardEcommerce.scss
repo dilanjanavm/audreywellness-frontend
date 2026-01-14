@@ -1,0 +1,60 @@
+.dashboard-stat-card {
+  .ant-statistic-title {
+    font-size: 14px;
+    color: #8c8c8c;
+    margin-bottom: 8px;
+  }
+
+  .ant-statistic-content {
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+// Override ApexCharts container
+.apexcharts-canvas {
+  margin: 0 auto;
+}
+
+// Card hover effects
+.ant-card {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+// Table styling
+.ant-table {
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    font-weight: 600;
+  }
+}
+
+// Progress bar styling
+.ant-progress-line {
+  .ant-progress-bg {
+    background: linear-gradient(90deg, #458533 0%, #69af57 100%);
+  }
+}
+
+// Alert styling
+.ant-alert {
+  border-radius: 8px;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .ant-statistic-content {
+    font-size: 20px !important;
+  }
+
+  .ant-card {
+    margin-bottom: 16px;
+  }
+}

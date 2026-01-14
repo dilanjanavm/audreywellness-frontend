@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
+import { BookOutlined } from "@ant-design/icons";
 
 //import images
 import logoSm from "../assets/images/logo-sm.png";
@@ -23,6 +24,7 @@ import { createSelector } from "reselect";
 
 const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const selectDashboardData = createSelector(
     (state) => state.Layout.sidebarVisibilitytype,
@@ -168,6 +170,18 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                 layoutMode={layoutModeType}
                 onChangeLayoutMode={onChangeLayoutMode}
               />
+
+              {/* Documentation Navigation Button */}
+              <div className="ms-1 header-item d-none d-sm-flex">
+                <button
+                  onClick={() => navigate("/documentation")}
+                  type="button"
+                  className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                  title="Documentation"
+                >
+                  <BookOutlined style={{ fontSize: "22px" }} />
+                </button>
+              </div>
 
               {/* ProfileDropdown */}
               <ProfileDropdown />

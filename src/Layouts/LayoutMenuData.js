@@ -21,6 +21,7 @@ const Navdata = () => {
     const [isMultiLevel, setIsMultiLevel] = useState(false);
     const [isProduct, setIsProduct] = useState(false);
     const [isRecipes, setIsRecipes] = useState(false);
+    const [isCourier, setIsCourier] = useState(false);
 
     // Apps
     const [isEmail, setEmail] = useState(false);
@@ -148,6 +149,7 @@ const Navdata = () => {
         isMultiLevel,
         isTasks,
         isRecipes,
+        isCourier,
     ]);
 
     const menuItems = [
@@ -417,61 +419,32 @@ const Navdata = () => {
             isHeader: true,
         },
         {
-            id: "taskManagement",
-            label: "Task Management",
-            icon: <FeatherIcon icon="check-square" className="icon-dual"/>,
-            link: "/task-management",
+            id: "kanbanBoard",
+            label: "Kanban Board",
+            icon: <FeatherIcon icon="layout" className="icon-dual"/>,
+            link: "/kanban-board",
             click: function (e) {
                 e.preventDefault();
-                setIsTasks(!isTasks);
-                setIscurrentState("Tasks");
                 updateIconSidebar(e);
             },
-            stateVariables: isTasks,
-            subItems: [
-                {
-                    id: "taskList",
-                    label: "Task List",
-                    icon: <FeatherIcon icon="list" className="icon-dual"/>,
-                    link: "/task-management",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsTasks(!isTasks);
-                        setIscurrentState("Tasks");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isTasks,
-                },
-                {
-                    id: "taskDetails",
-                    label: "Task Details",
-                    icon: <FeatherIcon icon="file-text" className="icon-dual"/>,
-                    link: "/task-details",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsTasks(!isTasks);
-                        setIscurrentState("Tasks");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isTasks,
-                },
-                {
-                    id: "kanbanBoard",
-                    label: "Kanban Board",
-                    icon: <FeatherIcon icon="layout" className="icon-dual"/>,
-                    link: "/kanban-board",
-                    click: function (e) {
-                        e.preventDefault();
-                        setIsTasks(!isTasks);
-                        setIscurrentState("Tasks");
-                        updateIconSidebar(e);
-                    },
-                    stateVariables: isTasks,
-                },
-            ],
         },
-
-
+        {
+            label: "Courier Management",
+            isHeader: true,
+        },
+        {
+            id: "courierManagement",
+            label: "Courier Management",
+            icon: <FeatherIcon icon="truck" className="icon-dual"/>,
+            link: "/courier-management",
+            click: function (e) {
+                e.preventDefault();
+                setIsCourier(!isCourier);
+                setIscurrentState("Courier");
+                updateIconSidebar(e);
+            },
+            stateVariables: isCourier,
+        },
     ];
     return <React.Fragment>{menuItems}</React.Fragment>;
 };

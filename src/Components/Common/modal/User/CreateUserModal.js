@@ -187,19 +187,16 @@ const CreateUserModal = ({
                                 size="large"
                                 allowClear
                                 showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                    option.children
-                                        .toLowerCase()
-                                        .indexOf(input.toLowerCase()) >= 0
-                                }
-                            >
-                                {rolesList.map((role) => (
-                                    <Option key={role.id} value={role.id}>
-                                        {role.name} ({role.code})
-                                    </Option>
-                                ))}
-                            </Select>
+                                filterOption={(input, option) => {
+                                    // When using options prop, option.label is always a string
+                                    const label = option?.label || '';
+                                    return label.toLowerCase().includes(input.toLowerCase());
+                                }}
+                                options={rolesList.map((role) => ({
+                                    value: role.id,
+                                    label: `${role.name} (${role.code})`
+                                }))}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>

@@ -10,6 +10,7 @@ import {CKEditor} from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import * as userService from "../../../../service/userService";
 import * as customerService from "../../../../service/customerService";
+import * as staffService from "../../../../service/staffService";
 import {COMPLAINT_CATEGORIES, PRIORITY_LEVELS} from "../../../../common/enum";
 import {handleError, popUploader} from "../../../../common/commonFunctions";
 import {useDispatch} from "react-redux";
@@ -17,7 +18,8 @@ import {useDispatch} from "react-redux";
 const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => {
     const [form] = Form.useForm();
     const [customerOptions, setCustomerOptions] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [employeeOptions, setEmployeeOptions] = useState([]);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [customerDetailsVisible, setCustomerDetailsVisible] = useState(false);
@@ -37,8 +39,63 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
             setIsNewCustomer(false);
             setCustomerSearchValue('');
             setCustomerOptions([]);
+            // Load employees when modal opens
+            loadEmployees();
         }
     }, [visible]);
+
+    // Load employees/staff for assignment
+    const loadEmployees = async () => {
+        setEmployeeLoading(true);
+        try {
+            // Try to get users first (from userService)
+            const userResponse = await userService.getAllUsers();
+            const userData = userResponse?.data?.data || [];
+            
+            // Also try to get staff
+            let staffData = [];
+            try {
+                const staffResponse = await staffService.getAllStaff(1);
+                staffData = staffResponse?.data?.records || [];
+            } catch (e) {
+                console.log('Could not load staff:', e);
+            }
+
+            // Combine and format options
+            const options = [];
+            
+            // Add users
+            userData.forEach((user) => {
+                if (user.isActive !== false) {
+                    options.push({
+                        value: user.id,
+                        label: `${user.userName || user.email} (${user.role?.name || 'User'})`,
+                        email: user.email
+                    });
+                }
+            });
+
+            // Add staff (avoid duplicates)
+            staffData.forEach((staff) => {
+                if (staff.user?.isActive !== false && !options.find(opt => opt.value === staff.user?.id)) {
+                    const userName = staff.user?.userName || staff.user?.email || `${staff.firstName} ${staff.lastName}`;
+                    options.push({
+                        value: staff.user?.id,
+                        label: `${userName} (Staff)`,
+                        email: staff.user?.email
+                    });
+                }
+            });
+
+            setEmployeeOptions(options);
+        } catch (error) {
+            console.error('Error loading employees:', error);
+            message.warning('Could not load employees. You can still create the complaint.');
+            setEmployeeOptions([]);
+        } finally {
+            setEmployeeLoading(false);
+        }
+    };
 
 
     // Debounced customer search function
@@ -469,7 +526,27 @@ const CreateComplaintModal = ({visible, onClose, onCreate, loading = false}) => 
                                 </Select>
                             </Form.Item>
                         </Col>
-
+                        <Col span={12}>
+                            <Form.Item
+                                label="Assign To Employee"
+                                name="assignedToId"
+                                rules={[{required: true, message: 'Please assign complaint to an employee'}]}
+                            >
+                                <Select
+                                    placeholder="Select employee to assign"
+                                    size="large"
+                                    showSearch
+                                    filterOption={(input, option) => {
+                                        const label = option?.label || option?.children || '';
+                                        const labelStr = typeof label === 'string' ? label : String(label);
+                                        return labelStr.toLowerCase().includes(input.toLowerCase());
+                                    }}
+                                    loading={employeeLoading}
+                                    allowClear
+                                    options={employeeOptions}
+                                />
+                            </Form.Item>
+                        </Col>
                     </Row>
 
                     <Form.Item

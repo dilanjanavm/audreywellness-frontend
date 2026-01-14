@@ -14,14 +14,26 @@ const Index = () => {
     <React.Fragment>
       <Routes>
         <Route>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-              key={idx}
-              exact={true}
-            />
-          ))}
+          {publicRoutes.map((route, idx) => {
+            // 404 page should not have layout wrapper
+            if (route.path === "*") {
+              return (
+                <Route
+                  path={route.path}
+                  element={route.component}
+                  key={idx}
+                />
+              );
+            }
+            return (
+              <Route
+                path={route.path}
+                element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+                key={idx}
+                exact={true}
+              />
+            );
+          })}
         </Route>
 
         <Route>

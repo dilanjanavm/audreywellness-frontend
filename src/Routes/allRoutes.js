@@ -54,6 +54,11 @@ import RecipesManagement from "../pages/RecipesManagement/RecipesManagement";
 import CreateRecipe from "../pages/RecipesManagement/CreateRecipe";
 import SelectProductForRecipe from "../pages/RecipesManagement/SelectProductForRecipe";
 import ViewRecipe from "../pages/RecipesManagement/ViewRecipe";
+import CourierManagement from "../pages/CourierManagement/CourierManagement";
+import CourierTrackingDetail from "../pages/CourierManagement/CourierTrackingDetail";
+import TrackYourOrder from "../pages/Authentication/TrackYourOrder";
+import ProjectDocumentation from "../pages/Documentation/ProjectDocumentation";
+import Error404 from "../pages/Pages/Error404/Error404";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <DashboardEcommerce /> },
@@ -71,7 +76,6 @@ const authProtectedRoutes = [
     exact: true,
     component: <Navigate to="/dashboard" />,
   },
-  { path: "*", component: <Navigate to="/dashboard" /> },
 
   { path: "/create-product", component: <AddProduct /> },
   { path: "/update-product", component: <UpdateProduct /> },
@@ -200,6 +204,21 @@ const authProtectedRoutes = [
     exact: true,
     component: <ViewRecipe />,
   },
+  {
+    path: "/courier-management",
+    exact: true,
+    component: <CourierManagement />,
+  },
+  {
+    path: "/courier-tracking-detail",
+    exact: true,
+    component: <CourierTrackingDetail />,
+  },
+  {
+    path: "/documentation",
+    exact: true,
+    component: <ProjectDocumentation />,
+  },
 ];
 
 const publicRoutes = [
@@ -208,11 +227,15 @@ const publicRoutes = [
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/confirm-otp", component: <ConfirmOtp /> },
   { path: "/register", component: <Register /> },
+  { path: "/track-your-order", component: <TrackYourOrder /> },
 
   { path: "/pages-maintenance", component: <Maintenance /> },
   { path: "/pages-coming-soon", component: <ComingSoon /> },
 
   { path: "/login-next-step", component: <RegistrationTwo /> },
+  
+  // 404 Page - must be last
+  { path: "*", component: <Error404 /> },
 ];
 
 export { authProtectedRoutes, publicRoutes };

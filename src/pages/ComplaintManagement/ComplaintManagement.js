@@ -10,7 +10,7 @@ import {
     FormGroup,
     Button,
 } from "reactstrap";
-import {Table, Tag, Tooltip, Select, DatePicker, Statistic} from "antd";
+import {Table, Tag, Tooltip, Select, DatePicker, Statistic, Tabs, Card as AntCard} from "antd";
 import {Plus, Search, Eye, Edit, AlertTriangle} from "react-feather";
 import {ComplaintTableColumns} from "../../common/tableColumns";
 import * as complaintService from "../../service/complaintService";
@@ -26,6 +26,7 @@ import ComplaintDetailsModal from "../../Components/Common/modal/Complaint/Compl
 import UpdateComplaintStatusModal from "../../Components/Common/modal/Complaint/UpdateComplaintStatusModal";
 import PermissionWrapper from "../../Components/Common/PermissionWrapper";
 import {hasPermission} from "../../helpers/permissionHelper";
+import classnames from "classnames";
 
 
 const {Option} = Select;
@@ -36,11 +37,23 @@ const COMPLAINT_STATUS = ['open', 'in_progress', 'resolved', 'awaiting_feedback'
 const PRIORITY_LEVELS = ['low', 'medium', 'high', 'critical'];
 const COMPLAINT_CATEGORIES = ['product_quality', 'delivery_issue', 'billing', 'technical', 'service', 'other'];
 
+// Status tabs configuration
+const STATUS_TABS = [
+    { key: 'all', label: 'All Complaints', status: null },
+    { key: 'open', label: 'Open', status: 'open' },
+    { key: 'in_progress', label: 'In Progress', status: 'in_progress' },
+    { key: 'resolved', label: 'Resolved', status: 'resolved' },
+    { key: 'awaiting_feedback', label: 'Awaiting Feedback', status: 'awaiting_feedback' },
+    { key: 'closed', label: 'Closed', status: 'closed' },
+    { key: 'reopened', label: 'Reopened', status: 'reopened' },
+];
+
 const ComplaintManagement = () => {
     document.title = "Complaints | Address Shop";
 
     const [complaintTableList, setComplaintTableList] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeStatusTab, setActiveStatusTab] = useState('all');
     const [filters, setFilters] = useState({
         status: [],
         priority: [],
@@ -64,12 +77,44 @@ const ComplaintManagement = () => {
 
     const [updateStatusModalVisible, setUpdateStatusModalVisible] = useState(false);
     const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+    const [statusCounts, setStatusCounts] = useState({
+        all: 0,
+        open: 0,
+        in_progress: 0,
+        resolved: 0,
+        awaiting_feedback: 0,
+        closed: 0,
+        reopened: 0,
+    });
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         loadComplaints();
-    }, [currentPage, pageSize, filters]);
+    }, [currentPage, pageSize, filters, activeStatusTab]);
+
+    // Load status counts separately
+    useEffect(() => {
+        const loadStatusCounts = async () => {
+            try {
+                const response = await complaintService.getAllComplaints({ limit: 1000 });
+                const allComplaints = response.data?.data || [];
+                const counts = {
+                    all: allComplaints.length,
+                    open: allComplaints.filter(c => c.status === 'open').length,
+                    in_progress: allComplaints.filter(c => c.status === 'in_progress').length,
+                    resolved: allComplaints.filter(c => c.status === 'resolved').length,
+                    awaiting_feedback: allComplaints.filter(c => c.status === 'awaiting_feedback').length,
+                    closed: allComplaints.filter(c => c.status === 'closed').length,
+                    reopened: allComplaints.filter(c => c.status === 'reopened').length,
+                };
+                setStatusCounts(counts);
+            } catch (error) {
+                console.error('Error loading status counts:', error);
+            }
+        };
+        loadStatusCounts();
+    }, []);
 
     const handleUpdateStatus = async (statusData) => {
         if (!selectedComplaint) return;
@@ -142,6 +187,24 @@ const ComplaintManagement = () => {
     };
 
 
+    // Handle status tab change
+    const handleStatusTabChange = (key) => {
+        setActiveStatusTab(key);
+        setCurrentPage(1);
+        const selectedTab = STATUS_TABS.find(tab => tab.key === key);
+        if (selectedTab && selectedTab.status) {
+            setFilters(prev => ({
+                ...prev,
+                status: [selectedTab.status]
+            }));
+        } else {
+            setFilters(prev => ({
+                ...prev,
+                status: []
+            }));
+        }
+    };
+
     // Load complaints with filters
     const loadComplaints = () => {
         setLoading(true);
@@ -153,6 +216,12 @@ const ComplaintManagement = () => {
             search: searchTerm,
             ...filters
         };
+
+        // Apply status tab filter
+        const selectedTab = STATUS_TABS.find(tab => tab.key === activeStatusTab);
+        if (selectedTab && selectedTab.status) {
+            apiFilters.status = [selectedTab.status];
+        }
 
         // Clean up filters
         if (apiFilters.status.length === 0) delete apiFilters.status;
@@ -306,48 +375,85 @@ const ComplaintManagement = () => {
                 {/* Statistics Cards */}
                 <Row gutter={16} className="mb-4 mt-2">
                     <Col span={6}>
-                        <Card className='px-4 py-2'>
+                        <AntCard className='px-4 py-2'>
                             <Statistic
                                 title="Total Complaints"
                                 value={stats.total}
                                 prefix={<AlertTriangle size={20}/>}
                                 valueStyle={{color: '#3f8600'}}
                             />
-                        </Card>
+                        </AntCard>
                     </Col>
                     <Col span={6}>
-                        <Card className='px-4 py-2'>
+                        <AntCard className='px-4 py-2'>
                             <Statistic
                                 title="Open Complaints"
                                 value={stats.open}
                                 prefix={<AlertTriangle size={20}/>}
                                 valueStyle={{color: '#1890ff'}}
                             />
-                        </Card>
+                        </AntCard>
                     </Col>
                     <Col span={6}>
-                        <Card className='px-4 py-2'>
+                        <AntCard className='px-4 py-2'>
                             <Statistic
                                 title="In Progress"
                                 value={stats.inProgress}
                                 prefix={<AlertTriangle size={20}/>}
                                 valueStyle={{color: '#faad14'}}
                             />
-                        </Card>
+                        </AntCard>
                     </Col>
                     <Col span={6}>
-                        <Card className='px-4 py-2'>
+                        <AntCard className='px-4 py-2'>
                             <Statistic
                                 title="Resolved"
                                 value={stats.resolved}
                                 prefix={<AlertTriangle size={20}/>}
                                 valueStyle={{color: '#52c41a'}}
                             />
-                        </Card>
+                        </AntCard>
                     </Col>
                 </Row>
 
                 <Card>
+                    {/* Status Tabs */}
+                    <div className="mt-3 mx-2">
+                        <Tabs
+                            activeKey={activeStatusTab}
+                            onChange={handleStatusTabChange}
+                            type="card"
+                            size="large"
+                            items={STATUS_TABS.map(tab => ({
+                                key: tab.key,
+                                label: (
+                                    <span>
+                                        {tab.label}
+                                        {tab.status && (
+                                            <Tag
+                                                color={
+                                                    tab.status === 'open' ? 'blue' :
+                                                    tab.status === 'in_progress' ? 'orange' :
+                                                    tab.status === 'resolved' ? 'green' :
+                                                    tab.status === 'closed' ? 'default' :
+                                                    tab.status === 'reopened' ? 'red' : 'purple'
+                                                }
+                                                style={{ marginLeft: 8 }}
+                                            >
+                                                {statusCounts[tab.status] || 0}
+                                            </Tag>
+                                        )}
+                                        {!tab.status && (
+                                            <Tag color="default" style={{ marginLeft: 8 }}>
+                                                {statusCounts.all || 0}
+                                            </Tag>
+                                        )}
+                                    </span>
+                                ),
+                            }))}
+                        />
+                    </div>
+
                     {/* Search and Filter Section */}
                     <Row className="mt-4 mx-2">
                         <Col sm={12} md={6} lg={3}>
@@ -366,13 +472,23 @@ const ComplaintManagement = () => {
                         </Col>
 
                         <Col sm={12} md={6} lg={2}>
-                            <Label>Status</Label>
+                            <Label>Status (Additional)</Label>
                             <Select
                                 size='large'
                                 mode="multiple"
-                                placeholder="Filter by status"
-                                value={filters.status}
-                                onChange={(value) => handleFilterChange('status', value)}
+                                placeholder="Additional status filter"
+                                value={filters.status.filter(s => {
+                                    const selectedTab = STATUS_TABS.find(tab => tab.key === activeStatusTab);
+                                    return selectedTab && selectedTab.status ? s !== selectedTab.status : true;
+                                })}
+                                onChange={(value) => {
+                                    const selectedTab = STATUS_TABS.find(tab => tab.key === activeStatusTab);
+                                    if (selectedTab && selectedTab.status) {
+                                        handleFilterChange('status', [selectedTab.status, ...value]);
+                                    } else {
+                                        handleFilterChange('status', value);
+                                    }
+                                }}
                                 style={{width: '100%'}}
                             >
                                 {COMPLAINT_STATUS.map(status => (
