@@ -9,8 +9,8 @@ import {
     FormGroup,
     Button,
 } from "reactstrap";
-import {Pagination, Table, Tooltip, Upload, message} from "antd";
-import {Plus, Search, Eye, Edit, Trash2, Upload as UploadIcon} from "react-feather";
+import {Pagination, Table, Tooltip, Upload, message, Dropdown, Button as AntButton} from "antd";
+import {Plus, Search, Eye, Edit, Trash2, Upload as UploadIcon, Download, ChevronDown} from "react-feather";
 import {CustomerTableColumns} from "../../common/tableColumns";
 import * as customerService from "../../service/customerService";
 import {useDispatch} from "react-redux";
@@ -37,9 +37,11 @@ const CustomerManagement = () => {
     const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedCustomerType, setSelectedCustomerType] = useState("");
     const [selectedSalesType, setSelectedSalesType] = useState("");
+    const [selectedCityArea, setSelectedCityArea] = useState("");
     const [statusList, setStatusList] = useState([]);
     const [customerTypeList, setCustomerTypeList] = useState([]);
     const [salesTypeList, setSalesTypeList] = useState([]);
+    const [exportLoading, setExportLoading] = useState(false);
     const [loading, setLoading] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
     const [importLoading, setImportLoading] = useState(false);
@@ -59,8 +61,8 @@ const CustomerManagement = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadAllCustomers(currentPage, pageSize);
         initializeFilterOptions();
+        loadAllCustomers(1, pageSize, '');
     }, []);
 
     const initializeFilterOptions = () => {
@@ -88,31 +90,89 @@ const CustomerManagement = () => {
         }
     };
 
-    // Load all customers with filters
+    // Load all customers with filters - matches backend endpoint structure
+    // GET /customers?page=1&limit=10&search=john&status=ACTIVE&salesType=RETAIL
     const loadAllCustomers = (page = 1, limit = 10, search = searchTerm) => {
         setLoading(true);
         popUploader(dispatch, true);
-        console.log(search)
-        const filters = {
-            searchTerm: search,
-            status: selectedStatus,
-            customerType: selectedCustomerType,
-            salesType: selectedSalesType,
-        };
-        console.log(filters)
-        // Remove empty filters
-        Object.keys(filters).forEach(key => {
-            if (!filters[key]) delete filters[key];
-        });
+        
+        // Build filters object matching backend API structure
+        const filters = {};
+        
+        // Add search parameter (backend uses 'search')
+        if (search && search.trim()) {
+            filters.search = search.trim();
+        }
+        
+        // Add filter parameters (only non-empty values)
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+        if (selectedCustomerType) {
+            filters.customerType = selectedCustomerType;
+        }
+        if (selectedSalesType) {
+            filters.salesType = selectedSalesType;
+        }
+        if (selectedCityArea) {
+            filters.cityArea = selectedCityArea;
+        }
 
         customerService.getAllCustomers(page, limit, filters)
             .then((res) => {
-                const customerData = res.data || [];
+                // Handle backend response structure:
+                // {
+                //   "statusCode": 200,
+                //   "data": [...],
+                //   "total": 127,
+                //   "page": 1,
+                //   "limit": 10,
+                //   "totalPages": 13,
+                //   "pageCount": 13,
+                //   "perPageRows": 10,
+                //   "hasNextPage": true,
+                //   "hasPrevPage": false
+                // }
+                let customerData = [];
+                let totalRecords = 0;
+                let currentPageNum = page;
+                let pageSizeNum = limit;
+
+                if (res?.statusCode === 200 || res?.success !== false) {
+                    // Backend response structure: data array and pagination info at root level
+                    if (Array.isArray(res.data)) {
+                        customerData = res.data;
+                        totalRecords = res.total || res.data.length;
+                        currentPageNum = res.page || page;
+                        pageSizeNum = res.limit || res.perPageRows || limit;
+                    } else if (res.data && res.data.data && Array.isArray(res.data.data)) {
+                        // Alternative: nested data structure
+                        customerData = res.data.data;
+                        totalRecords = res.data.total || res.total || customerData.length;
+                        currentPageNum = res.data.page || res.page || page;
+                        pageSizeNum = res.data.limit || res.limit || limit;
+                    } else if (res.data && res.data.records && Array.isArray(res.data.records)) {
+                        // Alternative: records array
+                        customerData = res.data.records;
+                        totalRecords = res.data.total || res.total || customerData.length;
+                        currentPageNum = res.data.page || res.page || page;
+                        pageSizeNum = res.data.limit || res.limit || limit;
+                    } else if (res.data && Array.isArray(res.data.customers)) {
+                        // Alternative: customers array
+                        customerData = res.data.customers;
+                        totalRecords = res.data.total || res.total || customerData.length;
+                        currentPageNum = res.data.page || res.page || page;
+                        pageSizeNum = res.data.limit || res.limit || limit;
+                    } else {
+                        customerData = [];
+                    }
+                }
+
                 const formattedData = formatCustomerData(customerData);
 
-                setCurrentPage(res.data?.page || page);
-                setPageSize(res.data?.limit || limit);
-                setTotalRecords(res.data?.total || 0);
+                setCurrentPage(currentPageNum);
+                setPageSize(pageSizeNum);
+                setTotalRecords(totalRecords);
                 setCustomerTableList(formattedData);
                 setLoading(false);
                 popUploader(dispatch, false);
@@ -259,56 +319,147 @@ const CustomerManagement = () => {
         }
     };
 
-    // Search functionality
+    // Search functionality - use getAllCustomers with searchTerm filter for pagination support
     const handleSearchChange = (value) => {
         setSearchTerm(value);
         setCurrentPage(1);
-        if (value === '') {
-            loadAllCustomers(1, pageSize, '');
-        } else {
-            debouncedSearch(value);
-        }
+        // Use loadAllCustomers with search filter instead of separate search function
+        debouncedLoadCustomers(value);
     };
 
-    const handleSearch = (value) => {
-        setLoading(true);
-        customerService.searchCustomers(value)
-            .then((res) => {
-                const customerData = res.data || [];
-                const formattedData = formatCustomerData(customerData);
-                setCustomerTableList(formattedData);
-                setTotalRecords(customerData.length);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setLoading(false);
-                handleError(err);
-            });
-    };
-
-    const debouncedSearch = useCallback(
-        debounce(handleSearch, 500),
-        []
+    const debouncedLoadCustomers = useCallback(
+        debounce((searchValue) => {
+            loadAllCustomers(1, pageSize, searchValue);
+        }, 500),
+        [pageSize, selectedStatus, selectedCustomerType, selectedSalesType, selectedCityArea]
     );
 
     // Handle filter changes
     const handleStatusChange = (statusValue) => {
         setSelectedStatus(statusValue);
         setCurrentPage(1);
-        loadAllCustomers(1, pageSize);
+        loadAllCustomers(1, pageSize, searchTerm);
     };
 
     const handleCustomerTypeChange = (typeValue) => {
         setSelectedCustomerType(typeValue);
         setCurrentPage(1);
-        loadAllCustomers(1, pageSize);
+        loadAllCustomers(1, pageSize, searchTerm);
     };
 
     const handleSalesTypeChange = (salesValue) => {
         setSelectedSalesType(salesValue);
         setCurrentPage(1);
-        loadAllCustomers(1, pageSize);
+        loadAllCustomers(1, pageSize, searchTerm);
     };
+
+    const handleCityAreaChange = (e) => {
+        const value = e.target.value;
+        setSelectedCityArea(value);
+        setCurrentPage(1);
+        loadAllCustomers(1, pageSize, searchTerm);
+    };
+
+    // Handle CSV Export - with filters
+    const handleExportCSVWithFilters = () => {
+        setExportLoading(true);
+        popUploader(dispatch, true);
+        
+        // Build filters object from current state
+        const filters = {};
+        if (selectedCityArea && selectedCityArea.trim()) {
+            filters.cityArea = selectedCityArea.trim();
+        }
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+        if (selectedCustomerType) {
+            filters.customerType = selectedCustomerType;
+        }
+        if (selectedSalesType) {
+            filters.salesType = selectedSalesType;
+        }
+        if (searchTerm && searchTerm.trim()) {
+            filters.search = searchTerm.trim();
+        }
+        
+        customerService.exportCustomersCSV(filters)
+            .then((res) => {
+                // Create and download CSV file
+                const blob = new Blob([res.data], {type: 'text/csv;charset=utf-8;'});
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                const dateStr = new Date().toISOString().split('T')[0];
+                const filterStr = Object.keys(filters).length > 0 ? '_filtered' : '';
+                link.download = `customers_export${filterStr}_${dateStr}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                popUploader(dispatch, false);
+                setExportLoading(false);
+                customToastMsg('CSV exported successfully with current filters', 'success');
+            })
+            .catch((err) => {
+                popUploader(dispatch, false);
+                setExportLoading(false);
+                handleError(err);
+            });
+    };
+
+    // Handle CSV Export - without filters (all customers)
+    const handleExportCSVAll = () => {
+        setExportLoading(true);
+        popUploader(dispatch, true);
+        
+        customerService.exportCustomersCSV({})
+            .then((res) => {
+                // Create and download CSV file
+                const blob = new Blob([res.data], {type: 'text/csv;charset=utf-8;'});
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                const dateStr = new Date().toISOString().split('T')[0];
+                link.download = `customers_export_all_${dateStr}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                popUploader(dispatch, false);
+                setExportLoading(false);
+                customToastMsg('All customers exported successfully', 'success');
+            })
+            .catch((err) => {
+                popUploader(dispatch, false);
+                setExportLoading(false);
+                handleError(err);
+            });
+    };
+
+    // Export menu items
+    const exportMenuItems = [
+        {
+            key: 'export-all',
+            label: (
+                <span>
+                    <Download size={14} className="me-2" />
+                    Export All Customers
+                </span>
+            ),
+            onClick: handleExportCSVAll,
+        },
+        {
+            key: 'export-filtered',
+            label: (
+                <span>
+                    <Download size={14} className="me-2" />
+                    Export with Current Filters
+                </span>
+            ),
+            onClick: handleExportCSVWithFilters,
+        },
+    ];
 
     // Handle CSV import
     const handleCsvImport = async (file) => {
@@ -339,10 +490,10 @@ const CustomerManagement = () => {
     };
 
     // Handle pagination changes
-    const handlePaginationChange = (page, pageSize) => {
+    const handlePaginationChange = (page, newPageSize) => {
         setCurrentPage(page);
-        setPageSize(pageSize);
-        loadAllCustomers(page, pageSize);
+        setPageSize(newPageSize);
+        loadAllCustomers(page, newPageSize, searchTerm);
     };
 
     const uploadProps = {
@@ -361,10 +512,11 @@ const CustomerManagement = () => {
                 </div>
 
                 <Card>
-                    <Row className="mt-4 mx-2">
-                        <Col sm={12} md={6} lg={3}>
-                            <FormGroup>
-                                <Label for="search">
+                    {/* Filters Row */}
+                    <Row className="mt-4 mx-2 mb-3">
+                        <Col sm={12} md={6} lg={4}>
+                            <FormGroup className="mb-0">
+                                <Label for="search" className="mb-2 d-block">
                                     <Search size={16} className="me-1"/>
                                     Search Customers
                                 </Label>
@@ -373,46 +525,109 @@ const CustomerManagement = () => {
                                     placeholder="Search by name, email, phone, or S.No"
                                     value={searchTerm}
                                     onChange={(e) => handleSearchChange(e.target.value)}
+                                    style={{ height: '38px' }}
                                 />
                             </FormGroup>
                         </Col>
 
                         <Col sm={12} md={6} lg={2}>
-                            <Label>Status</Label>
-                            <Select
-                                value={statusList.find(option => option.value === selectedStatus) || null}
-                                placeholder="Filter by status"
-                                isClearable
-                                onChange={(e) => handleStatusChange(e?.value || "")}
-                                options={statusList}
-                            />
+                            <FormGroup className="mb-0">
+                                <Label className="mb-2 d-block">Status</Label>
+                                <Select
+                                    value={statusList.find(option => option.value === selectedStatus) || null}
+                                    placeholder="Filter by status"
+                                    isClearable
+                                    onChange={(e) => handleStatusChange(e?.value || "")}
+                                    options={statusList}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            minHeight: '38px',
+                                            height: '38px',
+                                        }),
+                                        valueContainer: (base) => ({
+                                            ...base,
+                                            height: '38px',
+                                            padding: '0 8px',
+                                        }),
+                                        input: (base) => ({
+                                            ...base,
+                                            margin: '0px',
+                                        }),
+                                        indicatorsContainer: (base) => ({
+                                            ...base,
+                                            height: '38px',
+                                        }),
+                                    }}
+                                />
+                            </FormGroup>
                         </Col>
 
-                        <Col sm={12} md={6} lg={3}>
-                            <Label  className='opacity-0'>Customer Type</Label> <br/>
-                            <Button
+                        <Col sm={12} md={6} lg={2}>
+                            <FormGroup className="mb-0">
+                                <Label for="cityArea" className="mb-2 d-block">City/Area</Label>
+                                <Input
+                                    id="cityArea"
+                                    placeholder="e.g., Kandy, Colombo"
+                                    value={selectedCityArea}
+                                    onChange={handleCityAreaChange}
+                                    style={{ height: '38px' }}
+                                />
+                            </FormGroup>
+                        </Col>
+
+                        <Col sm={12} md={6} lg={4} className="d-flex align-items-end gap-2">
+                        <FormGroup className="mb-0">
+                                <Label for="search" className="text-white mb-2 d-block">
+                                     Search Customers
+                                </Label>
+                                   <Button
                                 color="primary"
-                                className="w-50"
                                 onClick={() => setCreateModalVisible(true)}
+                                className="flex-shrink-0"
+                                style={{ height: '38px' }}
                             >
                                 <Plus size={16} className="me-1"/>
                                 Add Customer
                             </Button>
-                        </Col>
+                            </FormGroup>
 
-                        <Col sm={12} md={6} lg={3}>
-                            <Label className='opacity-0'>Sales Type</Label> <br/>
+                            <FormGroup className="mb-0">
+                                <Label for="search" className="text-white mb-2 d-block">
+                                     Search Customers
+                                </Label>    
                             <Button
                                 color="success"
-                                className="w-50"
                                 onClick={() => setImportModalVisible(true)}
+                                className="flex-shrink-0"
+                                style={{ height: '38px' }}
                             >
                                 <UploadIcon size={16} className="me-1"/>
                                 Import CSV
                             </Button>
+                            </FormGroup>
+                            <FormGroup className="mb-0">
+                                <Label for="search" className="text-white mb-2 d-block">
+                              
+                                    Search Customers
+                                </Label>
+                            <Dropdown
+                                menu={{ items: exportMenuItems }}
+                                trigger={['click']}
+                                disabled={exportLoading}
+                            >
+                                <AntButton
+                                    type="default"
+                                    loading={exportLoading}
+                                    className="d-flex align-items-center flex-shrink-0"
+                                    style={{ height: '38px' }}
+                                >
+                                    <Download size={16} className="me-1" />
+                                    Export CSV <ChevronDown size={14} className="ms-1" />
+                                </AntButton>
+                            </Dropdown>
+                            </FormGroup>
                         </Col>
-
-
                     </Row>
 
                     {/* Customer Table */}
@@ -431,26 +646,27 @@ const CustomerManagement = () => {
                     </Row>
 
                     {/* Pagination */}
-                    {totalRecords > 0 && (
-                        <Row>
-                            <Col className="d-flex justify-content-end" sm={12}>
-                                <Pagination
-                                    className="m-3"
-                                    current={currentPage}
-                                    pageSize={pageSize}
-                                    onChange={handlePaginationChange}
-                                    onShowSizeChange={handlePaginationChange}
-                                    total={totalRecords}
-                                    showSizeChanger
-                                    showQuickJumper
-                                    showTotal={(total, range) =>
-                                        `${range[0]}-${range[1]} of ${total} customers`
-                                    }
-                                    pageSizeOptions={['10', '25', '50', '100']}
-                                />
-                            </Col>
-                        </Row>
-                    )}
+                    <Row>
+                        <Col className="d-flex justify-content-end" sm={12}>
+                            <Pagination
+                                className="m-3"
+                                current={currentPage}
+                                pageSize={pageSize}
+                                onChange={handlePaginationChange}
+                                onShowSizeChange={handlePaginationChange}
+                                total={totalRecords}
+                                showSizeChanger
+                                showQuickJumper
+                                showTotal={(total, range) =>
+                                    total > 0 
+                                        ? `${range[0]}-${range[1]} of ${total} customers`
+                                        : 'No customers'
+                                }
+                                pageSizeOptions={['10', '25', '50', '100']}
+                                disabled={loading}
+                            />
+                        </Col>
+                    </Row>
                 </Card>
 
                 {/* Modal Components */}

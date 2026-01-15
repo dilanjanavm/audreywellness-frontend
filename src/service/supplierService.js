@@ -111,7 +111,7 @@ export const importSuppliersCSV = (file) => {
     const apiObject = {};
     apiObject.method = 'POST';
     apiObject.authentication = true;
-    apiObject.endpoint = `suppliers/import-csv`;
+    apiObject.endpoint = `suppliers/import`; // API endpoint: POST /suppliers/import
     apiObject.isMultipart = true;
     const formData = new FormData();
     formData.append('file', file.originFileObj || file);

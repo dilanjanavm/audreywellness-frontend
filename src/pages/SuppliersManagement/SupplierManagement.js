@@ -24,6 +24,7 @@ import {
 import debounce from "lodash.debounce";
 import CreateSupplierModal from "../../Components/Common/modal/Supplier/CreateSupplierModal";
 import UpdateSupplierModal from "../../Components/Common/modal/Supplier/UpdateSupplierModal";
+import SupplierImportCSV from "../../Components/Common/modal/ImportCsvModal/SupplierImportCSV";
 import PermissionWrapper from "../../Components/Common/PermissionWrapper";
 import {hasPermission} from "../../helpers/permissionHelper";
 import './style.scss'
@@ -48,6 +49,7 @@ const SupplierManagement = () => {
     // Modal States
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
+    const [importModalVisible, setImportModalVisible] = useState(false);
     const [selectedSupplier, setSelectedSupplier] = useState(null);
 
     const dispatch = useDispatch();
@@ -300,36 +302,33 @@ const SupplierManagement = () => {
             });
     };
 
-    // Handle CSV Import
-    const handleImportCSV = (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        popUploader(dispatch, true);
-        supplierService.importSuppliersCSV(formData)
-            .then((res) => {
-                popUploader(dispatch, false);
-                const result = res.data;
+    // Handle import complete callback
+    const handleImportComplete = (result) => {
+        // Refresh the supplier list after successful import
+        if (result) {
+            // Handle response structure: { total, successful, failed, errors } or { success, message, errors }
+            if (result.total !== undefined) {
+                // Suppliers-style response
                 customToastMsg(
                     `Import completed: ${result.successful} successful, ${result.failed} failed`,
                     result.failed === 0 ? 'success' : 'warning'
                 );
-                loadSuppliers();
-                loadStats();
-            })
-            .catch((err) => {
-                popUploader(dispatch, false);
-                handleError(err);
-            });
-
-        return false; // Prevent default upload
-    };
-
-    // Upload props
-    const uploadProps = {
-        beforeUpload: handleImportCSV,
-        accept: '.csv',
-        showUploadList: false,
+                if (result.errors && result.errors.length > 0) {
+                    message.warning(`Import completed with ${result.errors.length} errors. Check console for details.`);
+                    console.log('Import errors:', result.errors);
+                }
+            } else if (result.success !== undefined) {
+                // Alternative response structure
+                if (result.success) {
+                    customToastMsg(result.message || 'CSV imported successfully', 'success');
+                } else {
+                    customToastMsg(result.message || 'Import failed', 'error');
+                }
+            }
+            // Always refresh the list
+            loadSuppliers();
+            loadStats();
+        }
     };
 
     // Handle pagination changes
@@ -424,7 +423,7 @@ const SupplierManagement = () => {
                             </div>
                         </Col>
 
-                        <Col sm={12} md={6} lg={3} className="">
+                        <Col sm={12} md={6} lg={2} className="">
                             <Label className='opacity-0'>Status Filter</Label>
                             <PermissionWrapper permission="SUPPLIER_CREATE">
                                 <Button
@@ -438,23 +437,20 @@ const SupplierManagement = () => {
                             </PermissionWrapper>
                         </Col>
 
-                        {/*<Col sm={12} md={6} lg={2} >*/}
-                        {/*    <Upload {...uploadProps}>*/}
-                        {/*        <Label className='opacity-0'>Status Filter</Label>*/}
+                        <Col sm={12} md={6} lg={2}>
+                            <Label className='opacity-0'>Import</Label>
+                            <Button
+                                color="success"
+                                className="w-100"
+                                onClick={() => setImportModalVisible(true)}
+                            >
+                                <UploadIcon size={16} className="me-1"/>
+                                Import CSV
+                            </Button>
+                        </Col>
 
-                        {/*        <Button*/}
-                        {/*            color="success"*/}
-                        {/*            outline*/}
-                        {/*            className="w-100"*/}
-                        {/*        >*/}
-                        {/*            <UploadIcon size={16} className="me-1"/>*/}
-                        {/*            Import CSV*/}
-                        {/*        </Button>*/}
-                        {/*    </Upload>*/}
-                        {/*</Col>*/}
-
-                        <Col sm={12} md={6} lg={3}  >
-                            <Label className='opacity-0'>Status Filter</Label>
+                        <Col sm={12} md={6} lg={2}>
+                            <Label className='opacity-0'>Export</Label>
                             <Button
                                 color="info"
                                 outline
@@ -509,6 +505,12 @@ const SupplierManagement = () => {
                     onClose={() => setUpdateModalVisible(false)}
                     onUpdate={handleUpdateSupplier}
                     loading={modalLoading}
+                />
+
+                <SupplierImportCSV
+                    visible={importModalVisible}
+                    onClose={() => setImportModalVisible(false)}
+                    onImportComplete={handleImportComplete}
                 />
             </Container>
         </div>
