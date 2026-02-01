@@ -1,0 +1,253 @@
+{
+  "description": "Recipe API Request Body Examples - Quick Reference",
+  "examples": {
+    "complete_recipe_with_preparation": {
+      "name": "AC Aqua Bubble Bath 5L - batch150kg Recipe",
+      "productId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "itemId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "batchSize": "batch150kg",
+      "totalTime": 120,
+      "status": "active",
+      "ingredients": [
+        {
+          "name": "Vitamin E",
+          "quantity": 37.5,
+          "unit": "Kg",
+          "category": "Raw Material"
+        },
+        {
+          "name": "DI Water",
+          "quantity": 112.5,
+          "unit": "Kg",
+          "category": "Raw Material"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "instruction": "Add 50% @DI Water and heat to 100°C",
+          "temperature": 100,
+          "duration": 30
+        },
+        {
+          "order": 3,
+          "instruction": "Mix @Vitamin E with remaining water",
+          "temperature": 50,
+          "duration": 20
+        },
+        {
+          "order": 4,
+          "instruction": "Cool down to room temperature",
+          "temperature": 25,
+          "duration": 40
+        }
+      ],
+      "preparationQuestions": [
+        {
+          "order": 2,
+          "questions": [
+            {
+              "question": "Check all raw materials are available",
+              "hasCheckbox": true
+            },
+            {
+              "question": "Verify equipment is clean and ready",
+              "hasCheckbox": true
+            },
+            {
+              "question": "Ensure safety equipment is in place",
+              "hasCheckbox": true
+            }
+          ]
+        },
+        {
+          "order": 5,
+          "questions": [
+            {
+              "question": "Quality check completed",
+              "hasCheckbox": true
+            },
+            {
+              "question": "Documentation updated",
+              "hasCheckbox": false
+            }
+          ]
+        }
+      ]
+    },
+    "recipe_without_preparation": {
+      "name": "Simple Recipe - batch10kg",
+      "productId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "itemId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "batchSize": "batch10kg",
+      "totalTime": 60,
+      "status": "active",
+      "ingredients": [
+        {
+          "name": "DI Water",
+          "quantity": 10,
+          "unit": "Kg",
+          "category": "Raw Material"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "instruction": "Heat water to 80°C",
+          "temperature": 80,
+          "duration": 30
+        },
+        {
+          "order": 2,
+          "instruction": "Add ingredients and mix",
+          "temperature": null,
+          "duration": 30
+        }
+      ],
+      "preparationQuestions": []
+    },
+    "recipe_starting_with_preparation": {
+      "name": "Complex Recipe - batch150kg",
+      "productId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "itemId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "batchSize": "batch150kg",
+      "totalTime": 180,
+      "status": "active",
+      "ingredients": [
+        {
+          "name": "Vitamin E",
+          "quantity": 37.5,
+          "unit": "Kg",
+          "category": "Raw Material"
+        },
+        {
+          "name": "DI Water",
+          "quantity": 112.5,
+          "unit": "Kg",
+          "category": "Raw Material"
+        }
+      ],
+      "steps": [
+        {
+          "order": 2,
+          "instruction": "Add 50% @DI Water and heat to 100°C",
+          "temperature": 100,
+          "duration": 30
+        },
+        {
+          "order": 4,
+          "instruction": "Mix @Vitamin E with remaining water",
+          "temperature": 50,
+          "duration": 20
+        }
+      ],
+      "preparationQuestions": [
+        {
+          "order": 1,
+          "questions": [
+            {
+              "question": "Check all raw materials are available",
+              "hasCheckbox": true
+            },
+            {
+              "question": "Verify equipment is clean",
+              "hasCheckbox": true
+            }
+          ]
+        },
+        {
+          "order": 3,
+          "questions": [
+            {
+              "question": "Temperature reached 100°C",
+              "hasCheckbox": true
+            }
+          ]
+        },
+        {
+          "order": 5,
+          "questions": [
+            {
+              "question": "Final quality check",
+              "hasCheckbox": true
+            }
+          ]
+        }
+      ]
+    },
+    "update_recipe": {
+      "name": "Updated Recipe Name",
+      "totalTime": 150,
+      "status": "active",
+      "ingredients": [
+        {
+          "name": "Vitamin E",
+          "quantity": 40,
+          "unit": "Kg",
+          "category": "Raw Material"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "instruction": "Updated instruction",
+          "temperature": 90,
+          "duration": 35
+        }
+      ],
+      "preparationQuestions": [
+        {
+          "order": 2,
+          "questions": [
+            {
+              "question": "Updated preparation question",
+              "hasCheckbox": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "field_descriptions": {
+    "root_level": {
+      "name": "string (required) - Recipe name",
+      "productId": "UUID (required for create) - Product/Item UUID",
+      "itemId": "UUID (required for create) - Item UUID (same as productId)",
+      "batchSize": "string (required for create) - Batch size identifier",
+      "totalTime": "number (required) - Total process time in minutes",
+      "status": "string (optional) - Recipe status: 'active', 'draft', 'archived'",
+      "ingredients": "array (required) - Array of ingredient objects",
+      "steps": "array (required) - Array of recipe step objects",
+      "preparationQuestions": "array (optional) - Array of preparation step objects"
+    },
+    "step_object": {
+      "order": "number (required) - Order in unified queue (1, 2, 3, ...)",
+      "instruction": "string (required) - Step instruction text",
+      "temperature": "number (optional) - Temperature in Celsius (can be null)",
+      "duration": "number (required) - Duration in minutes"
+    },
+    "preparation_question_object": {
+      "order": "number (required) - Order in unified queue (1, 2, 3, ...)",
+      "questions": "array (required) - Array of question objects"
+    },
+    "question_object": {
+      "question": "string (required, max 500 chars) - Question text",
+      "hasCheckbox": "boolean (required) - Whether to display checkbox"
+    },
+    "ingredient_object": {
+      "name": "string (required) - Ingredient name",
+      "quantity": "number (required) - Quantity amount",
+      "unit": "string (required) - Unit of measurement",
+      "category": "string (optional) - Ingredient category"
+    }
+  },
+  "important_notes": [
+    "The 'order' field in both 'steps' and 'preparationQuestions' represents a unified queue",
+    "Order values should be unique across both arrays",
+    "Backend should preserve order values when storing and retrieving",
+    "When displaying recipes, sort by 'order' regardless of type (step or preparation)",
+    "Each preparation step can contain multiple questions",
+    "Temperature can be null if not specified",
+    "For updates, productId, itemId, and batchSize are not sent"
+  ]
+}

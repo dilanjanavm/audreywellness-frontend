@@ -1,0 +1,243 @@
+import React from "react";
+import { Navigate } from "react-router-dom";
+
+//Dashboard
+import DashboardEcommerce from "../pages/DashboardEcommerce";
+
+//pages
+import Starter from "../pages/Pages/Starter/Starter";
+import Maintenance from "../pages/Pages/Maintenance/Maintenance";
+import ComingSoon from "../pages/Pages/ComingSoon/ComingSoon";
+
+//login
+import Login from "../pages/Authentication/Login";
+import ForgetPasswordPage from "../pages/Authentication/ForgetPassword";
+import Logout from "../pages/Authentication/Logout";
+import Register from "../pages/Authentication/Register";
+
+// User Profile
+import UserProfile from "../pages/Authentication/user-profile";
+import RegistrationTwo from "../pages/Authentication/RegistrationStep02";
+// import Products from "../pages/Pages/Products/Products";
+import ConfirmOtp from "../pages/Authentication/ConfirmOtp";
+// import UserManagement from "../pages/Pages/User Mangement/UserManagement";
+import StaffManagement from "../pages/UserMangement/StaffManagement";
+import CustomerManagement from "../pages/UserMangement/CustomerManagement";
+import RoleAndPermission from "../pages/RoleAndPermission/RoleAndPermission";
+import ProductManagement from "../pages/ProductManagement/ProductManagement";
+import UpdateProduct from "../pages/ProductManagement/UpdateProduct";
+import ViewProductDetails from "../pages/ProductManagement/ViewProductDetails";
+import BannerManagement from "../pages/BannerManagement/BannerManagement";
+import FeatureManagement from "../pages/FeatureManagement/FeatureManagement";
+import CategoryManagement from "../pages/CategoryManagement/CategoryManagement";
+import AddProduct from "../pages/ProductManagement/AddProduct";
+import OrderManagement from "../pages/OrderManagement/OrderManagement";
+import OrderDetail from "../pages/OrderManagement/OrderDetail";
+import PaymentManagement from "../pages/PaymentManagement/PaymentManagement";
+import StoresManagement from "../pages/StoresManagement/StoresManagement";
+import SettingManagement from "../pages/Settings/SettingsManage";
+import ItemManagement from "../pages/ItemManagement/ItemManagement";
+import SupplierManagement from "../pages/SuppliersManagement/SupplierManagement";
+import ComplaintManagement from "../pages/ComplaintManagement/ComplaintManagement";
+import ItemCostCalculator from "../pages/ProductManagement/ItemCostCalculator";
+import CostingManagement from "../pages/ProductManagement/CostingManagement";
+import CostedProducts from "../pages/ProductManagement/CostedProducts";
+import CostedProductView from "../pages/ProductManagement/CostedProductView";
+import CostingHistory from "../pages/ProductManagement/CostingHistory";
+import TaskList from "../pages/Tasks/TaskList";
+import TaskDetails from "../pages/Tasks/TaskDetails";
+import KanbanBoard from "../pages/Tasks/kanban";
+import UserManagement from "../pages/UserManagement/UserManagement";
+import RoleManagement from "../pages/RoleAndPermission/RoleManagementNew";
+import PermissionManagement from "../pages/PermissionManagement/PermissionManagement";
+import RecipesManagement from "../pages/RecipesManagement/RecipesManagement";
+import CreateRecipe from "../pages/RecipesManagement/CreateRecipe";
+import SelectProductForRecipe from "../pages/RecipesManagement/SelectProductForRecipe";
+import ViewRecipe from "../pages/RecipesManagement/ViewRecipe";
+import CourierManagement from "../pages/CourierManagement/CourierManagement";
+import CourierTrackingDetail from "../pages/CourierManagement/CourierTrackingDetail";
+import TrackYourOrder from "../pages/Authentication/TrackYourOrder";
+import ComplaintStatus from "../pages/Authentication/ComplaintStatus";
+import ProjectDocumentation from "../pages/Documentation/ProjectDocumentation";
+import Error404 from "../pages/Pages/Error404/Error404";
+
+const authProtectedRoutes = [
+  { path: "/dashboard", component: <DashboardEcommerce /> },
+  { path: "/index", component: <DashboardEcommerce /> },
+  // {path: "/products", exact: true, component: <Products/>},
+
+  //Pages
+  // { path: "/pages-starter", component: <Starter /> },
+
+  // User Profile
+  { path: "/profile", component: <UserProfile /> },
+
+  {
+    path: "/",
+    exact: true,
+    component: <Navigate to="/dashboard" />,
+  },
+
+  { path: "/create-product", component: <AddProduct /> },
+  { path: "/update-product", component: <UpdateProduct /> },
+  { path: "/product-view", component: <ViewProductDetails /> },
+  { path: "/product-management", component: <ItemManagement /> },
+  { path: "/product-cost-management", component: <ProductManagement /> },
+  { path: "/product-cost-calculate", component: <ItemCostCalculator /> },
+  { path: "/costing-management", exact: true, component: <CostingManagement /> },
+  { path: "/costed-products", exact: true, component: <CostedProducts /> },
+  { path: "/costed-product-view", exact: true, component: <CostedProductView /> },
+  { path: "/costing-history", exact: true, component: <CostingHistory /> },
+
+  // { path: "/user-management", component: <UserManagement /> },
+
+  { path: "/staff-management", exact: true, component: <StaffManagement /> },
+  { path: "/suppliers-management", exact: true, component: <SupplierManagement /> },
+  { path: "/complaint-management", exact: true, component: <ComplaintManagement /> },
+  {
+    path: "/customer-management",
+    exact: true,
+    component: <CustomerManagement />,
+  },
+  {
+    path: "/order-management",
+    exact: true,
+    component: <OrderManagement />,
+  },
+  {
+    path: "/payment-management",
+    exact: true,
+    component: <PaymentManagement />,
+  },
+
+  {
+    path: "/role-permission-management",
+    exact: true,
+    component: <RoleAndPermission />,
+  },
+  {
+    path: "/banner-management",
+    exact: true,
+    component: <BannerManagement />,
+  },
+  {
+    path: "/feature-management",
+    exact: true,
+    component: <FeatureManagement />,
+  },
+  {
+    path: "/category-management",
+    exact: true,
+    component: <CategoryManagement />,
+  },
+  {
+    path: "/order-detail",
+    exact: true,
+    component: <OrderDetail />,
+  },
+  {
+    path: "/stores",
+    exact: true,
+    component: <StoresManagement />,
+  },
+  {
+    path: "/settings",
+    exact: true,
+    component: <SettingManagement />,
+  },
+  {
+    path: "/task-management",
+    exact: true,
+    component: <TaskList />,
+  },
+  {
+    path: "/task-details",
+    exact: true,
+    component: <TaskDetails />,
+  },
+  {
+    path: "/apps-tasks-details",
+    exact: true,
+    component: <TaskDetails />,
+  },
+  {
+    path: "/kanban-board",
+    exact: true,
+    component: <KanbanBoard />,
+  },
+  {
+    path: "/user-management",
+    exact: true,
+    component: <UserManagement />,
+  },
+  {
+    path: "/role-management",
+    exact: true,
+    component: <RoleManagement />,
+  },
+  {
+    path: "/permission-management",
+    exact: true,
+    component: <PermissionManagement />,
+  },
+  {
+    path: "/recipes-management",
+    exact: true,
+    component: <RecipesManagement />,
+  },
+  {
+    path: "/recipes/select-product",
+    exact: true,
+    component: <SelectProductForRecipe />,
+  },
+  {
+    path: "/recipes/create",
+    exact: true,
+    component: <CreateRecipe />,
+  },
+  {
+    path: "/recipes/edit/:id",
+    exact: true,
+    component: <CreateRecipe />,
+  },
+  {
+    path: "/recipes/view/:id",
+    exact: true,
+    component: <ViewRecipe />,
+  },
+  {
+    path: "/courier-management",
+    exact: true,
+    component: <CourierManagement />,
+  },
+  {
+    path: "/courier-tracking-detail",
+    exact: true,
+    component: <CourierTrackingDetail />,
+  },
+  {
+    path: "/documentation",
+    exact: true,
+    component: <ProjectDocumentation />,
+  },
+];
+
+const publicRoutes = [
+  { path: "/logout", component: <Logout /> },
+  { path: "/login", component: <Login /> },
+  { path: "/forgot-password", component: <ForgetPasswordPage /> },
+  { path: "/confirm-otp", component: <ConfirmOtp /> },
+  { path: "/register", component: <Register /> },
+  { path: "/track-your-order", component: <TrackYourOrder /> },
+  { path: "/track-complaint", component: <ComplaintStatus /> },
+
+  { path: "/pages-maintenance", component: <Maintenance /> },
+  { path: "/pages-coming-soon", component: <ComingSoon /> },
+
+  { path: "/login-next-step", component: <RegistrationTwo /> },
+
+  // 404 Page - must be last
+  { path: "*", component: <Error404 /> },
+];
+
+export { authProtectedRoutes, publicRoutes };

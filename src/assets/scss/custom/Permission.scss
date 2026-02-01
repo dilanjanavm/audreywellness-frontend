@@ -1,0 +1,71 @@
+// Permission.scss
+/* 
+.custom-tree .ant-tree-treenode {
+  transition: all 0.3s ease;
+}
+
+.custom-tree .ant-tree-checkbox {
+  transition: all 0.3s ease;
+}
+
+.custom-tree .ant-tree-checkbox-inner {
+  border-radius: 4px;
+}
+
+.custom-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+ */
+
+.custom-tree .ant-tree .ant-tree-treenode {
+  padding: 0 0 18px 0;
+}
+
+.custom-tree .ant-tree-checkbox {
+  transition: all 0.5s ease;
+}
+
+.custom-tree .ant-tree .ant-tree-checkbox .ant-tree-checkbox-inner {
+  width: 23px !important; /* Custom width for checkboxes */
+  height: 22px !important; /* Custom height for checkboxes */
+  transition: background-color 0.3s ease, width 0.3s ease, height 0.3s ease,
+  border-color 0.3s ease;
+}
+
+
+
+.custom-tree .ant-tree-node-content-wrapper-open .ant-tree-title {
+  font-weight: 520;
+}
+
+.custom-tree .ant-tree-node-content-wrapper-close .ant-tree-title {
+  font-weight: 520;
+}
+.custom-tree .ant-tree .ant-tree-checkbox + span {
+  padding: 3px 4px 0px 4px;
+}
+
+
+
+.custom-tree .ant-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner ::after {
+  background-color: #1890ff;
+}
+
+/* :where(.css-dev-only-do-not-override-j9bb5n).ant-tree .ant-tree-checkbox .ant-tree-checkbox-inner:after {
+  inset-inline-start: 29% !important;
+} */
+
+
+
+
+/* Loading spinner styles */
+.custom-tree .loading {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-tree .loading .ant-spin {
+  margin-left: 8px;
+}

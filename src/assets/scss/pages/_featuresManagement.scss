@@ -1,0 +1,22 @@
+.react-tagsinput {
+  border-radius: .25rem !important;
+}
+
+
+.featureValue {
+  display: flex;
+  align-items: center;
+
+  input {
+    height: 52px !important;
+  }
+}
+
+.featureValueTags {
+  .tag-close{
+
+  }
+  .tag-close:hover{
+    color: #9f0000 !important;
+  }
+}

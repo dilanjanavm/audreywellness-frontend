@@ -1,0 +1,329 @@
+// Track Your Order Page Styles - Enhanced UI
+
+.track-order-page {
+  min-height: 100vh;
+  height: auto;
+  background-color: #e8f5e9; // Light mint green background color (shows when content expands)
+  background-size: cover;
+  background-image: url("../../assets/images/cosmos_mockup_1_v3.jpg__1900x900_q70_crop_subject_location-2971,1857_subsampling-2_upscale.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 20px 0;
+  
+  // Background overlay to blend image with color
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100%;
+    background-color: rgba(232, 245, 233, 0.5); // Light mint green overlay
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .track-search-card {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7.8px);
+    -webkit-backdrop-filter: blur(7.8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 24px;
+    
+    .card-body {
+      background: transparent !important;
+    }
+  }
+}
+
+.tracking-results-container {
+  margin-top: 24px;
+}
+
+.tracking-summary-card {
+  background: rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(7.8px) !important;
+  -webkit-backdrop-filter: blur(7.8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  
+  .ant-card-body {
+    padding: 24px !important;
+    background: transparent !important;
+  }
+}
+
+.tracking-info-item {
+  padding: 12px 0;
+  
+  .tracking-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8c8c8c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .tracking-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+    word-break: break-word;
+  }
+}
+
+.tracking-timeline-card {
+  background: rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(7.8px) !important;
+  -webkit-backdrop-filter: blur(7.8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  
+  .ant-card-body {
+    padding: 24px !important;
+    background: transparent !important;
+  }
+  
+  .timeline-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(240, 240, 240, 0.5);
+  }
+}
+
+.tracking-timeline-wrapper {
+  position: relative;
+}
+
+.custom-timeline {
+  .ant-timeline-item {
+    padding-bottom: 24px;
+    
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+  
+  .ant-timeline-item-head {
+    width: 32px !important;
+    height: 32px !important;
+    border-width: 3px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #ffffff !important;
+    
+    .anticon {
+      font-size: 18px !important;
+    }
+  }
+  
+  .ant-timeline-item-tail {
+    border-left: 2px solid #e8e8e8 !important;
+    left: 16px !important;
+  }
+  
+  .ant-timeline-item-head-blue {
+    border-color: #1890ff !important;
+    
+    .status-icon {
+      color: #1890ff;
+    }
+  }
+  
+  .ant-timeline-item-head-green {
+    border-color: #52c41a !important;
+    background: #f6ffed !important;
+    
+    .status-icon {
+      color: #52c41a;
+    }
+  }
+  
+  .ant-timeline-item-head-gray {
+    border-color: #d9d9d9 !important;
+    
+    .status-icon {
+      color: #8c8c8c;
+    }
+  }
+}
+
+.status-icon {
+  font-size: 18px !important;
+  
+  &.delivered {
+    color: #52c41a;
+  }
+  
+  &.transit {
+    color: #1890ff;
+  }
+  
+  &.facility {
+    color: #722ed1;
+  }
+  
+  &.scan {
+    color: #fa8c16;
+  }
+  
+  &.default {
+    color: #8c8c8c;
+  }
+}
+
+.timeline-event-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-left: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.timeline-event-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timeline-event-main {
+  flex: 1;
+  min-width: 200px;
+  
+  .timeline-status {
+    font-size: 16px;
+    font-weight: 500;
+    color: #595959;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+    
+    &.latest {
+      font-weight: 600;
+      color: #1890ff;
+    }
+    
+    &.delivered {
+      color: #52c41a;
+      font-weight: 600;
+    }
+  }
+  
+  .timeline-description {
+    font-size: 14px;
+    color: #8c8c8c;
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+  }
+  
+  .location-button {
+    border-radius: 6px;
+    height: 28px;
+    padding: 0 12px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-color: #1890ff;
+    color: #1890ff;
+    background: #f0f8ff;
+    
+    &:hover {
+      border-color: #40a9ff;
+      color: #40a9ff;
+      background: #e6f7ff;
+    }
+    
+    .anticon {
+      font-size: 12px;
+    }
+  }
+}
+
+.timeline-event-time {
+  text-align: right;
+  min-width: 140px;
+  flex-shrink: 0;
+  
+  .timeline-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #8c8c8c;
+    margin-bottom: 4px;
+  }
+  
+  .timeline-time {
+    font-size: 13px;
+    color: #bfbfbf;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .tracking-info-item {
+    margin-bottom: 16px;
+  }
+  
+  .timeline-event-content {
+    flex-direction: column;
+  }
+  
+  .timeline-event-time {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .timeline-event-main {
+    width: 100%;
+  }
+  
+  .custom-timeline {
+    .ant-timeline-item-head {
+      width: 28px !important;
+      height: 28px !important;
+      
+      .anticon {
+        font-size: 16px !important;
+      }
+    }
+  }
+}
+
+// Enhanced visual polish
+.tracking-timeline-card {
+  .ant-timeline-item-content {
+    margin-left: 48px;
+    
+    @media (max-width: 768px) {
+      margin-left: 40px;
+    }
+  }
+}
+
+// Empty state card styling
+.track-order-page {
+  .track-search-card.empty-state {
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(7.8px);
+    -webkit-backdrop-filter: blur(7.8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}

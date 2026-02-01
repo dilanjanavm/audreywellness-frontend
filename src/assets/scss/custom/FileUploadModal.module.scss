@@ -1,0 +1,47 @@
+.upload-list-inline .ant-upload-list-item {
+  display: none !important;
+}
+
+.imageList {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.imageList {
+  display: flex;
+  flex-wrap: wrap;
+
+  .imageContainer {
+    border: 2px solid #f7f7f7;
+    border-radius: 8px;
+    transition: 100ms;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    max-width: 100px;
+    min-height: 100px;
+
+    position: relative;
+
+    margin: 4px 4px 40px 4px;
+
+    .imageItem {
+      width: 100%;
+      height: auto;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+    }
+
+    .itemName {
+      font-size: 11px;
+
+      position: absolute;
+      bottom: -40px;
+    }
+  }
+}
