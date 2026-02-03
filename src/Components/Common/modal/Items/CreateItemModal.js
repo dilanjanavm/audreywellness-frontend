@@ -1,13 +1,13 @@
 // src/components/item/CreateItemModal.js
-import React, {useState, useEffect} from 'react';
-import {Modal, Form, Input, Select, InputNumber, Button, Row, Col} from 'antd';
-import {Package, FileText, Hash, Columns} from 'react-feather';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, Select, InputNumber, Button, Row, Col } from 'antd';
+import { Package, FileText, Hash, Columns } from 'react-feather';
 import * as categoryService from "../../../../service/categoryService";
-import {UNIT_TYPES} from "../../../../common/enum";
+import { UNIT_TYPES } from "../../../../common/enum";
 
-const {Option} = Select;
+const { Option } = Select;
 
-const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
+const CreateItemModal = ({ visible, onClose, onCreate, loading = false }) => {
     const [form] = Form.useForm();
     const [categories, setCategories] = useState([]);
     const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -25,10 +25,16 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
         try {
             setCategoriesLoading(true);
             const response = await categoryService.getAllCategories();
-            console.log(response.data?.data.data)
-            setCategories(response.data?.data.data || []);
+            // Response from apiService contains the data array directly in response.data
+            // based on backend structure: { statusCode: 200, data: [...] }
+            if (response && response.data) {
+                setCategories(response.data);
+            } else {
+                setCategories([]);
+            }
         } catch (error) {
             console.error('Error loading categories:', error);
+            setCategories([]);
         } finally {
             setCategoriesLoading(false);
         }
@@ -74,7 +80,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
         <Modal
             title={
                 <div className="d-flex align-items-center">
-                    <Package size={20} className="me-2"/>
+                    <Package size={20} className="me-2" />
                     Create New Item
                 </div>
             }
@@ -101,12 +107,12 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                             label="Item Code"
                             name="itemCode"
                             rules={[
-                                {required: true, message: 'Item code is required'},
-                                {min: 2, message: 'Item code must be at least 2 characters'}
+                                { required: true, message: 'Item code is required' },
+                                { min: 2, message: 'Item code must be at least 2 characters' }
                             ]}
                         >
                             <Input
-                                prefix={<Hash size={16}/>}
+                                prefix={<Hash size={16} />}
                                 placeholder="Enter item code"
                                 size="large"
                                 addonAfter={
@@ -114,7 +120,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                         type="link"
                                         size="small"
                                         onClick={generateItemCodes}
-                                        style={{padding: 0, height: 'auto'}}
+                                        style={{ padding: 0, height: 'auto' }}
                                     >
                                         Generate
                                     </Button>
@@ -128,12 +134,12 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                             label="Stock ID"
                             name="stockId"
                             rules={[
-                                {required: true, message: 'Stock ID is required'},
-                                {min: 2, message: 'Stock ID must be at least 2 characters'}
+                                { required: true, message: 'Stock ID is required' },
+                                { min: 2, message: 'Stock ID must be at least 2 characters' }
                             ]}
                         >
                             <Input
-                                prefix={<Columns size={16}/>}
+                                prefix={<Columns size={16} />}
                                 placeholder="Enter stock ID"
                                 size="large"
                                 addonAfter={
@@ -141,7 +147,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                         type="link"
                                         size="small"
                                         onClick={generateItemCodes}
-                                        style={{padding: 0, height: 'auto'}}
+                                        style={{ padding: 0, height: 'auto' }}
                                     >
                                         Generate
                                     </Button>
@@ -155,10 +161,10 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                 <Form.Item
                     label="Item Name/Description"
                     name="description"
-                    rules={[{required: true, message: 'Please enter item description'}]}
+                    rules={[{ required: true, message: 'Please enter item description' }]}
                 >
                     <Input
-                        prefix={<FileText size={16}/>}
+                        prefix={<FileText size={16} />}
                         placeholder="Enter item description"
                         size="large"
                     />
@@ -170,7 +176,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                         <Form.Item
                             label="Category"
                             name="categoryId"
-                            rules={[{required: true, message: 'Please select category'}]}
+                            rules={[{ required: true, message: 'Please select category' }]}
                         >
                             <Select
                                 placeholder="Select category"
@@ -196,7 +202,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                         <Form.Item
                             label="Units"
                             name="units"
-                            rules={[{required: true, message: 'Please select units'}]}
+                            rules={[{ required: true, message: 'Please select units' }]}
                         >
                             <Select placeholder="Select units" size="large">
                                 {UNIT_TYPES.map(unit => (
@@ -229,7 +235,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                 placeholder="0.00"
                                 min={0}
                                 step={0.01}
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                                 size="large"
                                 formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 parser={value => value.replace(/LKR\s?|(,*)/g, '')}
@@ -246,7 +252,7 @@ const CreateItemModal = ({visible, onClose, onCreate, loading = false}) => {
                                 placeholder="0.00"
                                 min={0}
                                 step={0.01}
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                                 size="large"
                                 formatter={value => `LKR ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 parser={value => value.replace(/LKR\s?|(,*)/g, '')}

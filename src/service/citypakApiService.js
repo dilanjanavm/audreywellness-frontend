@@ -16,19 +16,13 @@ import axios from "axios";
  * - Base URL: https://m.citypak.lk
  */
 
-// Environment Configuration
+// Live Environment Credentials
 const CITYPAK_CONFIG = {
   accountNumber: "7259",
   username: "rumesh_2@audreycare.co",
   password: "ACse@#19746",
   apiToken: "135-8f2028d1-01a2-4970-a7f0-3cde42941fbd",
-  // Environment URLs
-  stagingUrl: "https://staging.citypak.lk",
-  productionUrl: "https://falcon.citypak.lk",
-  // Use production by default, can be changed via environment variable
-  baseUrl: process.env.REACT_APP_CITYPAK_ENV === 'staging' 
-    ? "https://staging.citypak.lk" 
-    : "https://falcon.citypak.lk",
+  baseUrl: "https://falcon.citypak.lk", // Live environment
   timeout: 30000,
 };
 
@@ -73,7 +67,7 @@ const makeCitypakRequest = async (method, endpoint, data = null, customHeaders =
     };
   } catch (error) {
     console.error("Citypak API Error:", error);
-    
+
     if (error.response) {
       // Server responded with error status
       return {
@@ -102,8 +96,7 @@ const makeCitypakRequest = async (method, endpoint, data = null, customHeaders =
 
 /**
  * Track order by tracking number
- * Uses the new Citypak API endpoint: customer_api/v1/track?tracking_number={tracking_number}
- * @param {String} trackingNumber - Tracking number (e.g., D00008977)
+ * @param {String} trackingNumber - Tracking number (e.g., D00008987)
  * @returns {Promise}
  */
 export const trackOrder = async (trackingNumber) => {
@@ -114,36 +107,66 @@ export const trackOrder = async (trackingNumber) => {
     };
   }
 
-  // New API endpoint format: customer_api/v1/track?tracking_number={tracking_number}
+  // Official Endpoint: customer_api/v1/track?tracking_number={tracking_number}
   const endpoint = `/customer_api/v1/track?tracking_number=${encodeURIComponent(trackingNumber.trim())}`;
-  
+
   const result = await makeCitypakRequest("GET", endpoint);
-  
+
   // Transform response to match expected format
   if (result.success && result.data) {
-    // Handle new API response format: { is_success: true, data: { tracking_number, reference, is_delivered, receiver_name } }
+    // API Response: { is_success: true, data: { ... } }
     if (result.data.is_success && result.data.data) {
       const apiData = result.data.data;
       return {
         success: true,
         data: {
-          // Map to camelCase for consistency with frontend
-          trackingNumber: apiData.tracking_number || apiData.trackingNumber,
-          reference: apiData.reference || null,
-          isDelivered: apiData.is_delivered || apiData.isDelivered || false,
-          receiverName: apiData.receiver_name || apiData.receiverName || null,
-          // Also include snake_case for backward compatibility
-          tracking_number: apiData.tracking_number || apiData.trackingNumber,
-          is_delivered: apiData.is_delivered || apiData.isDelivered || false,
-          receiver_name: apiData.receiver_name || apiData.receiverName || null,
+          trackingNumber: apiData.tracking_number,
+          reference: apiData.reference,
+          // API returns is_delivered: true/false
+          isDelivered: apiData.is_delivered,
+          receiverName: apiData.receiver_name,
+          receiverNic: apiData.receiver_nic,
+          podImageUrl: apiData.pod_image_url,
+          trackingHistory: apiData.tracking_history || [],
+          // Keep raw data accessible
+          ...apiData
         },
         status: result.status,
       };
     }
-    // If response is already in expected format, return as is
+
+    // Handle "success" property as per user's actual response
+    if (result.data.success && result.data.data) {
+      const apiData = result.data.data;
+      return {
+        success: true,
+        data: {
+          trackingNumber: apiData.tracking_number,
+          reference: apiData.reference,
+          isDelivered: apiData.is_delivered,
+          receiverName: apiData.receiver_name,
+          receiverNic: apiData.receiver_nic,
+          podImageUrl: apiData.pod_image_url,
+          trackingHistory: apiData.tracking_history || [],
+          ...apiData
+        },
+        status: result.status,
+      };
+    }
+
+    // Handle "Failed Response" structure from docs: { success: false, message: "...", data: [...] }
+    if (result.data.success === false) {
+      return {
+        success: false,
+        message: result.data.message || "Invalid Tracking Number",
+        status: result.status
+      };
+    }
+
+    // If response is already in expected format (fallback)
     return result;
   }
-  
+
   return result;
 };
 
@@ -160,24 +183,9 @@ export const createOrder = async (orderData) => {
     };
   }
 
-  const endpoints = [
-    `/api/orders`,
-    `/api/v1/orders`,
-    `/orders`,
-  ];
-
-  for (const endpoint of endpoints) {
-    try {
-      const result = await makeCitypakRequest("POST", endpoint, orderData);
-      if (result.success && result.data) {
-        return result;
-      }
-    } catch (err) {
-      continue;
-    }
-  }
-
-  return await makeCitypakRequest("POST", `/api/orders`, orderData);
+  // Official Endpoint: customer_api/v1/orders
+  const endpoint = `/customer_api/v1/orders`;
+  return await makeCitypakRequest("POST", endpoint, orderData);
 };
 
 /**
@@ -210,7 +218,7 @@ export const getOrderById = async (orderId) => {
     }
   }
 
-  return await makeCitypakRequest("GET", `/api/orders/${orderId}`);
+  return await makeCitypakRequest("GET", `/customer_api/v1/orders/${orderId}`);
 };
 
 /**
@@ -242,7 +250,7 @@ export const getAllOrders = async (filters = {}) => {
     }
   }
 
-  return await makeCitypakRequest("GET", `/api/orders${queryString}`);
+  return await makeCitypakRequest("GET", `/customer_api/v1/orders${queryString}`);
 };
 
 /**
@@ -260,10 +268,10 @@ export const printWaybill = async (orderId, pageSize = "A4") => {
   }
 
   try {
-    const endpoint = `/api/orders/${orderId}/waybill?page_size=${pageSize}`;
+    const endpoint = `/customer_api/v1/orders/${orderId}/waybills?page_size=${pageSize}`;
     const url = `${CITYPAK_CONFIG.baseUrl}${endpoint}`;
     const headers = getAuthHeaders();
-    
+
     // Remove Content-Type for blob response
     delete headers["Content-Type"];
 
@@ -301,77 +309,13 @@ export const printWaybill = async (orderId, pageSize = "A4") => {
 
 /**
  * Public tracking endpoint (no authentication required)
- * Uses the new Citypak API endpoint: customer_api/v1/track?tracking_number={tracking_number}
- * Note: This endpoint may still require authentication. If public access is needed,
- * the endpoint might be different or authentication might be optional.
  * @param {String} trackingNumber - Tracking number
  * @returns {Promise}
  */
 export const trackOrderPublic = async (trackingNumber) => {
-  if (!trackingNumber || !trackingNumber.trim()) {
-    return {
-      success: false,
-      message: "Tracking number is required",
-    };
-  }
-
-  // Try public endpoint first (no auth headers)
-  try {
-    const endpoint = `/customer_api/v1/track?tracking_number=${encodeURIComponent(trackingNumber.trim())}`;
-    const url = `${CITYPAK_CONFIG.baseUrl}${endpoint}`;
-    
-    const response = await axios({
-      method: "GET",
-      url: url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      timeout: CITYPAK_CONFIG.timeout,
-    });
-
-    if (response.data) {
-      // Handle new API response format: { success: true, message: "...", data: {...} }
-      if (response.data.success && response.data.data) {
-        return {
-          success: true,
-          data: response.data.data, // Return the data object directly for transformation
-          message: response.data.message,
-          status: response.status,
-        };
-      }
-      
-      // Handle API response format with is_success
-      if (response.data.is_success && response.data.data) {
-        const apiData = response.data.data;
-        return {
-          success: true,
-          data: {
-            // Map to camelCase for consistency with frontend
-            trackingNumber: apiData.tracking_number || apiData.trackingNumber,
-            reference: apiData.reference || null,
-            isDelivered: apiData.is_delivered || apiData.isDelivered || false,
-            receiverName: apiData.receiver_name || apiData.receiverName || null,
-            // Also include snake_case for backward compatibility
-            tracking_number: apiData.tracking_number || apiData.trackingNumber,
-            is_delivered: apiData.is_delivered || apiData.isDelivered || false,
-            receiver_name: apiData.receiver_name || apiData.receiverName || null,
-          },
-          status: response.status,
-        };
-      }
-      
-      return {
-        success: true,
-        data: response.data,
-        status: response.status,
-      };
-    }
-  } catch (err) {
-    // If public endpoint fails, try authenticated endpoint
-    console.log("Public tracking failed, trying authenticated endpoint...");
-  }
-
-  // Fallback to authenticated endpoint
+  // The API requires authentication/API Key for all requests.
+  // "Public" in this context means the user of the website doesn't need to login to OUR system,
+  // but we still use the configured API Token to talk to Citypak.
   return await trackOrder(trackingNumber);
 };
 

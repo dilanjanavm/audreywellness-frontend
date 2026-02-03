@@ -12,8 +12,8 @@ import {
     Alert,
 } from "reactstrap";
 import ParticlesAuth from "../AuthenticationInner/ParticlesAuth";
-import { Link } from "react-router-dom";
-import { Tag, Space, Card as AntCard, Badge, Divider, Row as AntRow, Col as AntCol, Descriptions, Typography } from "antd";
+import { Link, useLocation } from "react-router-dom";
+import { Tag, Space, Card as AntCard, Badge, Divider, Row as AntRow, Col as AntCol, Descriptions, Typography, Collapse, Steps } from "antd";
 import {
     CheckCircleOutlined,
     ClockCircleOutlined,
@@ -39,6 +39,44 @@ const ComplaintStatus = () => {
     const [complaintData, setComplaintData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const location = useLocation();
+
+    // Auto-track if complaint number is provided in navigation state
+    React.useEffect(() => {
+        if (location.state?.complaintNumber) {
+            setComplaintNumber(location.state.complaintNumber);
+            // We need to call the API, but handleTrackComplaint expects an event
+            // So we'll extract the logic or just call the service directly
+            const fetchStatus = async () => {
+                setLoading(true);
+                setError(null);
+                setComplaintData(null);
+                try {
+                    const resp = await complaintService.getPublicComplaintStatus(location.state.complaintNumber);
+                    if (resp?.data?.data || resp?.data) {
+                        const data = resp.data?.data || resp.data;
+                        setComplaintData(data);
+                        setError(null);
+                    } else {
+                        setError(resp?.message || "Complaint not found. Please check your complaint number.");
+                        setComplaintData(null);
+                    }
+                } catch (err) {
+                    console.error("Tracking error:", err);
+                    setError(
+                        err?.response?.data?.message ||
+                        err?.message ||
+                        "Failed to track complaint. Please try again."
+                    );
+                    setComplaintData(null);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchStatus();
+        }
+    }, [location.state]);
 
     const handleTrackComplaint = async (e) => {
         e.preventDefault();
@@ -237,7 +275,7 @@ const ComplaintStatus = () => {
                                                         <span>Subject</span>
                                                     </Space>
                                                 }>
-                                                    <Text strong>{complaintData.subject || complaintData.title || 'N/A'}</Text>
+                                                    <Text strong>{complaintData.headline || complaintData.subject || complaintData.title || 'N/A'}</Text>
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label={
                                                     <Space>
@@ -245,7 +283,7 @@ const ComplaintStatus = () => {
                                                         <span>Type</span>
                                                     </Space>
                                                 }>
-                                                    <Tag color="cyan">{complaintData.type || 'General'}</Tag>
+                                                    <Tag color="cyan">{complaintData.category || complaintData.type || 'General'}</Tag>
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label={
                                                     <Space>
@@ -273,15 +311,16 @@ const ComplaintStatus = () => {
                                                             Description
                                                         </Space>
                                                     </h5>
-                                                    <div style={{ backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '8px', color: '#595959' }}>
-                                                        {complaintData.description}
-                                                    </div>
+                                                    <div
+                                                        style={{ backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '8px', color: '#595959' }}
+                                                        dangerouslySetInnerHTML={{ __html: complaintData.description }}
+                                                    />
                                                 </div>
                                             )}
                                         </AntCard>
 
                                         {/* Customer Information Card */}
-                                        {(complaintData.customerName || complaintData.customerEmail || complaintData.customerMobile) && (
+                                        {complaintData.customer && (
                                             <AntCard
                                                 className="tracking-summary-card"
                                                 style={{ borderRadius: '12px', border: 'none', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
@@ -294,24 +333,34 @@ const ComplaintStatus = () => {
                                                 </div>
 
                                                 <Descriptions column={1} size="small" colon={false}>
-                                                    {complaintData.customerName && (
+                                                    {complaintData.customer.name && (
                                                         <Descriptions.Item label={
                                                             <Space>
                                                                 <UserOutlined />
                                                                 <span>Name</span>
                                                             </Space>
                                                         }>
-                                                            <Text strong>{complaintData.customerName}</Text>
+                                                            <Text strong>{complaintData.customer.name}</Text>
                                                         </Descriptions.Item>
                                                     )}
-                                                    {complaintData.customerMobile && (
+                                                    {complaintData.customer.phone && (
                                                         <Descriptions.Item label={
                                                             <Space>
                                                                 <PhoneOutlined />
                                                                 <span>Mobile</span>
                                                             </Space>
                                                         }>
-                                                            <Text strong>{complaintData.customerMobile}</Text>
+                                                            <Text strong>{complaintData.customer.phone}</Text>
+                                                        </Descriptions.Item>
+                                                    )}
+                                                    {complaintData.customer.branchName && (
+                                                        <Descriptions.Item label={
+                                                            <Space>
+                                                                <ShoppingOutlined />
+                                                                <span>Branch</span>
+                                                            </Space>
+                                                        }>
+                                                            <Text strong>{complaintData.customer.branchName}</Text>
                                                         </Descriptions.Item>
                                                     )}
                                                 </Descriptions>
@@ -322,48 +371,68 @@ const ComplaintStatus = () => {
                                         <AntCard
                                             className="tracking-timeline-card"
                                             style={{ borderRadius: '12px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                                            bodyStyle={{ padding: '0px' }}
                                         >
-                                            <div className="mb-3">
-                                                <h5 style={{ fontWeight: 600, color: '#262626', fontSize: '18px' }}>
-                                                    <ClockCircleOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-                                                    Current Status
-                                                </h5>
-                                            </div>
-
-                                            <div style={{ padding: '16px 0' }}>
-                                                <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                        <div style={{
-                                                            width: '12px',
-                                                            height: '12px',
-                                                            borderRadius: '50%',
-                                                            backgroundColor: getStatusColor(complaintData.status),
-                                                            border: '2px solid #fff',
-                                                            boxShadow: `0 0 0 2px ${getStatusColor(complaintData.status)}`
-                                                        }} />
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                                                <Text strong style={{ fontSize: '16px' }}>
-                                                                    {getStatusLabel(complaintData.status)}
-                                                                </Text>
-                                                                <Tag color={getStatusColor(complaintData.status)}>
-                                                                    {complaintData.status}
-                                                                </Tag>
-                                                            </div>
-                                                            <Text type="secondary" style={{ fontSize: '13px' }}>
-                                                                Latest Update
-                                                            </Text>
+                                            <Collapse
+                                                defaultActiveKey={['1']}
+                                                ghost
+                                                expandIconPosition="end"
+                                                style={{ backgroundColor: 'white', borderRadius: '12px' }}
+                                            >
+                                                <Collapse.Panel
+                                                    header={
+                                                        <div className="d-flex align-items-center">
+                                                            <ClockCircleOutlined style={{ marginRight: 10, color: '#1890ff', fontSize: '18px' }} />
+                                                            <span style={{ fontWeight: 600, fontSize: '16px', color: '#262626' }}>Complaint Timeline</span>
                                                         </div>
-                                                        <div style={{ textAlign: 'right' }}>
-                                                            {complaintData.updatedAt && (
-                                                                <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                                    {dayjs(complaintData.updatedAt).format('MMM DD, YYYY')}
-                                                                </Text>
-                                                            )}
-                                                        </div>
+                                                    }
+                                                    key="1"
+                                                >
+                                                    <div style={{ padding: '0 24px 24px 24px' }}>
+                                                        <Steps
+                                                            direction="vertical"
+                                                            current={0}
+                                                            items={complaintData.timelineEntries?.map((entry) => ({
+                                                                title: (
+                                                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                        <Text strong style={{ textTransform: 'capitalize' }}>
+                                                                            {entry.entryType?.replace(/_/g, ' ')}
+                                                                        </Text>
+                                                                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                                                                            {dayjs(entry.createdAt).format('MMM DD, YYYY h:mm A')}
+                                                                        </Text>
+                                                                    </div>
+                                                                ),
+                                                                description: (
+                                                                    <div>
+                                                                        <div className="text-secondary mb-1">{entry.description}</div>
+                                                                        {entry.createdBy?.email && (
+                                                                            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                                                                                Updated by: {entry.createdBy.email}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ),
+                                                                status: 'finish',
+                                                                icon: (
+                                                                    <div style={{
+                                                                        marginTop: '4px',
+                                                                        backgroundColor: '#e6f7ff',
+                                                                        padding: '4px',
+                                                                        borderRadius: '50%',
+                                                                        border: '1px solid #91d5ff'
+                                                                    }}>
+                                                                        {entry.entryType === 'status_change' ? <CheckCircleOutlined style={{ color: '#1890ff' }} /> :
+                                                                            entry.entryType === 'note_added' ? <FileTextOutlined style={{ color: '#1890ff' }} /> :
+                                                                                entry.entryType === 'sms_sent' ? <MessageOutlined style={{ color: '#1890ff' }} /> :
+                                                                                    <ClockCircleOutlined style={{ color: '#1890ff' }} />}
+                                                                    </div>
+                                                                )
+                                                            })) || []}
+                                                        />
                                                     </div>
-                                                </Space>
-                                            </div>
+                                                </Collapse.Panel>
+                                            </Collapse>
                                         </AntCard>
                                     </div>
                                 )}

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "reactstrap";
-import { 
-  Statistic, 
-  Card as AntCard, 
-  Table, 
-  Tag, 
-  Button, 
+import {
+  Statistic,
+  Card as AntCard,
+  Table,
+  Tag,
+  Button,
   Space,
   Alert,
   Progress,
   Empty,
   Row,
-  Col
+  Col,
+  Divider,
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -27,8 +28,10 @@ import {
   EyeOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { Input as AntInput } from 'antd';
 import CountUp from "react-countup";
 import Chart from "react-apexcharts";
 import moment from "moment";
@@ -74,6 +77,23 @@ const DashboardEcommerce = () => {
     series: [],
   });
 
+  // Tracking Widget State
+  const [trackOrderNumber, setTrackOrderNumber] = useState("");
+  const [trackComplaintNumber, setTrackComplaintNumber] = useState("");
+
+  const handleTrackOrder = () => {
+    if (trackOrderNumber.trim()) {
+      navigate("/track-your-order", { state: { orderNumber: trackOrderNumber.trim() } });
+    }
+  };
+
+  const handleTrackComplaint = () => {
+    if (trackComplaintNumber.trim()) {
+      // NOTE: User requested route /DDx for complaint status
+      navigate("/DDx", { state: { complaintNumber: trackComplaintNumber.trim() } });
+    }
+  };
+
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -108,7 +128,7 @@ const DashboardEcommerce = () => {
         const pendingOrders = orders.filter(
           (o) => o.status === "pending" || o.status === "processing"
         ).length;
-        
+
         // Calculate revenue
         const revenue = orders.reduce((sum, order) => {
           return sum + (parseFloat(order.netTotal) || 0);
@@ -183,10 +203,10 @@ const DashboardEcommerce = () => {
     try {
       const response = await complaintService.getAllComplaints({ limit: 5 });
       if (response?.success !== false && response?.data) {
-        const complaints = Array.isArray(response.data) 
-          ? response.data 
+        const complaints = Array.isArray(response.data)
+          ? response.data
           : (response.data.complaints || response.data.data || []);
-        
+
         const openComplaints = complaints.filter(
           (c) => c.status === "open" || c.status === "in_progress"
         ).length;
@@ -217,14 +237,14 @@ const DashboardEcommerce = () => {
       if (response?.success !== false && response?.data) {
         const phases = Array.isArray(response.data) ? response.data : [];
         let allTasks = [];
-        
+
         // Extract tasks from all phases
         phases.forEach((phase) => {
           if (phase.tasks && Array.isArray(phase.tasks)) {
             allTasks = [...allTasks, ...phase.tasks];
           }
         });
-        
+
         const taskStats = {
           pending: allTasks.filter((t) => t.status === "pending").length,
           inProgress: allTasks.filter((t) => t.status === "ongoing" || t.status === "in_progress").length,
@@ -265,7 +285,7 @@ const DashboardEcommerce = () => {
         // Generate revenue chart data (last 7 days)
         const payments = response.data.records || [];
         const revenueByDay = {};
-        
+
         payments.forEach((payment) => {
           const date = moment(payment.createdAt || payment.created_at).format("MMM DD");
           revenueByDay[date] = (revenueByDay[date] || 0) + (parseFloat(payment.amount) || 0);
@@ -682,6 +702,36 @@ const DashboardEcommerce = () => {
                   >
                     View All Orders
                   </Button>
+                </Space>
+
+                <Divider style={{ margin: '24px 0' }} />
+
+                <h5 className="mb-3">Quick Track</h5>
+                <Space direction="vertical" style={{ width: "100%" }} size="middle">
+                  <div>
+                    <label className="text-muted mb-1 small">Track Order</label>
+                    <AntInput.Search
+                      placeholder="Enter Order #"
+                      allowClear
+                      enterButton={<Button type="primary" icon={<SearchOutlined />} />}
+                      size="large"
+                      value={trackOrderNumber}
+                      onChange={(e) => setTrackOrderNumber(e.target.value)}
+                      onSearch={handleTrackOrder}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-muted mb-1 small">Track Complaint</label>
+                    <AntInput.Search
+                      placeholder="Enter Complaint #"
+                      allowClear
+                      enterButton={<Button type="primary" style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }} icon={<SearchOutlined />} />}
+                      size="large"
+                      value={trackComplaintNumber}
+                      onChange={(e) => setTrackComplaintNumber(e.target.value)}
+                      onSearch={handleTrackComplaint}
+                    />
+                  </div>
                 </Space>
               </AntCard>
             </Col>
