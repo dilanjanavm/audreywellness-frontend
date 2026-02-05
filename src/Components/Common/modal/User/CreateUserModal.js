@@ -181,7 +181,11 @@ const CreateUserModal = ({
 
                     {/* Role */}
                     <Col span={8}>
-                        <Form.Item label="Role" name="roleId">
+                        <Form.Item
+                            label="Role"
+                            name="roleId"
+                            rules={[{ required: true, message: "Please select a role" }]}
+                        >
                             <Select
                                 placeholder="Select role"
                                 size="large"
